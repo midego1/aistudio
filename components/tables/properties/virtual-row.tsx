@@ -36,11 +36,17 @@ function VirtualRowInner<TData>({
       } as CSSProperties}
     >
       {cells.map((cell) => {
-        const cellStyle: CSSProperties = {
-          width: cell.column.getSize(),
-          minWidth: cell.column.columnDef.minSize,
-          maxWidth: cell.column.columnDef.maxSize,
-        }
+        const isFlexColumn = cell.column.id === "address"
+        const cellStyle: CSSProperties = isFlexColumn
+          ? {
+              flex: 1,
+              minWidth: cell.column.columnDef.minSize,
+            }
+          : {
+              width: cell.column.getSize(),
+              minWidth: cell.column.columnDef.minSize,
+              maxWidth: cell.column.columnDef.maxSize,
+            }
 
         return (
           <TableCell

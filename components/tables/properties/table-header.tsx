@@ -74,16 +74,22 @@ export function DataTableHeader({
   return (
     <TableHeader>
       <TableRow className="flex hover:bg-transparent">
-        {columnConfigs.map((column) => (
-          <TableHead
-            key={column.id}
-            className="flex items-center"
-            style={{
-              width: column.width,
-              minWidth: column.minWidth,
-              maxWidth: column.maxWidth,
-            }}
-          >
+        {columnConfigs.map((column) => {
+          const isFlexColumn = column.id === "address"
+          return (
+            <TableHead
+              key={column.id}
+              className="flex items-center"
+              style={
+                isFlexColumn
+                  ? { flex: 1, minWidth: column.minWidth }
+                  : {
+                      width: column.width,
+                      minWidth: column.minWidth,
+                      maxWidth: column.maxWidth,
+                    }
+              }
+            >
             {column.sortField ? (
               <SortButton
                 label={column.label}
@@ -98,8 +104,9 @@ export function DataTableHeader({
             ) : (
               <span className="font-medium text-muted-foreground">{column.label}</span>
             )}
-          </TableHead>
-        ))}
+            </TableHead>
+          )
+        })}
       </TableRow>
     </TableHeader>
   )
