@@ -15,4 +15,6 @@ export {
   retryImageProcessing,
   updateImageStatus,
   regenerateImage,
+  triggerInpaintTask,
+  type ImageWithRunId,
 } from "./images"

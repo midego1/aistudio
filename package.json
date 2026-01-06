@@ -11,7 +11,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "email": "email dev --dir emails"
+    "email": "email dev --dir emails",
+    "trigger": "pnpm dlx trigger.dev@latest dev"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
@@ -22,6 +23,8 @@
     "@tabler/icons-react": "^3.36.1",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.16",
+    "@trigger.dev/react-hooks": "^4.3.1",
+    "@trigger.dev/sdk": "4.3.1",
     "@types/archiver": "^7.0.0",
     "archiver": "^7.0.1",
     "better-auth": "^1.4.10",
@@ -50,6 +53,7 @@
   "devDependencies": {
     "@react-email/preview-server": "5.1.1",
     "@tailwindcss/postcss": "^4",
+    "@trigger.dev/build": "4.3.1",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",
     "@types/react": "^19",

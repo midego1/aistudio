@@ -279,9 +279,11 @@ export function ImageMaskEditor({ image, latestVersion, onClose }: ImageMaskEdit
     editMode: EditMode,
     replaceNewerVersions: boolean
   ) => {
-    const success = await inpaint(image.id, maskDataUrl, prompt, editMode, replaceNewerVersions)
+    const result = await inpaint(image.id, maskDataUrl, prompt, editMode, replaceNewerVersions)
 
-    if (success) {
+    if (result.success) {
+      // The task is now running in the background
+      // Close the editor and let the project detail page poll/track progress
       router.refresh()
       onClose()
     }

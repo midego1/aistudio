@@ -43,6 +43,8 @@ import { AddImagesDialog } from "./add-images-dialog"
 import { ImageMaskEditor } from "./image-mask-editor"
 import { retryImageProcessing, deleteSelectedImages } from "@/lib/actions"
 import { toast } from "sonner"
+import { useRealtimeRun } from "@trigger.dev/react-hooks"
+import type { processImageTask } from "@/trigger/process-image"
 
 const statusConfig: Record<
   ProjectStatus,
@@ -80,6 +82,31 @@ interface ImageGroup {
   latestVersion: ImageGeneration
 }
 
+// Component to show realtime processing status
+function RealtimeProcessingLabel({
+  runId,
+  accessToken,
+  fallback = "Enhancing\u2026",
+}: {
+  runId?: string
+  accessToken?: string | null
+  fallback?: string
+}) {
+  const { run } = useRealtimeRun<typeof processImageTask>(runId ?? "", {
+    accessToken: accessToken ?? "",
+    enabled: !!runId && !!accessToken,
+  })
+
+  if (!runId || !accessToken) {
+    return <span className="text-sm font-medium text-white">{fallback}</span>
+  }
+
+  const status = run?.metadata?.status as { label?: string } | undefined
+  const label = status?.label || fallback
+
+  return <span className="text-sm font-medium text-white">{label}</span>
+}
+
 function ImageCard({
   image,
   index,
@@ -92,6 +119,8 @@ function ImageCard({
   isSelected,
   versionCount,
   onVersionClick,
+  runId,
+  accessToken,
 }: {
   image: ImageGeneration
   index: number
@@ -104,6 +133,8 @@ function ImageCard({
   isSelected: boolean
   versionCount?: number
   onVersionClick?: () => void
+  runId?: string
+  accessToken?: string | null
 }) {
   const isCompleted = image.status === "completed"
   const displayUrl = isCompleted && image.resultImageUrl ? image.resultImageUrl : image.originalImageUrl
@@ -145,7 +176,11 @@ function ImageCard({
                   <div className="h-12 w-12 rounded-full border-2 border-white/20" />
                   <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-transparent border-t-white" />
                 </div>
-                <span className="text-sm font-medium text-white">Enhancing…</span>
+                <RealtimeProcessingLabel
+                  runId={runId}
+                  accessToken={accessToken}
+                  fallback="Enhancing\u2026"
+                />
               </div>
             ) : image.status === "pending" ? (
               <div className="flex flex-col items-center gap-2">
@@ -613,6 +648,10 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
   const [selectedImageIds, setSelectedImageIds] = React.useState<Set<string>>(new Set())
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
 
+  // Real-time run tracking for processing images
+  const [runIds, setRunIds] = React.useState<Map<string, string>>(new Map()) // imageId -> runId
+  const [accessToken, setAccessToken] = React.useState<string | null>(null)
+
   const template = getTemplateById(project.styleTemplateId)
   const status = statusConfig[project.status as ProjectStatus] || statusConfig.pending
   const completedImages = images.filter((img) => img.status === "completed")
@@ -662,7 +701,9 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
     setRetryingImageId(imageId)
     try {
       const result = await retryImageProcessing(imageId)
-      if (result.success) {
+      if (result.success && result.data.runId) {
+        // Store the run ID for real-time tracking
+        setRunIds((prev) => new Map(prev).set(imageId, result.data.runId!))
         router.refresh()
       }
     } catch (error) {
@@ -767,7 +808,30 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
     }
   }
 
-  // Polling for processing images
+  // Fetch access token when we have run IDs to track
+  React.useEffect(() => {
+    if (runIds.size === 0) return
+
+    const fetchToken = async () => {
+      try {
+        const response = await fetch("/api/trigger-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ runIds: Array.from(runIds.values()) }),
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setAccessToken(data.token)
+        }
+      } catch (error) {
+        console.error("Failed to fetch access token:", error)
+      }
+    }
+
+    fetchToken()
+  }, [runIds])
+
+  // Polling for processing images (fallback when we don't have realtime)
   React.useEffect(() => {
     const processingImages = images.filter(
       (img) => img.status === "processing" || img.status === "pending"
@@ -775,12 +839,15 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
 
     if (processingImages.length === 0) return
 
+    // Poll less frequently if we have realtime tracking
+    const pollInterval = runIds.size > 0 ? 10000 : 5000
+
     const interval = setInterval(() => {
       router.refresh()
-    }, 5000) // Poll every 5 seconds
+    }, pollInterval)
 
     return () => clearInterval(interval)
-  }, [images, router])
+  }, [images, router, runIds.size])
 
   // Keyboard shortcuts
   React.useEffect(() => {
@@ -1021,6 +1088,8 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
                       setVersionSelectorGroup(group)
                     }
                   }}
+                  runId={runIds.get(group.latestVersion.id)}
+                  accessToken={accessToken}
                 />
               ))}
             </div>

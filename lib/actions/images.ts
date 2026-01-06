@@ -26,6 +26,8 @@ import {
   getPublicUrl,
 } from "@/lib/supabase"
 import { getTemplateById, generatePrompt } from "@/lib/style-templates"
+import { processImageTask } from "@/trigger/process-image"
+import { inpaintImageTask, type EditMode } from "@/trigger/inpaint-image"
 
 export type ActionResult<T> = {
   success: true
@@ -99,11 +101,14 @@ export async function createSignedUploadUrls(
   }
 }
 
+// Extended type for images with run IDs
+export type ImageWithRunId = ImageGeneration & { runId?: string }
+
 // Record images in database after client-side upload completes
 export async function recordUploadedImages(
   projectId: string,
   images: { imageId: string; path: string; fileName: string; fileSize: number; contentType: string; roomType?: string | null }[]
-): Promise<ActionResult<ImageGeneration[]>> {
+): Promise<ActionResult<ImageWithRunId[]>> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -138,7 +143,7 @@ export async function recordUploadedImages(
   }
 
   try {
-    const uploadedImages: ImageGeneration[] = []
+    const uploadedImages: ImageWithRunId[] = []
 
     for (const image of images) {
       const publicUrl = getPublicUrl(image.path)
@@ -180,20 +185,16 @@ export async function recordUploadedImages(
     // Update project counts
     await updateProjectCounts(projectId)
 
-    // Trigger image processing for each uploaded image (fire-and-forget)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    // Trigger image processing using Trigger.dev tasks
     for (const image of uploadedImages) {
       // Update status to processing
       await updateImageGeneration(image.id, { status: "processing" })
 
-      // Fire-and-forget: trigger processing API
-      fetch(`${baseUrl}/api/process-image`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageId: image.id }),
-      }).catch((err) => {
-        console.error(`Failed to trigger processing for image ${image.id}:`, err)
-      })
+      // Trigger the background task
+      const handle = await processImageTask.trigger({ imageId: image.id })
+
+      // Store run ID for real-time subscription
+      image.runId = handle.id
     }
 
     revalidatePath("/dashboard")
@@ -382,7 +383,7 @@ export async function deleteSelectedImages(
 // Retry failed image processing
 export async function retryImageProcessing(
   imageId: string
-): Promise<ActionResult<ImageGeneration>> {
+): Promise<ActionResult<ImageWithRunId>> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -413,9 +414,9 @@ export async function retryImageProcessing(
   }
 
   try {
-    // Reset status to pending for retry
+    // Reset status to processing for retry
     const updated = await updateImageGeneration(imageId, {
-      status: "pending",
+      status: "processing",
       errorMessage: null,
     })
 
@@ -423,13 +424,16 @@ export async function retryImageProcessing(
       return { success: false, error: "Failed to update image" }
     }
 
+    // Trigger the background task
+    const handle = await processImageTask.trigger({ imageId })
+
     // Update project counts
     await updateProjectCounts(image.projectId)
 
     revalidatePath("/dashboard")
     revalidatePath(`/dashboard/${image.projectId}`)
 
-    return { success: true, data: updated }
+    return { success: true, data: { ...updated, runId: handle.id } }
   } catch (error) {
     console.error("Failed to retry image:", error)
     return { success: false, error: "Failed to retry image" }
@@ -476,7 +480,7 @@ export async function updateImageStatus(
 export async function regenerateImage(
   imageId: string,
   newTemplateId?: string
-): Promise<ActionResult<ImageGeneration>> {
+): Promise<ActionResult<ImageWithRunId>> {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -518,9 +522,9 @@ export async function regenerateImage(
   const prompt = generatePrompt(template, roomType)
 
   try {
-    // Reset status to pending and update prompt if using new template
+    // Reset status to processing and update prompt if using new template
     const updated = await updateImageGeneration(imageId, {
-      status: "pending",
+      status: "processing",
       prompt,
       errorMessage: null,
       resultImageUrl: null,
@@ -536,17 +540,8 @@ export async function regenerateImage(
       return { success: false, error: "Failed to update image" }
     }
 
-    // Trigger processing
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-    await updateImageGeneration(imageId, { status: "processing" })
-
-    fetch(`${baseUrl}/api/process-image`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageId }),
-    }).catch((err) => {
-      console.error(`Failed to trigger processing for image ${imageId}:`, err)
-    })
+    // Trigger the background task
+    const handle = await processImageTask.trigger({ imageId })
 
     // Update project counts
     await updateProjectCounts(image.projectId)
@@ -554,10 +549,68 @@ export async function regenerateImage(
     revalidatePath("/dashboard")
     revalidatePath(`/dashboard/${image.projectId}`)
 
-    return { success: true, data: updated }
+    return { success: true, data: { ...updated, runId: handle.id } }
   } catch (error) {
     console.error("Failed to regenerate image:", error)
     return { success: false, error: "Failed to regenerate image" }
+  }
+}
+
+// Trigger inpainting task for image editing
+export async function triggerInpaintTask(
+  imageId: string,
+  prompt: string,
+  mode: EditMode,
+  maskDataUrl?: string,
+  replaceNewerVersions?: boolean
+): Promise<ActionResult<{ runId: string }>> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session) {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  // Get user's workspace
+  const currentUser = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, session.user.id))
+    .limit(1)
+
+  if (!currentUser[0]?.workspaceId) {
+    return { success: false, error: "Workspace not found" }
+  }
+
+  // Get image record
+  const image = await getImageGenerationById(imageId)
+  if (!image || image.workspaceId !== currentUser[0].workspaceId) {
+    return { success: false, error: "Image not found" }
+  }
+
+  // Mask is required for remove mode
+  if (mode === "remove" && !maskDataUrl) {
+    return { success: false, error: "Mask is required for remove mode" }
+  }
+
+  try {
+    // Trigger the background task
+    const handle = await inpaintImageTask.trigger({
+      imageId,
+      prompt,
+      mode,
+      maskDataUrl,
+      replaceNewerVersions: replaceNewerVersions ?? false,
+    })
+
+    revalidatePath("/dashboard")
+    revalidatePath(`/dashboard/${image.projectId}`)
+
+    return { success: true, data: { runId: handle.id } }
+  } catch (error) {
+    console.error("Failed to trigger inpaint task:", error)
+    return { success: false, error: "Failed to start edit" }
   }
 }
 
