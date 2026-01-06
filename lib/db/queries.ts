@@ -1,4 +1,4 @@
-import { eq, desc, count, and, sum } from "drizzle-orm";
+import { eq, desc, count, and, sum, gt, max, or } from "drizzle-orm";
 import { db } from "./index";
 import {
   user,
@@ -489,6 +489,52 @@ export async function getLatestImageVersion(
   const versions = await getImageVersions(imageId);
   if (versions.length === 0) return null;
   return versions[versions.length - 1];
+}
+
+// Get the highest version number for a root image
+export async function getLatestVersionNumber(
+  rootImageId: string
+): Promise<number> {
+  // Get max version from: the root image itself OR any image with this parentId
+  const [rootResult] = await db
+    .select({ version: imageGeneration.version })
+    .from(imageGeneration)
+    .where(eq(imageGeneration.id, rootImageId))
+    .limit(1);
+
+  const [childResult] = await db
+    .select({ maxVersion: max(imageGeneration.version) })
+    .from(imageGeneration)
+    .where(eq(imageGeneration.parentId, rootImageId));
+
+  const rootVersion = rootResult?.version || 1;
+  const childMaxVersion = childResult?.maxVersion || 0;
+
+  return Math.max(rootVersion, childMaxVersion);
+}
+
+// Delete all versions after a specific version number
+export async function deleteVersionsAfter(
+  rootImageId: string,
+  afterVersion: number
+): Promise<number> {
+  // Delete images where:
+  // - parentId = rootImageId AND version > afterVersion
+  // - OR id = rootImageId AND version > afterVersion (edge case for root)
+  const result = await db
+    .delete(imageGeneration)
+    .where(
+      and(
+        or(
+          eq(imageGeneration.parentId, rootImageId),
+          eq(imageGeneration.id, rootImageId)
+        ),
+        gt(imageGeneration.version, afterVersion)
+      )
+    )
+    .returning();
+
+  return result.length;
 }
 
 // Get project images grouped by root (for version display)

@@ -2,8 +2,10 @@
 
 import { useState, useCallback } from "react"
 
+type EditMode = "remove" | "add"
+
 interface UseInpaintReturn {
-  inpaint: (imageId: string, maskDataUrl: string, prompt: string) => Promise<boolean>
+  inpaint: (imageId: string, maskDataUrl: string, prompt: string, mode: EditMode, replaceNewerVersions?: boolean) => Promise<boolean>
   isProcessing: boolean
   error: string | null
   reset: () => void
@@ -21,10 +23,18 @@ export function useInpaint(): UseInpaintReturn {
   const inpaint = useCallback(async (
     imageId: string,
     maskDataUrl: string,
-    prompt: string
+    prompt: string,
+    mode: EditMode,
+    replaceNewerVersions: boolean = false
   ): Promise<boolean> => {
-    if (!imageId || !maskDataUrl || !prompt) {
+    if (!imageId || !prompt) {
       setError("Missing required fields")
+      return false
+    }
+
+    // Mask is required for remove mode, optional for add mode
+    if (mode === "remove" && !maskDataUrl) {
+      setError("Mask is required for remove mode")
       return false
     }
 
@@ -41,6 +51,8 @@ export function useInpaint(): UseInpaintReturn {
           imageId,
           maskDataUrl,
           prompt,
+          mode,
+          replaceNewerVersions,
         }),
       })
 

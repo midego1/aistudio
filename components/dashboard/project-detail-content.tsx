@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { format } from "date-fns"
 import {
   IconArrowLeft,
   IconDownload,
@@ -201,15 +202,19 @@ function ImageCard({
 
 function VersionSelector({
   versions,
-  currentVersion,
+  initialVersion,
   onSelect,
+  onEdit,
   onClose,
 }: {
   versions: ImageGeneration[]
-  currentVersion: ImageGeneration
+  initialVersion: ImageGeneration
   onSelect: (image: ImageGeneration) => void
+  onEdit: (image: ImageGeneration) => void
   onClose: () => void
 }) {
+  const [selectedVersion, setSelectedVersion] = React.useState(initialVersion)
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
       <div className="relative w-full max-w-2xl rounded-2xl bg-card p-6 shadow-xl">
@@ -223,17 +228,17 @@ function VersionSelector({
 
         <h3 className="mb-4 text-lg font-semibold">Version History</h3>
         <p className="mb-4 text-sm text-muted-foreground">
-          Click on a version to view it. Each edit creates a new version.
+          Click on a version to select it, then compare or edit.
         </p>
 
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {versions.map((version) => {
-            const isSelected = version.id === currentVersion.id
+            const isSelected = version.id === selectedVersion.id
             const displayUrl = version.resultImageUrl || version.originalImageUrl
             return (
               <button
                 key={version.id}
-                onClick={() => onSelect(version)}
+                onClick={() => setSelectedVersion(version)}
                 className={cn(
                   "group relative aspect-square overflow-hidden rounded-lg ring-2 transition-all",
                   isSelected
@@ -267,6 +272,29 @@ function VersionSelector({
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              onSelect(selectedVersion)
+              onClose()
+            }}
+            className="gap-2"
+          >
+            <IconArrowsMaximize className="h-4 w-4" />
+            Compare
+          </Button>
+          {selectedVersion.status === "completed" && (
+            <Button
+              onClick={() => {
+                onEdit(selectedVersion)
+                onClose()
+              }}
+              className="gap-2"
+            >
+              <IconPencil className="h-4 w-4" />
+              Edit v{selectedVersion.version || 1}
+            </Button>
+          )}
         </div>
       </div>
     </div>
@@ -371,6 +399,7 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
   const router = useRouter()
   const [selectedImage, setSelectedImage] = React.useState<ImageGeneration | null>(null)
   const [editingImage, setEditingImage] = React.useState<ImageGeneration | null>(null)
+  const [editingImageLatestVersion, setEditingImageLatestVersion] = React.useState<number>(1)
   const [addImagesOpen, setAddImagesOpen] = React.useState(false)
   const [retryingImageId, setRetryingImageId] = React.useState<string | null>(null)
   const [versionSelectorGroup, setVersionSelectorGroup] = React.useState<ImageGroup | null>(null)
@@ -410,6 +439,15 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
   // Count only root images (not versions) for the "add more" limit
   const rootImageCount = imageGroups.length
   const canAddMore = rootImageCount < 10
+
+  // Helper to start editing an image with version info
+  const startEditing = React.useCallback((image: ImageGeneration) => {
+    const rootId = image.parentId || image.id
+    const group = imageGroups.find(g => g.rootId === rootId)
+    const latestVersion = group ? Math.max(...group.versions.map(v => v.version || 1)) : 1
+    setEditingImage(image)
+    setEditingImageLatestVersion(latestVersion)
+  }, [imageGroups])
 
   const handleRetry = async (imageId: string) => {
     setRetryingImageId(imageId)
@@ -565,7 +603,7 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
                 Created
               </p>
               <p className="text-sm font-medium text-foreground">
-                {project.createdAt.toLocaleDateString()}
+                {format(project.createdAt, "MMM dd, yyyy")}
               </p>
             </div>
           </div>
@@ -589,7 +627,7 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
                   }}
                   onEdit={() => {
                     if (group.latestVersion.status === "completed") {
-                      setEditingImage(group.latestVersion)
+                      startEditing(group.latestVersion)
                     }
                   }}
                   onRetry={() => handleRetry(group.latestVersion.id)}
@@ -641,6 +679,7 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
       {editingImage && (
         <ImageMaskEditor
           image={editingImage}
+          latestVersion={editingImageLatestVersion}
           onClose={() => setEditingImage(null)}
         />
       )}
@@ -649,11 +688,13 @@ export function ProjectDetailContent({ project, images }: ProjectDetailContentPr
       {versionSelectorGroup && (
         <VersionSelector
           versions={versionSelectorGroup.versions}
-          currentVersion={versionSelectorGroup.latestVersion}
+          initialVersion={versionSelectorGroup.latestVersion}
           onSelect={(version) => {
-            // Update the selected image to show in comparison or edit
+            // Open comparison view for the selected version
             setSelectedImage(version)
-            setVersionSelectorGroup(null)
+          }}
+          onEdit={(version) => {
+            startEditing(version)
           }}
           onClose={() => setVersionSelectorGroup(null)}
         />

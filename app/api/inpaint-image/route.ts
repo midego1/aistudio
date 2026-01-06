@@ -1,16 +1,38 @@
 import { NextRequest, NextResponse } from "next/server"
-import { fal, FLUX_FILL_PRO, type FluxFillOutput } from "@/lib/fal"
-import { getImageGenerationById, createImageGeneration, updateProjectCounts } from "@/lib/db/queries"
+import {
+  fal,
+  FLUX_FILL_PRO,
+  NANO_BANANA_PRO_EDIT,
+  type FluxFillOutput,
+  type NanoBananaProOutput,
+} from "@/lib/fal"
+import { getImageGenerationById, createImageGeneration, updateProjectCounts, deleteVersionsAfter } from "@/lib/db/queries"
 import { uploadImage, getImagePath, getExtensionFromContentType } from "@/lib/supabase"
 import sharp from "sharp"
 
+type EditMode = "remove" | "add"
+
 export async function POST(request: NextRequest) {
   try {
-    const { imageId, maskDataUrl, prompt } = await request.json()
+    const { imageId, maskDataUrl, prompt, mode = "remove", replaceNewerVersions = false } = await request.json() as {
+      imageId: string
+      maskDataUrl?: string
+      prompt: string
+      mode?: EditMode
+      replaceNewerVersions?: boolean
+    }
 
-    if (!imageId || !maskDataUrl || !prompt) {
+    if (!imageId || !prompt) {
       return NextResponse.json(
-        { error: "Missing required fields: imageId, maskDataUrl, prompt" },
+        { error: "Missing required fields: imageId, prompt" },
+        { status: 400 }
+      )
+    }
+
+    // Mask is required for remove mode
+    if (mode === "remove" && !maskDataUrl) {
+      return NextResponse.json(
+        { error: "Mask is required for remove mode" },
         { status: 400 }
       )
     }
@@ -28,14 +50,15 @@ export async function POST(request: NextRequest) {
     const sourceImageUrl = image.resultImageUrl || image.originalImageUrl
 
     try {
-      console.log("Inpainting image:", {
+      console.log("Processing image:", {
         imageId,
         sourceImageUrl,
         prompt,
-        maskLength: maskDataUrl.length,
+        mode,
+        maskLength: maskDataUrl?.length ?? 0,
       })
 
-      // Fetch source image and get its dimensions
+      // Fetch source image
       const imageResponse = await fetch(sourceImageUrl)
       if (!imageResponse.ok) {
         throw new Error(`Failed to fetch source image: ${imageResponse.status}`)
@@ -55,48 +78,78 @@ export async function POST(request: NextRequest) {
 
       console.log("Uploaded image to Fal.ai storage:", falImageUrl)
 
-      // Convert base64 mask data URL to buffer
-      const maskBase64 = maskDataUrl.split(",")[1]
-      const maskBuffer = Buffer.from(maskBase64, "base64")
+      let resultImageUrl: string
+      let contentType: string
 
-      // Resize mask to match source image dimensions
-      const resizedMaskBuffer = await sharp(maskBuffer)
-        .resize(imageWidth, imageHeight, { fit: "fill" })
-        .png()
-        .toBuffer()
+      if (mode === "remove") {
+        // REMOVE MODE: Use FLUX Fill Pro (inpainting)
+        // Convert base64 mask data URL to buffer
+        const maskBase64 = maskDataUrl!.split(",")[1]
+        const maskBuffer = Buffer.from(maskBase64, "base64")
 
-      console.log("Resized mask to match source image dimensions")
+        // Resize mask to match source image dimensions
+        const resizedMaskBuffer = await sharp(maskBuffer)
+          .resize(imageWidth, imageHeight, { fit: "fill" })
+          .png()
+          .toBuffer()
 
-      // Upload resized mask to Fal.ai storage
-      const maskBlob = new Blob([resizedMaskBuffer], { type: "image/png" })
-      const falMaskUrl = await fal.storage.upload(
-        new File([maskBlob], "mask.png", { type: "image/png" })
-      )
+        console.log("Resized mask to match source image dimensions")
 
-      console.log("Uploaded mask to Fal.ai storage:", falMaskUrl)
+        // Upload resized mask to Fal.ai storage
+        const maskBlob = new Blob([resizedMaskBuffer], { type: "image/png" })
+        const falMaskUrl = await fal.storage.upload(
+          new File([maskBlob], "mask.png", { type: "image/png" })
+        )
 
-      // Call FLUX Fill Pro API
-      const result = await fal.subscribe(FLUX_FILL_PRO, {
-        input: {
-          image_url: falImageUrl,
-          mask_url: falMaskUrl,
-          prompt,
-          num_inference_steps: 28,
-          output_format: "jpeg",
-        },
-      }) as FluxFillOutput
+        console.log("Uploaded mask to Fal.ai storage:", falMaskUrl)
 
-      console.log("FLUX Fill result:", JSON.stringify(result, null, 2))
+        // Call FLUX Fill Pro API
+        const result = await fal.subscribe(FLUX_FILL_PRO, {
+          input: {
+            image_url: falImageUrl,
+            mask_url: falMaskUrl,
+            prompt,
+            num_inference_steps: 28,
+            output_format: "jpeg",
+          },
+        }) as FluxFillOutput
 
-      // Check for result - handle both direct and wrapped response
-      const output = (result as { data?: FluxFillOutput }).data || result
-      if (!output.images?.[0]?.url) {
-        console.error("No images in response. Full result:", result)
-        throw new Error("No image returned from FLUX Fill")
+        console.log("FLUX Fill result:", JSON.stringify(result, null, 2))
+
+        // Check for result - handle both direct and wrapped response
+        const output = (result as { data?: FluxFillOutput }).data || result
+        if (!output.images?.[0]?.url) {
+          console.error("No images in response. Full result:", result)
+          throw new Error("No image returned from FLUX Fill")
+        }
+
+        resultImageUrl = output.images[0].url
+        contentType = output.images[0].content_type || "image/jpeg"
+      } else {
+        // ADD MODE: Use Nano Banana Pro (image-to-image)
+        console.log("Using Nano Banana Pro for add mode")
+
+        const result = await fal.subscribe(NANO_BANANA_PRO_EDIT, {
+          input: {
+            prompt,
+            image_urls: [falImageUrl],
+            num_images: 1,
+            output_format: "jpeg",
+          },
+        }) as NanoBananaProOutput
+
+        console.log("Nano Banana result:", JSON.stringify(result, null, 2))
+
+        // Check for result - handle both direct and wrapped response
+        const output = (result as { data?: NanoBananaProOutput }).data || result
+        if (!output.images?.[0]?.url) {
+          console.error("No images in response. Full result:", result)
+          throw new Error("No image returned from Nano Banana")
+        }
+
+        resultImageUrl = output.images[0].url
+        contentType = output.images[0].content_type || "image/jpeg"
       }
-
-      const resultImageUrl = output.images[0].url
-      const contentType = output.images[0].content_type || "image/jpeg"
 
       // Download the result image and upload to Supabase
       const resultImageResponse = await fetch(resultImageUrl)
@@ -124,7 +177,17 @@ export async function POST(request: NextRequest) {
       // Calculate version info
       // The root image is either the parentId (if editing a version) or the current image (if editing original)
       const rootImageId = image.parentId || image.id
-      const newVersion = (image.version || 1) + 1
+      const currentVersion = image.version || 1
+
+      // If replacing newer versions, delete them first
+      if (replaceNewerVersions) {
+        const deletedCount = await deleteVersionsAfter(rootImageId, currentVersion)
+        if (deletedCount > 0) {
+          console.log(`Deleted ${deletedCount} newer version(s) before creating new edit`)
+        }
+      }
+
+      const newVersion = currentVersion + 1
 
       // Create new image record as a new version (don't overwrite)
       const newImage = await createImageGeneration({
@@ -139,8 +202,10 @@ export async function POST(request: NextRequest) {
         status: "completed",
         errorMessage: null,
         metadata: {
-          inpaintedFrom: image.id,
-          inpaintedAt: new Date().toISOString(),
+          editedFrom: image.id,
+          editedAt: new Date().toISOString(),
+          editMode: mode,
+          model: mode === "remove" ? "flux-fill-pro" : "nano-banana-pro",
         },
       })
 
