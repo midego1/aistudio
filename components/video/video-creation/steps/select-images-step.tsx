@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
+import * as React from "react";
+import Image from "next/image";
 import {
   IconPhoto,
   IconPlus,
@@ -9,27 +9,27 @@ import {
   IconCheck,
   IconAlertCircle,
   IconLoader2,
-} from "@tabler/icons-react"
-import { toast } from "sonner"
+} from "@tabler/icons-react";
+import { toast } from "sonner";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { VIDEO_LIMITS } from "@/lib/video/video-constants"
-import { uploadVideoSourceImageAction } from "@/lib/actions/video"
-import type { VideoImageItem } from "@/hooks/use-video-creation"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { VIDEO_LIMITS } from "@/lib/video/video-constants";
+import { uploadVideoSourceImageAction } from "@/lib/actions/video";
+import type { VideoImageItem } from "@/hooks/use-video-creation";
 
 interface UploadingImage {
-  id: string
-  file: File
-  previewUrl: string
-  progress: "uploading" | "done" | "error"
-  error?: string
+  id: string;
+  file: File;
+  previewUrl: string;
+  progress: "uploading" | "done" | "error";
+  error?: string;
 }
 
 interface SelectImagesStepProps {
-  images: VideoImageItem[]
-  onAddImages: (images: Omit<VideoImageItem, "sequenceOrder">[]) => void
-  onRemoveImage: (id: string) => void
+  images: VideoImageItem[];
+  onAddImages: (images: Omit<VideoImageItem, "sequenceOrder">[]) => void;
+  onRemoveImage: (id: string) => void;
 }
 
 export function SelectImagesStep({
@@ -37,25 +37,29 @@ export function SelectImagesStep({
   onAddImages,
   onRemoveImage,
 }: SelectImagesStepProps) {
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const [uploadingImages, setUploadingImages] = React.useState<UploadingImage[]>([])
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [uploadingImages, setUploadingImages] = React.useState<
+    UploadingImage[]
+  >([]);
 
   const handleFileSelect = React.useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || [])
-      if (files.length === 0) return
+      const files = Array.from(e.target.files || []);
+      if (files.length === 0) return;
 
       // Reset input
       if (fileInputRef.current) {
-        fileInputRef.current.value = ""
+        fileInputRef.current.value = "";
       }
 
       // Check remaining slots
-      const remainingSlots = VIDEO_LIMITS.MAX_IMAGES_PER_VIDEO - images.length
-      const filesToUpload = files.slice(0, remainingSlots)
+      const remainingSlots = VIDEO_LIMITS.MAX_IMAGES_PER_VIDEO - images.length;
+      const filesToUpload = files.slice(0, remainingSlots);
 
       if (filesToUpload.length < files.length) {
-        toast.warning(`Only ${remainingSlots} slots remaining. Some images were not added.`)
+        toast.warning(
+          `Only ${remainingSlots} slots remaining. Some images were not added.`,
+        );
       }
 
       // Create preview entries for all files
@@ -64,25 +68,27 @@ export function SelectImagesStep({
         file,
         previewUrl: URL.createObjectURL(file),
         progress: "uploading" as const,
-      }))
+      }));
 
-      setUploadingImages((prev) => [...prev, ...newUploading])
+      setUploadingImages((prev) => [...prev, ...newUploading]);
 
       // Upload each file
       const uploadPromises = newUploading.map(async (item) => {
         try {
-          const formData = new FormData()
-          formData.append("file", item.file)
+          const formData = new FormData();
+          formData.append("file", item.file);
 
-          const result = await uploadVideoSourceImageAction(formData)
+          const result = await uploadVideoSourceImageAction(formData);
 
           if (result.success) {
             // Mark as done
             setUploadingImages((prev) =>
               prev.map((img) =>
-                img.id === item.id ? { ...img, progress: "done" as const } : img
-              )
-            )
+                img.id === item.id
+                  ? { ...img, progress: "done" as const }
+                  : img,
+              ),
+            );
 
             // Add to main images list with Supabase URL
             onAddImages([
@@ -92,49 +98,57 @@ export function SelectImagesStep({
                 roomType: "other" as const,
                 roomLabel: "",
               },
-            ])
+            ]);
 
             // Remove from uploading list after a short delay
             setTimeout(() => {
-              setUploadingImages((prev) => prev.filter((img) => img.id !== item.id))
+              setUploadingImages((prev) =>
+                prev.filter((img) => img.id !== item.id),
+              );
               // Revoke the blob URL
-              URL.revokeObjectURL(item.previewUrl)
-            }, 500)
+              URL.revokeObjectURL(item.previewUrl);
+            }, 500);
           }
         } catch (error) {
-          console.error("Upload failed:", error)
+          console.error("Upload failed:", error);
           setUploadingImages((prev) =>
             prev.map((img) =>
               img.id === item.id
                 ? {
                     ...img,
                     progress: "error" as const,
-                    error: error instanceof Error ? error.message : "Upload failed",
+                    error:
+                      error instanceof Error ? error.message : "Upload failed",
                   }
-                : img
-            )
-          )
-          toast.error(`Failed to upload image: ${error instanceof Error ? error.message : "Unknown error"}`)
+                : img,
+            ),
+          );
+          toast.error(
+            `Failed to upload image: ${error instanceof Error ? error.message : "Unknown error"}`,
+          );
         }
-      })
+      });
 
-      await Promise.all(uploadPromises)
+      await Promise.all(uploadPromises);
     },
-    [images.length, onAddImages]
-  )
+    [images.length, onAddImages],
+  );
 
   const removeUploadingImage = React.useCallback((id: string) => {
     setUploadingImages((prev) => {
-      const item = prev.find((img) => img.id === id)
+      const item = prev.find((img) => img.id === id);
       if (item) {
-        URL.revokeObjectURL(item.previewUrl)
+        URL.revokeObjectURL(item.previewUrl);
       }
-      return prev.filter((img) => img.id !== id)
-    })
-  }, [])
+      return prev.filter((img) => img.id !== id);
+    });
+  }, []);
 
-  const remainingSlots = VIDEO_LIMITS.MAX_IMAGES_PER_VIDEO - images.length - uploadingImages.length
-  const isUploading = uploadingImages.some((img) => img.progress === "uploading")
+  const remainingSlots =
+    VIDEO_LIMITS.MAX_IMAGES_PER_VIDEO - images.length - uploadingImages.length;
+  const isUploading = uploadingImages.some(
+    (img) => img.progress === "uploading",
+  );
 
   return (
     <div className="space-y-6">
@@ -144,8 +158,9 @@ export function SelectImagesStep({
         <div className="text-sm">
           <p className="font-medium text-[var(--accent-teal)]">How it works</p>
           <p className="mt-1 text-muted-foreground">
-            Each image becomes a 5-second cinematic video clip. The clips are then combined
-            into a single property tour video with smooth transitions and background music.
+            Each image becomes a 5-second cinematic video clip. The clips are
+            then combined into a single property tour video with smooth
+            transitions and background music.
           </p>
         </div>
       </div>
@@ -153,7 +168,15 @@ export function SelectImagesStep({
       {/* Image Count */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-bold" style={{ color: images.length >= VIDEO_LIMITS.MIN_IMAGES_PER_VIDEO ? "var(--accent-teal)" : "inherit" }}>
+          <span
+            className="text-2xl font-bold"
+            style={{
+              color:
+                images.length >= VIDEO_LIMITS.MIN_IMAGES_PER_VIDEO
+                  ? "var(--accent-teal)"
+                  : "inherit",
+            }}
+          >
             {images.length}
           </span>
           <span className="text-muted-foreground">
@@ -184,7 +207,7 @@ export function SelectImagesStep({
               "group relative aspect-[4/3] overflow-hidden rounded-xl border-2 border-transparent",
               "bg-muted transition-all duration-200",
               "hover:border-[var(--accent-teal)]/50 hover:shadow-lg",
-              "animate-scale-in"
+              "animate-scale-in",
             )}
             style={{ animationDelay: `${index * 50}ms` }}
           >
@@ -209,7 +232,7 @@ export function SelectImagesStep({
                 "absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full",
                 "bg-black/60 text-white backdrop-blur-sm",
                 "opacity-0 transition-opacity group-hover:opacity-100",
-                "hover:bg-red-500"
+                "hover:bg-red-500",
               )}
             >
               <IconX className="h-4 w-4" />
@@ -229,7 +252,7 @@ export function SelectImagesStep({
               item.progress === "uploading" && "border-[var(--accent-teal)]",
               item.progress === "done" && "border-[var(--accent-green)]",
               item.progress === "error" && "border-destructive",
-              "bg-muted transition-all duration-200"
+              "bg-muted transition-all duration-200",
             )}
           >
             <Image
@@ -238,7 +261,7 @@ export function SelectImagesStep({
               fill
               className={cn(
                 "object-cover transition-opacity",
-                item.progress === "uploading" && "opacity-60"
+                item.progress === "uploading" && "opacity-60",
               )}
               sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
             />
@@ -248,7 +271,9 @@ export function SelectImagesStep({
               {item.progress === "uploading" && (
                 <div className="flex flex-col items-center gap-2">
                   <IconLoader2 className="h-8 w-8 animate-spin text-white" />
-                  <span className="text-xs font-medium text-white">Uploading…</span>
+                  <span className="text-xs font-medium text-white">
+                    Uploading…
+                  </span>
                 </div>
               )}
               {item.progress === "done" && (
@@ -272,7 +297,7 @@ export function SelectImagesStep({
                 className={cn(
                   "absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full",
                   "bg-black/60 text-white backdrop-blur-sm",
-                  "hover:bg-red-500"
+                  "hover:bg-red-500",
                 )}
               >
                 <IconX className="h-4 w-4" />
@@ -294,12 +319,14 @@ export function SelectImagesStep({
               "transition-all duration-200",
               "hover:border-[var(--accent-teal)] hover:bg-[var(--accent-teal)]/5 hover:text-[var(--accent-teal)]",
               "disabled:opacity-50 disabled:cursor-not-allowed",
-              "animate-fade-in"
+              "animate-fade-in",
             )}
           >
             <IconPlus className="h-8 w-8" />
             <span className="text-sm font-medium">Add Images</span>
-            <span className="text-xs opacity-70">{remainingSlots} slots left</span>
+            <span className="text-xs opacity-70">
+              {remainingSlots} slots left
+            </span>
           </button>
         )}
       </div>
@@ -322,8 +349,9 @@ export function SelectImagesStep({
           </div>
           <h3 className="text-lg font-semibold">No images selected</h3>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            Add at least {VIDEO_LIMITS.MIN_IMAGES_PER_VIDEO} images to create your property video.
-            You can add up to {VIDEO_LIMITS.MAX_IMAGES_PER_VIDEO} images.
+            Add at least {VIDEO_LIMITS.MIN_IMAGES_PER_VIDEO} images to create
+            your property video. You can add up to{" "}
+            {VIDEO_LIMITS.MAX_IMAGES_PER_VIDEO} images.
           </p>
           <Button
             onClick={() => fileInputRef.current?.click()}
@@ -336,5 +364,5 @@ export function SelectImagesStep({
         </div>
       )}
     </div>
-  )
+  );
 }

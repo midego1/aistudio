@@ -1,75 +1,89 @@
-"use client"
+"use client";
 
-import { useInfiniteScroll } from "@/hooks/use-infinite-scroll"
-import { useAdminUserFilters } from "@/hooks/use-admin-user-filters"
-import { useImpersonation } from "@/hooks/use-impersonation"
-import { getUsersPage, type AdminUser } from "@/lib/mock/admin-users"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table"
-import { useVirtualizer } from "@tanstack/react-virtual"
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
-import { createUserColumns } from "./columns"
-import { UserVirtualRow } from "./virtual-row"
-import { UsersTableToolbar } from "./table-toolbar"
-import { UsersTableHeader } from "./table-header"
-import { IconLoader2, IconUserOff } from "@tabler/icons-react"
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
+import { useAdminUserFilters } from "@/hooks/use-admin-user-filters";
+import { useImpersonation } from "@/hooks/use-impersonation";
+import { getUsersPage, type AdminUser } from "@/lib/mock/admin-users";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createUserColumns } from "./columns";
+import { UserVirtualRow } from "./virtual-row";
+import { UsersTableToolbar } from "./table-toolbar";
+import { UsersTableHeader } from "./table-header";
+import { IconLoader2, IconUserOff } from "@tabler/icons-react";
 
-const ROW_HEIGHT = 60
+const ROW_HEIGHT = 60;
 
 export function UsersDataTable() {
-  const parentRef = useRef<HTMLDivElement>(null)
-  const { startImpersonation } = useImpersonation()
+  const parentRef = useRef<HTMLDivElement>(null);
+  const { startImpersonation } = useImpersonation();
 
   // Get filters from URL state
-  const { userFilters, hasActiveFilters, sortColumn, sortDirection, toggleSort } = useAdminUserFilters()
+  const {
+    userFilters,
+    hasActiveFilters,
+    sortColumn,
+    sortDirection,
+    toggleSort,
+  } = useAdminUserFilters();
 
   // Defer search to debounce filtering
-  const deferredFilters = useDeferredValue(userFilters)
+  const deferredFilters = useDeferredValue(userFilters);
 
   // Pagination state
-  const [pages, setPages] = useState<AdminUser[][]>([])
-  const [cursor, setCursor] = useState<string | null>(null)
-  const [hasNextPage, setHasNextPage] = useState(true)
-  const [filteredTotal, setFilteredTotal] = useState(0)
-  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [pages, setPages] = useState<AdminUser[][]>([]);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [filteredTotal, setFilteredTotal] = useState(0);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Create columns with impersonation handler
   const columns = useMemo(
-    () => createUserColumns((user) => {
-      startImpersonation(user)
-    }),
-    [startImpersonation]
-  )
+    () =>
+      createUserColumns((user) => {
+        startImpersonation(user);
+      }),
+    [startImpersonation],
+  );
 
   // Reset pagination when filters change
   useEffect(() => {
-    const response = getUsersPage(null, 20, deferredFilters)
-    setPages([response.data])
-    setCursor(response.meta.cursor)
-    setHasNextPage(response.meta.hasMore)
-    setFilteredTotal(response.meta.filteredTotal)
-    setIsInitialLoad(false)
-  }, [deferredFilters])
+    const response = getUsersPage(null, 20, deferredFilters);
+    setPages([response.data]);
+    setCursor(response.meta.cursor);
+    setHasNextPage(response.meta.hasMore);
+    setFilteredTotal(response.meta.filteredTotal);
+    setIsInitialLoad(false);
+  }, [deferredFilters]);
 
   // Flatten all pages into single array
-  const tableData = useMemo(() => pages.flat(), [pages])
+  const tableData = useMemo(() => pages.flat(), [pages]);
 
   // Fetch next page function
   const fetchNextPage = useCallback(() => {
-    if (isFetchingNextPage || !hasNextPage) return
+    if (isFetchingNextPage || !hasNextPage) return;
 
-    setIsFetchingNextPage(true)
+    setIsFetchingNextPage(true);
 
     setTimeout(() => {
-      const response = getUsersPage(cursor, 20, deferredFilters)
-      setPages((prev) => [...prev, response.data])
-      setCursor(response.meta.cursor)
-      setHasNextPage(response.meta.hasMore)
-      setFilteredTotal(response.meta.filteredTotal)
-      setIsFetchingNextPage(false)
-    }, 300)
-  }, [cursor, hasNextPage, isFetchingNextPage, deferredFilters])
+      const response = getUsersPage(cursor, 20, deferredFilters);
+      setPages((prev) => [...prev, response.data]);
+      setCursor(response.meta.cursor);
+      setHasNextPage(response.meta.hasMore);
+      setFilteredTotal(response.meta.filteredTotal);
+      setIsFetchingNextPage(false);
+    }, 300);
+  }, [cursor, hasNextPage, isFetchingNextPage, deferredFilters]);
 
   // Set up TanStack Table
   const table = useReactTable({
@@ -77,9 +91,9 @@ export function UsersDataTable() {
     getRowId: (row) => row.id,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
-  const rows = table.getRowModel().rows
+  const rows = table.getRowModel().rows;
 
   // Set up row virtualization
   const rowVirtualizer = useVirtualizer({
@@ -87,7 +101,7 @@ export function UsersDataTable() {
     getScrollElement: () => parentRef.current,
     estimateSize: () => ROW_HEIGHT,
     overscan: 10,
-  })
+  });
 
   // Infinite scroll hook
   useInfiniteScroll({
@@ -98,7 +112,7 @@ export function UsersDataTable() {
     isFetchingNextPage,
     fetchNextPage,
     threshold: 15,
-  })
+  });
 
   // Loading skeleton state
   if (isInitialLoad) {
@@ -147,7 +161,7 @@ export function UsersDataTable() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Empty state
@@ -158,9 +172,15 @@ export function UsersDataTable() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
           <div
             className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
-            style={{ backgroundColor: "color-mix(in oklch, var(--accent-teal) 15%, transparent)" }}
+            style={{
+              backgroundColor:
+                "color-mix(in oklch, var(--accent-teal) 15%, transparent)",
+            }}
           >
-            <IconUserOff className="h-6 w-6" style={{ color: "var(--accent-teal)" }} />
+            <IconUserOff
+              className="h-6 w-6"
+              style={{ color: "var(--accent-teal)" }}
+            />
           </div>
           <h3 className="text-lg font-semibold">No users yet</h3>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -168,7 +188,7 @@ export function UsersDataTable() {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   // No results with filters
@@ -186,10 +206,10 @@ export function UsersDataTable() {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
-  const virtualItems = rowVirtualizer.getVirtualItems()
+  const virtualItems = rowVirtualizer.getVirtualItems();
 
   return (
     <div className="space-y-4">
@@ -220,8 +240,8 @@ export function UsersDataTable() {
             >
               {virtualItems.length > 0 ? (
                 virtualItems.map((virtualRow) => {
-                  const row = rows[virtualRow.index]
-                  if (!row) return null
+                  const row = rows[virtualRow.index];
+                  if (!row) return null;
 
                   return (
                     <UserVirtualRow
@@ -230,11 +250,14 @@ export function UsersDataTable() {
                       virtualStart={virtualRow.start}
                       rowHeight={ROW_HEIGHT}
                     />
-                  )
+                  );
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
                     No results.
                   </TableCell>
                 </TableRow>
@@ -246,7 +269,9 @@ export function UsersDataTable() {
           {isFetchingNextPage && (
             <div className="flex items-center justify-center py-4">
               <IconLoader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-              <span className="ml-2 text-sm text-muted-foreground">Loading more...</span>
+              <span className="ml-2 text-sm text-muted-foreground">
+                Loading more...
+              </span>
             </div>
           )}
         </div>
@@ -258,11 +283,11 @@ export function UsersDataTable() {
             style={{ color: "var(--accent-teal)" }}
           >
             {tableData.length}
-          </span>
-          {" "}of {filteredTotal} users
+          </span>{" "}
+          of {filteredTotal} users
           {hasNextPage && " (scroll for more)"}
         </div>
       </div>
     </div>
-  )
+  );
 }

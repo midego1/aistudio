@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
-import { SignOutButton } from "./sign-out-button"
-import { IconSparkles, IconSettings, IconMovie } from "@tabler/icons-react"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { SignOutButton } from "./sign-out-button";
+import { IconSparkles, IconSettings, IconMovie } from "@tabler/icons-react";
 
 type DashboardHeaderProps = {
-  userLabel?: string
-}
+  userLabel?: string;
+};
 
 const navItems = [
   { href: "/dashboard", label: "Projects", icon: IconSparkles },
   { href: "/video", label: "Videos", icon: IconMovie },
   { href: "/dashboard/settings", label: "Settings", icon: IconSettings },
-] as const
+] as const;
 
 export function DashboardHeader({ userLabel }: DashboardHeaderProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
@@ -41,9 +41,9 @@ export function DashboardHeader({ userLabel }: DashboardHeaderProps) {
                 const isActive =
                   item.href === "/dashboard"
                     ? pathname === "/dashboard"
-                    : pathname.startsWith(item.href)
+                    : pathname.startsWith(item.href);
 
-                const Icon = item.icon
+                const Icon = item.icon;
 
                 return (
                   <Button
@@ -53,7 +53,7 @@ export function DashboardHeader({ userLabel }: DashboardHeaderProps) {
                     size="sm"
                     className={cn(
                       "h-8 gap-2 transition-all",
-                      isActive && "font-medium"
+                      isActive && "font-medium",
                     )}
                   >
                     <Link href={item.href}>
@@ -61,7 +61,7 @@ export function DashboardHeader({ userLabel }: DashboardHeaderProps) {
                       <span className="hidden sm:inline">{item.label}</span>
                     </Link>
                   </Button>
-                )
+                );
               })}
             </nav>
           </div>
@@ -78,5 +78,5 @@ export function DashboardHeader({ userLabel }: DashboardHeaderProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }

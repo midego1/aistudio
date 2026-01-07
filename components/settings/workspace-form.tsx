@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useActionState, useEffect, useRef } from "react"
-import { toast } from "sonner"
+import { useActionState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import {
   IconBuilding,
   IconHash,
@@ -10,51 +10,54 @@ import {
   IconDeviceFloppy,
   IconLoader2,
   IconUpload,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import type { Workspace } from "@/lib/db/schema"
-import { updateWorkspaceSettings, type WorkspaceActionResult } from "@/lib/actions"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { Workspace } from "@/lib/db/schema";
+import {
+  updateWorkspaceSettings,
+  type WorkspaceActionResult,
+} from "@/lib/actions";
 
 interface WorkspaceFormProps {
-  workspace: Workspace
+  workspace: Workspace;
 }
 
-type FormState = WorkspaceActionResult | null
+type FormState = WorkspaceActionResult | null;
 
 export function WorkspaceForm({ workspace }: WorkspaceFormProps) {
-  const formRef = useRef<HTMLFormElement>(null)
-  const lastResultRef = useRef<FormState>(null)
+  const formRef = useRef<HTMLFormElement>(null);
+  const lastResultRef = useRef<FormState>(null);
 
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     async (_prevState, formData) => {
-      const name = formData.get("name") as string
+      const name = formData.get("name") as string;
 
       // Client-side validation
       if (!name.trim()) {
-        return { success: false, error: "Workspace name is required" }
+        return { success: false, error: "Workspace name is required" };
       }
 
-      const result = await updateWorkspaceSettings(formData)
-      return result
+      const result = await updateWorkspaceSettings(formData);
+      return result;
     },
-    null
-  )
+    null,
+  );
 
   // Show toast when state changes (only once per state change)
   useEffect(() => {
     if (state && state !== lastResultRef.current) {
       if (state.success) {
-        toast.success("Changes saved successfully")
+        toast.success("Changes saved successfully");
       } else if (state.error) {
-        toast.error(state.error)
+        toast.error(state.error);
       }
-      lastResultRef.current = state
+      lastResultRef.current = state;
     }
-  }, [state])
+  }, [state]);
 
   return (
     <form ref={formRef} action={formAction} className="space-y-6">
@@ -189,5 +192,5 @@ export function WorkspaceForm({ workspace }: WorkspaceFormProps) {
         </Button>
       </div>
     </form>
-  )
+  );
 }

@@ -1,41 +1,44 @@
-import { headers } from "next/headers"
-import { notFound, redirect } from "next/navigation"
-import Link from "next/link"
-import { IconArrowLeft, IconPhoto } from "@tabler/icons-react"
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { IconArrowLeft, IconPhoto } from "@tabler/icons-react";
 
-import { auth } from "@/lib/auth"
-import { getUserWithWorkspace, getProjectById } from "@/lib/db/queries"
-import { Button } from "@/components/ui/button"
-import { ProjectDetailContent } from "@/components/dashboard/project-detail-content"
+import { auth } from "@/lib/auth";
+import { getUserWithWorkspace, getProjectById } from "@/lib/db/queries";
+import { Button } from "@/components/ui/button";
+import { ProjectDetailContent } from "@/components/dashboard/project-detail-content";
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 export default async function ProjectDetailPage({ params }: PageProps) {
-  const { id } = await params
+  const { id } = await params;
 
   // Get session
   const session = await auth.api.getSession({
     headers: await headers(),
-  })
+  });
 
   if (!session) {
-    redirect("/sign-in")
+    redirect("/sign-in");
   }
 
   // Get user with workspace
-  const userData = await getUserWithWorkspace(session.user.id)
+  const userData = await getUserWithWorkspace(session.user.id);
 
   if (!userData) {
-    redirect("/onboarding")
+    redirect("/onboarding");
   }
 
   // Get project with images
-  const projectData = await getProjectById(id)
+  const projectData = await getProjectById(id);
 
   // Check if project exists and belongs to user's workspace
-  if (!projectData || projectData.project.workspaceId !== userData.workspace.id) {
+  if (
+    !projectData ||
+    projectData.project.workspaceId !== userData.workspace.id
+  ) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 px-4 text-center">
         <IconPhoto className="h-16 w-16 text-muted-foreground/50" />
@@ -52,7 +55,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           </Link>
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -60,5 +63,5 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       project={projectData.project}
       images={projectData.images}
     />
-  )
+  );
 }

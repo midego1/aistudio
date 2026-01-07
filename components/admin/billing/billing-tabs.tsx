@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { UninvoicedTable } from "./uninvoiced-table"
-import { InvoiceHistoryTable } from "./invoice-history-table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UninvoicedTable } from "./uninvoiced-table";
+import { InvoiceHistoryTable } from "./invoice-history-table";
 
 export function BillingTabs() {
   return (
@@ -20,5 +20,5 @@ export function BillingTabs() {
         <InvoiceHistoryTable />
       </TabsContent>
     </Tabs>
-  )
+  );
 }

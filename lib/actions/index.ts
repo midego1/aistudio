@@ -1,12 +1,15 @@
 // Re-export all server actions
-export { completeOnboarding } from "./onboarding"
-export { updateWorkspaceSettings, type WorkspaceActionResult } from "./workspace"
+export { completeOnboarding } from "./onboarding";
+export {
+  updateWorkspaceSettings,
+  type WorkspaceActionResult,
+} from "./workspace";
 export {
   createProjectAction,
   updateProjectAction,
   deleteProjectAction,
   type ActionResult,
-} from "./projects"
+} from "./projects";
 export {
   createSignedUploadUrls,
   recordUploadedImages,
@@ -17,4 +20,4 @@ export {
   regenerateImage,
   triggerInpaintTask,
   type ImageWithRunId,
-} from "./images"
+} from "./images";

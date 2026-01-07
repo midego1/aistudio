@@ -1,19 +1,22 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { type SortableColumn, type SortDirection } from "@/hooks/use-property-filters"
-import { IconArrowDown, IconArrowUp } from "@tabler/icons-react"
+import { Button } from "@/components/ui/button";
+import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  type SortableColumn,
+  type SortDirection,
+} from "@/hooks/use-property-filters";
+import { IconArrowDown, IconArrowUp } from "@tabler/icons-react";
 
 interface SortButtonProps {
-  label: string
-  sortField: SortableColumn
-  currentSortColumn: SortableColumn | null
-  currentSortDirection: SortDirection | null
-  onSort: (column: SortableColumn) => void
-  width: number
-  minWidth?: number
-  maxWidth?: number
+  label: string;
+  sortField: SortableColumn;
+  currentSortColumn: SortableColumn | null;
+  currentSortDirection: SortDirection | null;
+  onSort: (column: SortableColumn) => void;
+  width: number;
+  minWidth?: number;
+  maxWidth?: number;
 }
 
 function SortButton({
@@ -23,7 +26,7 @@ function SortButton({
   currentSortDirection,
   onSort,
 }: SortButtonProps) {
-  const isActive = sortField === currentSortColumn
+  const isActive = sortField === currentSortColumn;
 
   return (
     <Button
@@ -39,31 +42,58 @@ function SortButton({
         <IconArrowDown className="h-4 w-4" />
       )}
     </Button>
-  )
+  );
 }
 
 interface ColumnConfig {
-  id: string
-  label: string
-  sortField?: SortableColumn
-  width: number
-  minWidth?: number
-  maxWidth?: number
+  id: string;
+  label: string;
+  sortField?: SortableColumn;
+  width: number;
+  minWidth?: number;
+  maxWidth?: number;
 }
 
 const columnConfigs: ColumnConfig[] = [
-  { id: "address", label: "Address", sortField: "address", width: 280, minWidth: 200 },
-  { id: "status", label: "Status", sortField: "status", width: 120, minWidth: 100, maxWidth: 140 },
+  {
+    id: "address",
+    label: "Address",
+    sortField: "address",
+    width: 280,
+    minWidth: 200,
+  },
+  {
+    id: "status",
+    label: "Status",
+    sortField: "status",
+    width: 120,
+    minWidth: 100,
+    maxWidth: 140,
+  },
   { id: "tags", label: "Tags", width: 200, minWidth: 150 },
-  { id: "editCount", label: "Edits", sortField: "editCount", width: 80, minWidth: 60, maxWidth: 100 },
-  { id: "totalCost", label: "Cost", sortField: "totalCost", width: 100, minWidth: 80, maxWidth: 120 },
+  {
+    id: "editCount",
+    label: "Edits",
+    sortField: "editCount",
+    width: 80,
+    minWidth: 60,
+    maxWidth: 100,
+  },
+  {
+    id: "totalCost",
+    label: "Cost",
+    sortField: "totalCost",
+    width: 100,
+    minWidth: 80,
+    maxWidth: 120,
+  },
   { id: "actions", label: "", width: 60, minWidth: 60, maxWidth: 60 },
-]
+];
 
 interface DataTableHeaderProps {
-  sortColumn: SortableColumn | null
-  sortDirection: SortDirection | null
-  onSort: (column: SortableColumn) => void
+  sortColumn: SortableColumn | null;
+  sortDirection: SortDirection | null;
+  onSort: (column: SortableColumn) => void;
 }
 
 export function DataTableHeader({
@@ -75,7 +105,7 @@ export function DataTableHeader({
     <TableHeader>
       <TableRow className="flex hover:bg-transparent">
         {columnConfigs.map((column) => {
-          const isFlexColumn = column.id === "address"
+          const isFlexColumn = column.id === "address";
           return (
             <TableHead
               key={column.id}
@@ -90,24 +120,26 @@ export function DataTableHeader({
                     }
               }
             >
-            {column.sortField ? (
-              <SortButton
-                label={column.label}
-                sortField={column.sortField}
-                currentSortColumn={sortColumn}
-                currentSortDirection={sortDirection}
-                onSort={onSort}
-                width={column.width}
-                minWidth={column.minWidth}
-                maxWidth={column.maxWidth}
-              />
-            ) : (
-              <span className="font-medium text-muted-foreground">{column.label}</span>
-            )}
+              {column.sortField ? (
+                <SortButton
+                  label={column.label}
+                  sortField={column.sortField}
+                  currentSortColumn={sortColumn}
+                  currentSortDirection={sortDirection}
+                  onSort={onSort}
+                  width={column.width}
+                  minWidth={column.minWidth}
+                  maxWidth={column.maxWidth}
+                />
+              ) : (
+                <span className="font-medium text-muted-foreground">
+                  {column.label}
+                </span>
+              )}
             </TableHead>
-          )
+          );
         })}
       </TableRow>
     </TableHeader>
-  )
+  );
 }

@@ -25,7 +25,7 @@ export async function sendInviteEmail(
   to: string,
   inviterName: string,
   workspaceName: string,
-  inviteLink: string
+  inviteLink: string,
 ) {
   const { data, error } = await resend.emails.send({
     from: siteConfig.email.from,

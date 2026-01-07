@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   IconBuilding,
   IconSearch,
   IconPhotoPlus,
   IconSparkles,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
 export function EmptyState() {
   return (
@@ -15,8 +15,18 @@ export function EmptyState() {
       <div className="absolute inset-0 opacity-[0.03]">
         <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-              <path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" strokeWidth="1"/>
+            <pattern
+              id="grid"
+              width="32"
+              height="32"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 32 0 L 0 0 0 32"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+              />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
@@ -33,10 +43,11 @@ export function EmptyState() {
             <IconBuilding className="h-10 w-10 text-white" />
           </div>
           {/* Floating sparkle */}
-          <div
-            className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-background shadow-md ring-1 ring-foreground/10 animate-pulse-subtle"
-          >
-            <IconSparkles className="h-4 w-4" style={{ color: "var(--accent-amber)" }} />
+          <div className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-background shadow-md ring-1 ring-foreground/10 animate-pulse-subtle">
+            <IconSparkles
+              className="h-4 w-4"
+              style={{ color: "var(--accent-amber)" }}
+            />
           </div>
         </div>
 
@@ -44,8 +55,8 @@ export function EmptyState() {
           No properties yet
         </h3>
         <p className="mb-8 max-w-md text-center text-muted-foreground animate-fade-in-up stagger-2">
-          Transform your real estate photos with AI-powered enhancements.
-          Upload your first photo to get started.
+          Transform your real estate photos with AI-powered enhancements. Upload
+          your first photo to get started.
         </p>
 
         <Button
@@ -58,7 +69,7 @@ export function EmptyState() {
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 export function NoResults() {
@@ -68,7 +79,8 @@ export function NoResults() {
       <div
         className="absolute inset-0 opacity-50"
         style={{
-          background: "radial-gradient(ellipse at center, color-mix(in oklch, var(--accent-teal) 5%, transparent) 0%, transparent 70%)",
+          background:
+            "radial-gradient(ellipse at center, color-mix(in oklch, var(--accent-teal) 5%, transparent) 0%, transparent 70%)",
         }}
       />
 
@@ -89,5 +101,5 @@ export function NoResults() {
         </p>
       </div>
     </div>
-  )
+  );
 }

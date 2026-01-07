@@ -1,20 +1,18 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { useImpersonation } from "@/hooks/use-impersonation"
-import { IconEyeOff, IconX } from "@tabler/icons-react"
+import { Button } from "@/components/ui/button";
+import { useImpersonation } from "@/hooks/use-impersonation";
+import { IconEyeOff, IconX } from "@tabler/icons-react";
 
 export function ImpersonationBanner() {
-  const { isImpersonating, targetUser, endImpersonation } = useImpersonation()
+  const { isImpersonating, targetUser, endImpersonation } = useImpersonation();
 
   if (!isImpersonating || !targetUser) {
-    return null
+    return null;
   }
 
   return (
-    <div
-      className="animate-fade-in-down sticky top-0 z-[60] flex items-center justify-between gap-4 border-b border-amber-500/30 bg-amber-400 px-4 py-2 dark:bg-amber-500"
-    >
+    <div className="animate-fade-in-down sticky top-0 z-[60] flex items-center justify-between gap-4 border-b border-amber-500/30 bg-amber-400 px-4 py-2 dark:bg-amber-500">
       <div className="flex items-center gap-3">
         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-600/20">
           <IconEyeOff className="size-4 text-amber-900" />
@@ -22,8 +20,14 @@ export function ImpersonationBanner() {
         <div className="text-sm font-medium text-amber-950">
           <span className="hidden sm:inline">Viewing as </span>
           <span className="font-semibold">{targetUser.name}</span>
-          <span className="hidden md:inline text-amber-900/80"> ({targetUser.email})</span>
-          <span className="hidden lg:inline text-amber-900/70"> &middot; {targetUser.workspaceName}</span>
+          <span className="hidden md:inline text-amber-900/80">
+            {" "}
+            ({targetUser.email})
+          </span>
+          <span className="hidden lg:inline text-amber-900/70">
+            {" "}
+            &middot; {targetUser.workspaceName}
+          </span>
         </div>
       </div>
 
@@ -37,5 +41,5 @@ export function ImpersonationBanner() {
         <span className="hidden sm:inline">Exit</span>
       </Button>
     </div>
-  )
+  );
 }

@@ -1,30 +1,34 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
-import { IconCheck, IconClock } from "@tabler/icons-react"
+import * as React from "react";
+import Image from "next/image";
+import { IconCheck, IconClock } from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { STYLE_TEMPLATES, type StyleTemplate } from "@/lib/style-templates"
+import { cn } from "@/lib/utils";
+import { STYLE_TEMPLATES, type StyleTemplate } from "@/lib/style-templates";
 
 interface StyleStepProps {
-  selectedTemplate: StyleTemplate | null
-  onSelectTemplate: (template: StyleTemplate) => void
+  selectedTemplate: StyleTemplate | null;
+  onSelectTemplate: (template: StyleTemplate) => void;
 }
 
-export function StyleStep({ selectedTemplate, onSelectTemplate }: StyleStepProps) {
+export function StyleStep({
+  selectedTemplate,
+  onSelectTemplate,
+}: StyleStepProps) {
   return (
     <div className="space-y-4">
       <div>
         <p className="text-sm text-muted-foreground">
-          Choose a style to apply to your photos. Each style uses AI to transform your images.
+          Choose a style to apply to your photos. Each style uses AI to
+          transform your images.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         {STYLE_TEMPLATES.map((template, index) => {
-          const isSelected = selectedTemplate?.id === template.id
-          const isComingSoon = template.comingSoon
+          const isSelected = selectedTemplate?.id === template.id;
+          const isComingSoon = template.comingSoon;
 
           return (
             <button
@@ -38,7 +42,7 @@ export function StyleStep({ selectedTemplate, onSelectTemplate }: StyleStepProps
                   ? "cursor-not-allowed opacity-60 ring-transparent"
                   : isSelected
                     ? "ring-[var(--accent-teal)] shadow-lg"
-                    : "ring-transparent hover:ring-foreground/10"
+                    : "ring-transparent hover:ring-foreground/10",
               )}
               style={{ animationDelay: `${index * 50}ms` }}
             >
@@ -54,7 +58,7 @@ export function StyleStep({ selectedTemplate, onSelectTemplate }: StyleStepProps
                       ? "grayscale"
                       : isSelected
                         ? "scale-105"
-                        : "group-hover:scale-105"
+                        : "group-hover:scale-105",
                   )}
                   sizes="(max-width: 640px) 50vw, 33vw"
                 />
@@ -89,10 +93,12 @@ export function StyleStep({ selectedTemplate, onSelectTemplate }: StyleStepProps
 
               {/* Content */}
               <div className="flex flex-1 flex-col gap-1 p-3">
-                <h3 className={cn(
-                  "font-semibold leading-tight",
-                  isComingSoon ? "text-muted-foreground" : "text-foreground"
-                )}>
+                <h3
+                  className={cn(
+                    "font-semibold leading-tight",
+                    isComingSoon ? "text-muted-foreground" : "text-foreground",
+                  )}
+                >
                   {template.name}
                 </h3>
                 <p className="line-clamp-2 text-xs text-muted-foreground">
@@ -108,9 +114,9 @@ export function StyleStep({ selectedTemplate, onSelectTemplate }: StyleStepProps
                 />
               )}
             </button>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }

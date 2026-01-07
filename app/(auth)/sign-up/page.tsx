@@ -61,7 +61,7 @@ export default function SignUpPage() {
           toast.error(ctx.error.message || "Failed to create account");
           setIsLoading(false);
         },
-      }
+      },
     );
   };
 

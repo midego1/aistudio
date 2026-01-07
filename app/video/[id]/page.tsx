@@ -1,41 +1,44 @@
-import { headers } from "next/headers"
-import { notFound, redirect } from "next/navigation"
-import Link from "next/link"
-import { IconArrowLeft, IconMovie } from "@tabler/icons-react"
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { IconArrowLeft, IconMovie } from "@tabler/icons-react";
 
-import { auth } from "@/lib/auth"
-import { getUserWithWorkspace, getVideoProjectById } from "@/lib/db/queries"
-import { Button } from "@/components/ui/button"
-import { VideoDetailContent } from "@/components/video/video-detail-content"
+import { auth } from "@/lib/auth";
+import { getUserWithWorkspace, getVideoProjectById } from "@/lib/db/queries";
+import { Button } from "@/components/ui/button";
+import { VideoDetailContent } from "@/components/video/video-detail-content";
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
 export default async function VideoDetailPage({ params }: PageProps) {
-  const { id } = await params
+  const { id } = await params;
 
   // Get session
   const session = await auth.api.getSession({
     headers: await headers(),
-  })
+  });
 
   if (!session) {
-    redirect("/sign-in")
+    redirect("/sign-in");
   }
 
   // Get user with workspace
-  const userData = await getUserWithWorkspace(session.user.id)
+  const userData = await getUserWithWorkspace(session.user.id);
 
   if (!userData) {
-    redirect("/onboarding")
+    redirect("/onboarding");
   }
 
   // Get video project with clips
-  const videoData = await getVideoProjectById(id)
+  const videoData = await getVideoProjectById(id);
 
   // Check if video exists and belongs to user's workspace
-  if (!videoData || videoData.videoProject.workspaceId !== userData.workspace.id) {
+  if (
+    !videoData ||
+    videoData.videoProject.workspaceId !== userData.workspace.id
+  ) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 px-4 text-center">
         <IconMovie className="h-16 w-16 text-muted-foreground/50" />
@@ -52,7 +55,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
           </Link>
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -61,5 +64,5 @@ export default async function VideoDetailPage({ params }: PageProps) {
       clips={videoData.clips}
       musicTrack={videoData.musicTrack}
     />
-  )
+  );
 }

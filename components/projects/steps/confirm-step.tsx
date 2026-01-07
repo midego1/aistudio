@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
-import { IconPhoto } from "@tabler/icons-react"
+import * as React from "react";
+import Image from "next/image";
+import { IconPhoto } from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import type { UploadedImage } from "@/hooks/use-project-creation"
-import type { StyleTemplate } from "@/lib/style-templates"
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { UploadedImage } from "@/hooks/use-project-creation";
+import type { StyleTemplate } from "@/lib/style-templates";
 
 interface ConfirmStepProps {
-  images: UploadedImage[]
-  selectedTemplate: StyleTemplate | null
-  projectName: string
-  onProjectNameChange: (name: string) => void
+  images: UploadedImage[];
+  selectedTemplate: StyleTemplate | null;
+  projectName: string;
+  onProjectNameChange: (name: string) => void;
 }
 
 export function ConfirmStep({
@@ -34,7 +34,7 @@ export function ConfirmStep({
             <div
               key={image.id}
               className={cn(
-                "absolute inset-0 overflow-hidden rounded-xl shadow-lg ring-1 ring-white/10 transition-transform duration-300"
+                "absolute inset-0 overflow-hidden rounded-xl shadow-lg ring-1 ring-white/10 transition-transform duration-300",
               )}
               style={{
                 transform: `rotate(${(index - 1) * 3}deg) scale(${1 - index * 0.05})`,
@@ -88,7 +88,9 @@ export function ConfirmStep({
                 />
               </div>
               <div className="min-w-0">
-                <p className="font-medium text-foreground">{selectedTemplate.name}</p>
+                <p className="font-medium text-foreground">
+                  {selectedTemplate.name}
+                </p>
                 <p className="text-xs text-muted-foreground line-clamp-1">
                   {selectedTemplate.description}
                 </p>
@@ -100,11 +102,15 @@ export function ConfirmStep({
         {/* Summary info */}
         <div className="rounded-lg bg-muted/50 p-4 ring-1 ring-foreground/5">
           <p className="text-sm text-muted-foreground">
-            {images.length} image{images.length !== 1 ? "s" : ""} will be transformed using the{" "}
-            <span className="font-medium text-foreground">{selectedTemplate?.name}</span> style.
+            {images.length} image{images.length !== 1 ? "s" : ""} will be
+            transformed using the{" "}
+            <span className="font-medium text-foreground">
+              {selectedTemplate?.name}
+            </span>{" "}
+            style.
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }

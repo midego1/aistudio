@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
+import { useState, useMemo } from "react";
 import {
   IconSend,
   IconFileInvoice,
   IconPhoto,
   IconBuilding,
   IconLoader2,
-} from "@tabler/icons-react"
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@tabler/icons-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -18,107 +18,116 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertTitle, AlertDescription, AlertAction } from "@/components/ui/alert"
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  AlertAction,
+} from "@/components/ui/alert";
 import {
   getUninvoicedProjects,
   getUninvoicedByWorkspace,
   formatNOK,
   type UninvoicedProject,
-} from "@/lib/mock/admin-billing"
+} from "@/lib/mock/admin-billing";
 
 export function UninvoicedTable() {
-  const projects = useMemo(() => getUninvoicedProjects(), [])
-  const byWorkspace = useMemo(() => getUninvoicedByWorkspace(), [])
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [isSendingBatch, setIsSendingBatch] = useState(false)
-  const [sendingSingleId, setSendingSingleId] = useState<string | null>(null)
+  const projects = useMemo(() => getUninvoicedProjects(), []);
+  const byWorkspace = useMemo(() => getUninvoicedByWorkspace(), []);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isSendingBatch, setIsSendingBatch] = useState(false);
+  const [sendingSingleId, setSendingSingleId] = useState<string | null>(null);
 
   const allSelected =
-    projects.length > 0 && selectedIds.size === projects.length
-  const someSelected = selectedIds.size > 0 && !allSelected
+    projects.length > 0 && selectedIds.size === projects.length;
+  const someSelected = selectedIds.size > 0 && !allSelected;
 
   const toggleAll = () => {
     if (allSelected) {
-      setSelectedIds(new Set())
+      setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(projects.map((p) => p.id)))
+      setSelectedIds(new Set(projects.map((p) => p.id)));
     }
-  }
+  };
 
   const toggleProject = (id: string) => {
-    const newSet = new Set(selectedIds)
+    const newSet = new Set(selectedIds);
     if (newSet.has(id)) {
-      newSet.delete(id)
+      newSet.delete(id);
     } else {
-      newSet.add(id)
+      newSet.add(id);
     }
-    setSelectedIds(newSet)
-  }
+    setSelectedIds(newSet);
+  };
 
   // Group selected projects by workspace
   const selectedByWorkspace = useMemo(() => {
     const grouped = new Map<
       string,
-      { workspaceName: string; orgNumber: string; projects: UninvoicedProject[] }
-    >()
+      {
+        workspaceName: string;
+        orgNumber: string;
+        projects: UninvoicedProject[];
+      }
+    >();
 
     projects
       .filter((p) => selectedIds.has(p.id))
       .forEach((p) => {
-        const existing = grouped.get(p.workspaceId)
+        const existing = grouped.get(p.workspaceId);
         if (existing) {
-          existing.projects.push(p)
+          existing.projects.push(p);
         } else {
           grouped.set(p.workspaceId, {
             workspaceName: p.workspaceName,
             orgNumber: p.workspaceOrgNumber,
             projects: [p],
-          })
+          });
         }
-      })
+      });
 
-    return grouped
-  }, [projects, selectedIds])
+    return grouped;
+  }, [projects, selectedIds]);
 
   const selectedTotal = useMemo(() => {
     return projects
       .filter((p) => selectedIds.has(p.id))
-      .reduce((sum, p) => sum + p.amount, 0)
-  }, [projects, selectedIds])
+      .reduce((sum, p) => sum + p.amount, 0);
+  }, [projects, selectedIds]);
 
   const handleSendInvoices = async () => {
-    setIsSendingBatch(true)
+    setIsSendingBatch(true);
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // For now, just log what would be sent
-    console.log("Sending invoices for:", selectedByWorkspace)
+    console.log("Sending invoices for:", selectedByWorkspace);
 
     toast.success("Fakturaer sendt", {
       description: `${selectedIds.size} faktura(er) til ${selectedByWorkspace.size} kunde(r) for totalt ${formatNOK(selectedTotal)}`,
-    })
+    });
 
-    setSelectedIds(new Set())
-    setIsSendingBatch(false)
-  }
+    setSelectedIds(new Set());
+    setIsSendingBatch(false);
+  };
 
   const handleSendSingle = async (project: UninvoicedProject) => {
-    setSendingSingleId(project.id)
+    setSendingSingleId(project.id);
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    console.log("Sending single invoice for:", project)
+    console.log("Sending single invoice for:", project);
 
     toast.success("Faktura sendt", {
       description: `${project.workspaceName} – ${formatNOK(project.amount)}`,
-    })
+    });
 
-    setSendingSingleId(null)
-  }
+    setSendingSingleId(null);
+  };
 
   if (projects.length === 0) {
     return (
@@ -140,7 +149,7 @@ export function UninvoicedTable() {
           Det er ingen prosjekter som venter på fakturering.
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -151,20 +160,23 @@ export function UninvoicedTable() {
         {selectedIds.size > 0 ? (
           <>
             <AlertTitle className="flex items-center gap-2">
-              {selectedIds.size} prosjekt{selectedIds.size !== 1 ? "er" : ""} valgt
+              {selectedIds.size} prosjekt{selectedIds.size !== 1 ? "er" : ""}{" "}
+              valgt
               <Badge variant="outline" className="font-mono font-normal">
                 {formatNOK(selectedTotal)}
               </Badge>
             </AlertTitle>
             <AlertDescription>
-              {selectedByWorkspace.size} faktura{selectedByWorkspace.size !== 1 ? "er" : ""} vil bli opprettet
+              {selectedByWorkspace.size} faktura
+              {selectedByWorkspace.size !== 1 ? "er" : ""} vil bli opprettet
             </AlertDescription>
           </>
         ) : (
           <>
             <AlertTitle>Velg prosjekter</AlertTitle>
             <AlertDescription>
-              Klikk på en rad eller bruk avkrysningsboksene for å velge prosjekter
+              Klikk på en rad eller bruk avkrysningsboksene for å velge
+              prosjekter
             </AlertDescription>
           </>
         )}
@@ -193,7 +205,9 @@ export function UninvoicedTable() {
             <TableRow>
               <TableHead className="w-12">
                 <Checkbox
-                  checked={allSelected || (someSelected ? "indeterminate" : false)}
+                  checked={
+                    allSelected || (someSelected ? "indeterminate" : false)
+                  }
                   onCheckedChange={toggleAll}
                   aria-label="Velg alle"
                 />
@@ -294,12 +308,15 @@ export function UninvoicedTable() {
 
         {/* Footer */}
         <div className="border-t px-4 py-3 text-sm text-muted-foreground">
-          <span className="font-mono font-semibold" style={{ color: "var(--accent-amber)" }}>
+          <span
+            className="font-mono font-semibold"
+            style={{ color: "var(--accent-amber)" }}
+          >
             {projects.length}
           </span>{" "}
           prosjekter venter på fakturering
         </div>
       </div>
     </div>
-  )
+  );
 }

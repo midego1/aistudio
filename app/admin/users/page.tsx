@@ -1,5 +1,5 @@
-import { IconUsers } from "@tabler/icons-react"
-import { UsersDataTable } from "@/components/admin/tables/users/data-table"
+import { IconUsers } from "@tabler/icons-react";
+import { UsersDataTable } from "@/components/admin/tables/users/data-table";
 
 export default function AdminUsersPage() {
   return (
@@ -27,5 +27,5 @@ export default function AdminUsersPage() {
         <UsersDataTable />
       </div>
     </div>
-  )
+  );
 }

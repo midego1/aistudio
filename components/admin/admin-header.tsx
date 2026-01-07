@@ -1,21 +1,47 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
-import { IconChartBar, IconBuilding, IconUsers, IconFileInvoice, IconLogout } from "@tabler/icons-react"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  IconChartBar,
+  IconBuilding,
+  IconUsers,
+  IconFileInvoice,
+  IconLogout,
+} from "@tabler/icons-react";
 
 const navItems = [
-  { href: "/admin", label: "Overview", icon: IconChartBar, exact: true as const },
-  { href: "/admin/workspaces", label: "Workspaces", icon: IconBuilding, exact: false as const },
-  { href: "/admin/users", label: "Users", icon: IconUsers, exact: false as const },
-  { href: "/admin/billing", label: "Betalinger", icon: IconFileInvoice, exact: false as const },
-]
+  {
+    href: "/admin",
+    label: "Overview",
+    icon: IconChartBar,
+    exact: true as const,
+  },
+  {
+    href: "/admin/workspaces",
+    label: "Workspaces",
+    icon: IconBuilding,
+    exact: false as const,
+  },
+  {
+    href: "/admin/users",
+    label: "Users",
+    icon: IconUsers,
+    exact: false as const,
+  },
+  {
+    href: "/admin/billing",
+    label: "Betalinger",
+    icon: IconFileInvoice,
+    exact: false as const,
+  },
+];
 
 export function AdminHeader() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-900">
@@ -47,9 +73,9 @@ export function AdminHeader() {
               {navItems.map((item) => {
                 const isActive = item.exact
                   ? pathname === item.href
-                  : pathname.startsWith(item.href)
+                  : pathname.startsWith(item.href);
 
-                const Icon = item.icon
+                const Icon = item.icon;
 
                 return (
                   <Button
@@ -59,18 +85,22 @@ export function AdminHeader() {
                     size="sm"
                     className={cn(
                       "h-8 gap-2 transition-all text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800",
-                      isActive && "text-zinc-100 bg-zinc-800 font-medium"
+                      isActive && "text-zinc-100 bg-zinc-800 font-medium",
                     )}
-                    style={isActive ? {
-                      boxShadow: "inset 0 -2px 0 var(--accent-violet)",
-                    } : undefined}
+                    style={
+                      isActive
+                        ? {
+                            boxShadow: "inset 0 -2px 0 var(--accent-violet)",
+                          }
+                        : undefined
+                    }
                   >
                     <Link href={item.href}>
                       <Icon className="size-4" />
                       <span className="hidden sm:inline">{item.label}</span>
                     </Link>
                   </Button>
-                )
+                );
               })}
             </nav>
           </div>
@@ -95,5 +125,5 @@ export function AdminHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }

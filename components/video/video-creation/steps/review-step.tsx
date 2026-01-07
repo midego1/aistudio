@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
+import * as React from "react";
+import Image from "next/image";
 import {
   IconMovie,
   IconMusic,
@@ -9,23 +9,23 @@ import {
   IconCurrencyDollar,
   IconPhoto,
   IconAspectRatio,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { VIDEO_ROOM_TYPES } from "@/lib/video/room-sequence"
-import { formatVideoCost } from "@/lib/video/video-constants"
-import type { VideoImageItem } from "@/hooks/use-video-creation"
-import type { MusicTrack, VideoAspectRatio } from "@/lib/db/schema"
+import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { VIDEO_ROOM_TYPES } from "@/lib/video/room-sequence";
+import { formatVideoCost } from "@/lib/video/video-constants";
+import type { VideoImageItem } from "@/hooks/use-video-creation";
+import type { MusicTrack, VideoAspectRatio } from "@/lib/db/schema";
 
 interface ReviewStepProps {
-  images: VideoImageItem[]
-  projectName: string
-  onProjectNameChange: (name: string) => void
-  aspectRatio: VideoAspectRatio
-  musicTrack: MusicTrack | null
-  estimatedCost: number
+  images: VideoImageItem[];
+  projectName: string;
+  onProjectNameChange: (name: string) => void;
+  aspectRatio: VideoAspectRatio;
+  musicTrack: MusicTrack | null;
+  estimatedCost: number;
 }
 
 export function ReviewStep({
@@ -36,7 +36,7 @@ export function ReviewStep({
   musicTrack,
   estimatedCost,
 }: ReviewStepProps) {
-  const totalDuration = images.length * 5
+  const totalDuration = images.length * 5;
 
   return (
     <div className="space-y-8">
@@ -94,10 +94,14 @@ export function ReviewStep({
       {/* Music Info */}
       <div className="rounded-xl border bg-muted/30 p-4">
         <div className="flex items-center gap-3">
-          <div className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-full",
-            musicTrack ? "bg-(--accent-teal)/10 text-(--accent-teal)" : "bg-muted text-muted-foreground"
-          )}>
+          <div
+            className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-full",
+              musicTrack
+                ? "bg-(--accent-teal)/10 text-(--accent-teal)"
+                : "bg-muted text-muted-foreground",
+            )}
+          >
             <IconMusic className="h-5 w-5" />
           </div>
           <div>
@@ -105,7 +109,9 @@ export function ReviewStep({
               {musicTrack ? musicTrack.name : "No Background Music"}
             </div>
             <div className="text-sm text-muted-foreground">
-              {musicTrack ? `${musicTrack.artist} • ${musicTrack.category}` : "Video will have no audio"}
+              {musicTrack
+                ? `${musicTrack.artist} • ${musicTrack.category}`
+                : "Video will have no audio"}
             </div>
           </div>
         </div>
@@ -123,7 +129,9 @@ export function ReviewStep({
 
           <div className="space-y-3">
             {images.map((image, index) => {
-              const roomConfig = VIDEO_ROOM_TYPES.find((r) => r.id === image.roomType)
+              const roomConfig = VIDEO_ROOM_TYPES.find(
+                (r) => r.id === image.roomType,
+              );
               return (
                 <div
                   key={image.id}
@@ -161,7 +169,7 @@ export function ReviewStep({
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
@@ -172,8 +180,12 @@ export function ReviewStep({
         <h4 className="mb-3 font-medium">Cost Breakdown</h4>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Video Clips ({images.length} × $0.35)</span>
-            <span className="font-medium">{formatVideoCost(images.length * 0.35)}</span>
+            <span className="text-muted-foreground">
+              Video Clips ({images.length} × $0.35)
+            </span>
+            <span className="font-medium">
+              {formatVideoCost(images.length * 0.35)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Video Compilation</span>
@@ -189,5 +201,5 @@ export function ReviewStep({
         </div>
       </div>
     </div>
-  )
+  );
 }

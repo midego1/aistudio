@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { IconLogout, IconLoader } from "@tabler/icons-react"
-import { signOut } from "@/lib/auth-client"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { IconLogout, IconLoader } from "@tabler/icons-react";
+import { signOut } from "@/lib/auth-client";
 
 export function SignOutButton() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignOut = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/sign-in")
+          router.push("/sign-in");
         },
       },
-    })
-  }
+    });
+  };
 
   return (
     <Button
@@ -36,5 +36,5 @@ export function SignOutButton() {
       )}
       <span className="hidden sm:inline">Sign out</span>
     </Button>
-  )
+  );
 }

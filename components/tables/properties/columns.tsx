@@ -1,18 +1,23 @@
-"use client"
+"use client";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import type { Property, PropertyStatus } from "@/lib/mock/properties"
-import { IconDotsVertical, IconEye, IconPencil, IconTrash } from "@tabler/icons-react"
-import type { ColumnDef } from "@tanstack/react-table"
-import { memo } from "react"
+} from "@/components/ui/dropdown-menu";
+import type { Property, PropertyStatus } from "@/lib/mock/properties";
+import {
+  IconDotsVertical,
+  IconEye,
+  IconPencil,
+  IconTrash,
+} from "@tabler/icons-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { memo } from "react";
 
 // Status color mapping using CSS custom properties
 const statusColorMap: Record<PropertyStatus, string> = {
@@ -20,23 +25,35 @@ const statusColorMap: Record<PropertyStatus, string> = {
   pending: "var(--accent-amber)",
   completed: "var(--accent-teal)",
   archived: "var(--accent-red)",
-}
+};
 
 const statusLabelMap: Record<PropertyStatus, string> = {
   active: "Active",
   pending: "Pending",
   completed: "Completed",
   archived: "Archived",
-}
+};
 
 // Memoized cell components for performance
-const AddressCell = memo(({ address, city, state }: { address: string; city: string; state: string }) => (
-  <div className="flex flex-col min-w-0">
-    <span className="font-medium truncate">{address}</span>
-    <span className="text-xs text-muted-foreground truncate">{city}, {state}</span>
-  </div>
-))
-AddressCell.displayName = "AddressCell"
+const AddressCell = memo(
+  ({
+    address,
+    city,
+    state,
+  }: {
+    address: string;
+    city: string;
+    state: string;
+  }) => (
+    <div className="flex flex-col min-w-0">
+      <span className="font-medium truncate">{address}</span>
+      <span className="text-xs text-muted-foreground truncate">
+        {city}, {state}
+      </span>
+    </div>
+  ),
+);
+AddressCell.displayName = "AddressCell";
 
 const StatusCell = memo(({ status }: { status: PropertyStatus }) => (
   <Badge
@@ -49,8 +66,8 @@ const StatusCell = memo(({ status }: { status: PropertyStatus }) => (
   >
     {statusLabelMap[status]}
   </Badge>
-))
-StatusCell.displayName = "StatusCell"
+));
+StatusCell.displayName = "StatusCell";
 
 const TagsCell = memo(({ tags }: { tags: string[] }) => (
   <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
@@ -60,8 +77,8 @@ const TagsCell = memo(({ tags }: { tags: string[] }) => (
       </Badge>
     ))}
   </div>
-))
-TagsCell.displayName = "TagsCell"
+));
+TagsCell.displayName = "TagsCell";
 
 const CostCell = memo(({ cost }: { cost: number }) => (
   <span
@@ -70,8 +87,8 @@ const CostCell = memo(({ cost }: { cost: number }) => (
   >
     ${cost.toFixed(2)}
   </span>
-))
-CostCell.displayName = "CostCell"
+));
+CostCell.displayName = "CostCell";
 
 const ActionsCell = memo(({ propertyId }: { propertyId: string }) => (
   <div className="flex items-center justify-center">
@@ -102,8 +119,8 @@ const ActionsCell = memo(({ propertyId }: { propertyId: string }) => (
       </DropdownMenuContent>
     </DropdownMenu>
   </div>
-))
-ActionsCell.displayName = "ActionsCell"
+));
+ActionsCell.displayName = "ActionsCell";
 
 export const columns: ColumnDef<Property>[] = [
   {
@@ -165,4 +182,4 @@ export const columns: ColumnDef<Property>[] = [
     enableHiding: false,
     cell: ({ row }) => <ActionsCell propertyId={row.original.id} />,
   },
-]
+];

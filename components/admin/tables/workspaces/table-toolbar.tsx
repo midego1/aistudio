@@ -1,35 +1,34 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   ALL_WORKSPACE_STATUSES,
   ALL_WORKSPACE_PLANS,
-  type WorkspaceStatus,
-  type WorkspacePlan,
-} from "@/lib/mock/admin-workspaces"
-import { useAdminWorkspaceFilters } from "@/hooks/use-admin-workspace-filters"
-import { IconSearch, IconX } from "@tabler/icons-react"
+} from "@/lib/types/admin";
+import type { WorkspaceStatus, WorkspacePlan } from "@/lib/db/schema";
+import { useAdminWorkspaceFilters } from "@/hooks/use-admin-workspace-filters";
+import { IconSearch, IconX } from "@tabler/icons-react";
 
 const statusLabels: Record<WorkspaceStatus, string> = {
   active: "Active",
   suspended: "Suspended",
   trial: "Trial",
-}
+};
 
 const planLabels: Record<WorkspacePlan, string> = {
   free: "Free",
   pro: "Pro",
   enterprise: "Enterprise",
-}
+};
 
 export function WorkspacesTableToolbar() {
   const {
@@ -40,7 +39,7 @@ export function WorkspacesTableToolbar() {
     setPlan,
     clearFilter,
     clearAll,
-  } = useAdminWorkspaceFilters()
+  } = useAdminWorkspaceFilters();
 
   return (
     <div className="space-y-3">
@@ -62,7 +61,9 @@ export function WorkspacesTableToolbar() {
           {/* Status filter */}
           <Select
             value={filters.status || "all"}
-            onValueChange={(value) => setStatus(value === "all" ? null : (value as WorkspaceStatus))}
+            onValueChange={(value) =>
+              setStatus(value === "all" ? null : (value as WorkspaceStatus))
+            }
           >
             <SelectTrigger className="w-full bg-background/80 border-foreground/10 sm:w-[130px]">
               <SelectValue placeholder="Status" />
@@ -80,7 +81,9 @@ export function WorkspacesTableToolbar() {
           {/* Plan filter */}
           <Select
             value={filters.plan || "all"}
-            onValueChange={(value) => setPlan(value === "all" ? null : (value as WorkspacePlan))}
+            onValueChange={(value) =>
+              setPlan(value === "all" ? null : (value as WorkspacePlan))
+            }
           >
             <SelectTrigger className="w-full bg-background/80 border-foreground/10 sm:w-[130px]">
               <SelectValue placeholder="Plan" />
@@ -136,7 +139,8 @@ export function WorkspacesTableToolbar() {
               variant="secondary"
               className="gap-1.5 pr-1.5 animate-scale-in"
             >
-              <span className="text-muted-foreground">Status:</span> {statusLabels[filters.status]}
+              <span className="text-muted-foreground">Status:</span>{" "}
+              {statusLabels[filters.status]}
               <button
                 onClick={() => clearFilter("status")}
                 className="ml-0.5 rounded-full p-0.5 hover:bg-foreground/10 transition-colors"
@@ -151,7 +155,8 @@ export function WorkspacesTableToolbar() {
               variant="secondary"
               className="gap-1.5 pr-1.5 animate-scale-in"
             >
-              <span className="text-muted-foreground">Plan:</span> {planLabels[filters.plan]}
+              <span className="text-muted-foreground">Plan:</span>{" "}
+              {planLabels[filters.plan]}
               <button
                 onClick={() => clearFilter("plan")}
                 className="ml-0.5 rounded-full p-0.5 hover:bg-foreground/10 transition-colors"
@@ -163,5 +168,5 @@ export function WorkspacesTableToolbar() {
         </div>
       )}
     </div>
-  )
+  );
 }

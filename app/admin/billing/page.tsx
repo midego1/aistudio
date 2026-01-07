@@ -1,10 +1,10 @@
-import { IconFileInvoice } from "@tabler/icons-react"
-import { BillingStatsBar } from "@/components/admin/billing/billing-stats-bar"
-import { BillingTabs } from "@/components/admin/billing/billing-tabs"
-import { getBillingStats } from "@/lib/mock/admin-billing"
+import { IconFileInvoice } from "@tabler/icons-react";
+import { BillingStatsBar } from "@/components/admin/billing/billing-stats-bar";
+import { BillingTabs } from "@/components/admin/billing/billing-tabs";
+import { getBillingStats } from "@/lib/mock/admin-billing";
 
 export default function AdminBillingPage() {
-  const stats = getBillingStats()
+  const stats = getBillingStats();
 
   return (
     <div className="space-y-6 px-4 md:px-6 lg:px-8">
@@ -36,5 +36,5 @@ export default function AdminBillingPage() {
         <BillingTabs />
       </div>
     </div>
-  )
+  );
 }

@@ -1,49 +1,49 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useCallback, useState } from "react"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   IconUpload,
   IconPhoto,
   IconX,
   IconSparkles,
   IconLoader2,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useImageUpload } from "@/hooks/use-image-upload"
-import { ROOM_TYPES } from "@/lib/style-templates"
+} from "@/components/ui/select";
+import { useImageUpload } from "@/hooks/use-image-upload";
+import { ROOM_TYPES } from "@/lib/style-templates";
 
 interface UploadedImage {
-  id: string
-  file: File
-  preview: string
-  name: string
-  roomType: string | null
+  id: string;
+  file: File;
+  preview: string;
+  name: string;
+  roomType: string | null;
 }
 
 interface AddImagesDialogProps {
-  projectId: string
-  projectName: string
-  currentImageCount: number
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  projectId: string;
+  projectName: string;
+  currentImageCount: number;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function AddImagesDialog({
@@ -53,134 +53,143 @@ export function AddImagesDialog({
   open,
   onOpenChange,
 }: AddImagesDialogProps) {
-  const router = useRouter()
-  const imageUpload = useImageUpload()
-  const [images, setImages] = useState<UploadedImage[]>([])
-  const [isDragging, setIsDragging] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const inputRef = React.useRef<HTMLInputElement>(null)
+  const router = useRouter();
+  const imageUpload = useImageUpload();
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const maxImages = 10 - currentImageCount
-  const canAddMore = images.length < maxImages
+  const maxImages = 10 - currentImageCount;
+  const canAddMore = images.length < maxImages;
 
   const handleReset = useCallback(() => {
-    images.forEach((img) => URL.revokeObjectURL(img.preview))
-    setImages([])
-    imageUpload.reset()
-    setIsSubmitting(false)
-  }, [images, imageUpload])
+    images.forEach((img) => URL.revokeObjectURL(img.preview));
+    setImages([]);
+    imageUpload.reset();
+    setIsSubmitting(false);
+  }, [images, imageUpload]);
 
   const handleClose = useCallback(() => {
-    handleReset()
-    onOpenChange(false)
-  }, [handleReset, onOpenChange])
+    handleReset();
+    onOpenChange(false);
+  }, [handleReset, onOpenChange]);
 
-  const addImages = useCallback((files: File[]) => {
-    const remaining = maxImages - images.length
-    const filesToAdd = files.slice(0, remaining)
+  const addImages = useCallback(
+    (files: File[]) => {
+      const remaining = maxImages - images.length;
+      const filesToAdd = files.slice(0, remaining);
 
-    const newImages: UploadedImage[] = filesToAdd.map((file, index) => ({
-      id: `img_${Date.now()}_${index}`,
-      file,
-      preview: URL.createObjectURL(file),
-      name: file.name,
-      roomType: null,
-    }))
+      const newImages: UploadedImage[] = filesToAdd.map((file, index) => ({
+        id: `img_${Date.now()}_${index}`,
+        file,
+        preview: URL.createObjectURL(file),
+        name: file.name,
+        roomType: null,
+      }));
 
-    setImages((prev) => [...prev, ...newImages])
-  }, [images.length, maxImages])
+      setImages((prev) => [...prev, ...newImages]);
+    },
+    [images.length, maxImages],
+  );
 
   const updateImageRoomType = useCallback((id: string, roomType: string) => {
     setImages((prev) =>
-      prev.map((img) =>
-        img.id === id ? { ...img, roomType } : img
-      )
-    )
-  }, [])
+      prev.map((img) => (img.id === id ? { ...img, roomType } : img)),
+    );
+  }, []);
 
   const removeImage = useCallback((id: string) => {
     setImages((prev) => {
-      const imageToRemove = prev.find((img) => img.id === id)
+      const imageToRemove = prev.find((img) => img.id === id);
       if (imageToRemove) {
-        URL.revokeObjectURL(imageToRemove.preview)
+        URL.revokeObjectURL(imageToRemove.preview);
       }
-      return prev.filter((img) => img.id !== id)
-    })
-  }, [])
+      return prev.filter((img) => img.id !== id);
+    });
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }, [])
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }, [])
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
-      e.preventDefault()
-      setIsDragging(false)
+      e.preventDefault();
+      setIsDragging(false);
 
       const files = Array.from(e.dataTransfer.files).filter((file) =>
-        file.type.startsWith("image/")
-      )
+        file.type.startsWith("image/"),
+      );
       if (files.length > 0) {
-        addImages(files)
+        addImages(files);
       }
     },
-    [addImages]
-  )
+    [addImages],
+  );
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || [])
+      const files = Array.from(e.target.files || []);
       if (files.length > 0) {
-        addImages(files)
+        addImages(files);
       }
-      e.target.value = ""
+      e.target.value = "";
     },
-    [addImages]
-  )
+    [addImages],
+  );
 
   const handleClick = useCallback(() => {
-    inputRef.current?.click()
-  }, [])
+    inputRef.current?.click();
+  }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (images.length === 0) return
+    if (images.length === 0) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      const files = images.map((img) => img.file)
-      const roomTypes = images.map((img) => img.roomType)
-      const uploadSuccess = await imageUpload.uploadImages(projectId, files, roomTypes)
+      const files = images.map((img) => img.file);
+      const roomTypes = images.map((img) => img.roomType);
+      const uploadSuccess = await imageUpload.uploadImages(
+        projectId,
+        files,
+        roomTypes,
+      );
 
       if (uploadSuccess) {
-        handleReset()
-        onOpenChange(false)
-        router.refresh()
+        handleReset();
+        onOpenChange(false);
+        router.refresh();
       } else {
-        console.error("Failed to upload images:", imageUpload.error)
-        setIsSubmitting(false)
+        console.error("Failed to upload images:", imageUpload.error);
+        setIsSubmitting(false);
       }
     } catch (error) {
-      console.error("Upload error:", error)
-      setIsSubmitting(false)
+      console.error("Upload error:", error);
+      setIsSubmitting(false);
     }
-  }, [images, projectId, imageUpload, handleReset, onOpenChange, router])
+  }, [images, projectId, imageUpload, handleReset, onOpenChange, router]);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent size="lg" className="flex max-h-[80vh] flex-col gap-0 overflow-hidden p-0">
+      <DialogContent
+        size="lg"
+        className="flex max-h-[80vh] flex-col gap-0 overflow-hidden p-0"
+      >
         {/* Header */}
         <div className="border-b px-6 py-4">
           <DialogHeader>
             <DialogTitle>Add More Images</DialogTitle>
             <DialogDescription>
-              Add images to &ldquo;{projectName}&rdquo; ({currentImageCount}/10 images used)
+              Add images to &ldquo;{projectName}&rdquo; ({currentImageCount}/10
+              images used)
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -206,7 +215,7 @@ export function AddImagesDialog({
                   "relative flex min-h-[160px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 transition-all duration-200",
                   isDragging
                     ? "border-[var(--accent-teal)] bg-[var(--accent-teal)]/5"
-                    : "border-foreground/10 bg-muted/30 hover:border-foreground/20 hover:bg-muted/50"
+                    : "border-foreground/10 bg-muted/30 hover:border-foreground/20 hover:bg-muted/50",
                 )}
               >
                 <input
@@ -221,7 +230,7 @@ export function AddImagesDialog({
                 <div
                   className={cn(
                     "flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-200",
-                    isDragging ? "scale-110" : ""
+                    isDragging ? "scale-110" : "",
                   )}
                   style={{
                     backgroundColor: isDragging
@@ -232,18 +241,23 @@ export function AddImagesDialog({
                   <IconUpload
                     className={cn(
                       "h-6 w-6 transition-colors",
-                      isDragging ? "text-white" : ""
+                      isDragging ? "text-white" : "",
                     )}
-                    style={{ color: isDragging ? undefined : "var(--accent-teal)" }}
+                    style={{
+                      color: isDragging ? undefined : "var(--accent-teal)",
+                    }}
                   />
                 </div>
 
                 <div className="text-center">
                   <p className="font-medium text-foreground">
-                    {isDragging ? "Drop your images here" : "Drag & drop images"}
+                    {isDragging
+                      ? "Drop your images here"
+                      : "Drag & drop images"}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    or click to browse • Up to {maxImages} more image{maxImages !== 1 ? "s" : ""}
+                    or click to browse • Up to {maxImages} more image
+                    {maxImages !== 1 ? "s" : ""}
                   </p>
                 </div>
               </div>
@@ -253,7 +267,8 @@ export function AddImagesDialog({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium text-foreground">
-                      {images.length} image{images.length !== 1 ? "s" : ""} selected
+                      {images.length} image{images.length !== 1 ? "s" : ""}{" "}
+                      selected
                     </p>
                     {canAddMore && (
                       <Button
@@ -289,8 +304,8 @@ export function AddImagesDialog({
                             variant="secondary"
                             size="icon-sm"
                             onClick={(e) => {
-                              e.stopPropagation()
-                              removeImage(image.id)
+                              e.stopPropagation();
+                              removeImage(image.id);
                             }}
                             className="absolute right-1 top-1 h-6 w-6 rounded-full bg-black/60 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover:opacity-100"
                           >
@@ -302,14 +317,20 @@ export function AddImagesDialog({
                         <div className="p-2">
                           <Select
                             value={image.roomType || ""}
-                            onValueChange={(value) => updateImageRoomType(image.id, value)}
+                            onValueChange={(value) =>
+                              updateImageRoomType(image.id, value)
+                            }
                           >
                             <SelectTrigger className="h-8 text-xs">
                               <SelectValue placeholder="Select room type" />
                             </SelectTrigger>
                             <SelectContent>
                               {ROOM_TYPES.map((room) => (
-                                <SelectItem key={room.id} value={room.id} className="text-xs">
+                                <SelectItem
+                                  key={room.id}
+                                  value={room.id}
+                                  className="text-xs"
+                                >
                                   {room.label}
                                 </SelectItem>
                               ))}
@@ -327,7 +348,11 @@ export function AddImagesDialog({
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 border-t bg-muted/30 px-6 py-4">
-          <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
           <Button
@@ -351,5 +376,5 @@ export function AddImagesDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

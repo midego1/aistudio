@@ -1,37 +1,37 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   ALL_USER_ROLES,
   ALL_USER_STATUSES,
   type UserRole,
   type UserStatus,
-} from "@/lib/mock/admin-users"
-import { getAllWorkspaces } from "@/lib/mock/admin-workspaces"
-import { useAdminUserFilters } from "@/hooks/use-admin-user-filters"
-import { IconSearch, IconX } from "@tabler/icons-react"
-import { useMemo } from "react"
+} from "@/lib/mock/admin-users";
+import { getAllWorkspaces } from "@/lib/mock/admin-workspaces";
+import { useAdminUserFilters } from "@/hooks/use-admin-user-filters";
+import { IconSearch, IconX } from "@tabler/icons-react";
+import { useMemo } from "react";
 
 const roleLabels: Record<UserRole, string> = {
   owner: "Owner",
   admin: "Admin",
   member: "Member",
-}
+};
 
 const statusLabels: Record<UserStatus, string> = {
   active: "Active",
   pending: "Pending",
   inactive: "Inactive",
-}
+};
 
 export function UsersTableToolbar() {
   const {
@@ -43,11 +43,13 @@ export function UsersTableToolbar() {
     setStatus,
     clearFilter,
     clearAll,
-  } = useAdminUserFilters()
+  } = useAdminUserFilters();
 
   // Get workspaces for dropdown
-  const workspaces = useMemo(() => getAllWorkspaces(), [])
-  const selectedWorkspace = workspaces.find((w) => w.id === filters.workspaceId)
+  const workspaces = useMemo(() => getAllWorkspaces(), []);
+  const selectedWorkspace = workspaces.find(
+    (w) => w.id === filters.workspaceId,
+  );
 
   return (
     <div className="space-y-3">
@@ -69,7 +71,9 @@ export function UsersTableToolbar() {
           {/* Workspace filter */}
           <Select
             value={filters.workspaceId || "all"}
-            onValueChange={(value) => setWorkspace(value === "all" ? null : value)}
+            onValueChange={(value) =>
+              setWorkspace(value === "all" ? null : value)
+            }
           >
             <SelectTrigger className="w-full bg-background/80 border-foreground/10 sm:w-[180px]">
               <SelectValue placeholder="Workspace" />
@@ -87,7 +91,9 @@ export function UsersTableToolbar() {
           {/* Role filter */}
           <Select
             value={filters.role || "all"}
-            onValueChange={(value) => setRole(value === "all" ? null : (value as UserRole))}
+            onValueChange={(value) =>
+              setRole(value === "all" ? null : (value as UserRole))
+            }
           >
             <SelectTrigger className="w-full bg-background/80 border-foreground/10 sm:w-[120px]">
               <SelectValue placeholder="Role" />
@@ -105,7 +111,9 @@ export function UsersTableToolbar() {
           {/* Status filter */}
           <Select
             value={filters.status || "all"}
-            onValueChange={(value) => setStatus(value === "all" ? null : (value as UserStatus))}
+            onValueChange={(value) =>
+              setStatus(value === "all" ? null : (value as UserStatus))
+            }
           >
             <SelectTrigger className="w-full bg-background/80 border-foreground/10 sm:w-[120px]">
               <SelectValue placeholder="Status" />
@@ -161,7 +169,8 @@ export function UsersTableToolbar() {
               variant="secondary"
               className="gap-1.5 pr-1.5 animate-scale-in"
             >
-              <span className="text-muted-foreground">Workspace:</span> {selectedWorkspace.name}
+              <span className="text-muted-foreground">Workspace:</span>{" "}
+              {selectedWorkspace.name}
               <button
                 onClick={() => clearFilter("workspaceId")}
                 className="ml-0.5 rounded-full p-0.5 hover:bg-foreground/10 transition-colors"
@@ -176,7 +185,8 @@ export function UsersTableToolbar() {
               variant="secondary"
               className="gap-1.5 pr-1.5 animate-scale-in"
             >
-              <span className="text-muted-foreground">Role:</span> {roleLabels[filters.role]}
+              <span className="text-muted-foreground">Role:</span>{" "}
+              {roleLabels[filters.role]}
               <button
                 onClick={() => clearFilter("role")}
                 className="ml-0.5 rounded-full p-0.5 hover:bg-foreground/10 transition-colors"
@@ -191,7 +201,8 @@ export function UsersTableToolbar() {
               variant="secondary"
               className="gap-1.5 pr-1.5 animate-scale-in"
             >
-              <span className="text-muted-foreground">Status:</span> {statusLabels[filters.status]}
+              <span className="text-muted-foreground">Status:</span>{" "}
+              {statusLabels[filters.status]}
               <button
                 onClick={() => clearFilter("status")}
                 className="ml-0.5 rounded-full p-0.5 hover:bg-foreground/10 transition-colors"
@@ -203,5 +214,5 @@ export function UsersTableToolbar() {
         </div>
       )}
     </div>
-  )
+  );
 }

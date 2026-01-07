@@ -1,27 +1,63 @@
-export type PropertyStatus = "active" | "pending" | "completed" | "archived"
-export type PropertyTag = "residential" | "commercial" | "luxury" | "staging" | "exterior" | "interior" | "renovation"
+export type PropertyStatus = "active" | "pending" | "completed" | "archived";
+export type PropertyTag =
+  | "residential"
+  | "commercial"
+  | "luxury"
+  | "staging"
+  | "exterior"
+  | "interior"
+  | "renovation";
 
 export interface Property {
-  id: string
-  address: string
-  city: string
-  state: string
-  zipCode: string
-  status: PropertyStatus
-  tags: PropertyTag[]
-  editCount: number
-  totalCost: number
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  status: PropertyStatus;
+  tags: PropertyTag[];
+  editCount: number;
+  totalCost: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // Sample addresses for realistic mock data
 const streetNames = [
-  "Oak", "Maple", "Cedar", "Pine", "Elm", "Willow", "Birch", "Ash", "Cherry", "Walnut",
-  "Main", "Park", "Lake", "River", "Hill", "Valley", "Mountain", "Forest", "Ocean", "Beach"
-]
+  "Oak",
+  "Maple",
+  "Cedar",
+  "Pine",
+  "Elm",
+  "Willow",
+  "Birch",
+  "Ash",
+  "Cherry",
+  "Walnut",
+  "Main",
+  "Park",
+  "Lake",
+  "River",
+  "Hill",
+  "Valley",
+  "Mountain",
+  "Forest",
+  "Ocean",
+  "Beach",
+];
 
-const streetTypes = ["St", "Ave", "Blvd", "Dr", "Ln", "Way", "Ct", "Pl", "Rd", "Cir"]
+const streetTypes = [
+  "St",
+  "Ave",
+  "Blvd",
+  "Dr",
+  "Ln",
+  "Way",
+  "Ct",
+  "Pl",
+  "Rd",
+  "Cir",
+];
 
 const cities = [
   { city: "Los Angeles", state: "CA", zip: "900" },
@@ -39,42 +75,55 @@ const cities = [
   { city: "Boston", state: "MA", zip: "021" },
   { city: "Phoenix", state: "AZ", zip: "850" },
   { city: "Las Vegas", state: "NV", zip: "891" },
-]
+];
 
-const statuses: PropertyStatus[] = ["active", "pending", "completed", "archived"]
-const allTags: PropertyTag[] = ["residential", "commercial", "luxury", "staging", "exterior", "interior", "renovation"]
+const statuses: PropertyStatus[] = [
+  "active",
+  "pending",
+  "completed",
+  "archived",
+];
+const allTags: PropertyTag[] = [
+  "residential",
+  "commercial",
+  "luxury",
+  "staging",
+  "exterior",
+  "interior",
+  "renovation",
+];
 
 function seededRandom(seed: number): () => number {
   return () => {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff
-    return seed / 0x7fffffff
-  }
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
 }
 
 function generateMockProperties(count: number): Property[] {
-  const properties: Property[] = []
-  const random = seededRandom(42) // Consistent seed for reproducible data
+  const properties: Property[] = [];
+  const random = seededRandom(42); // Consistent seed for reproducible data
 
   for (let i = 0; i < count; i++) {
-    const streetNum = Math.floor(random() * 9999) + 1
-    const streetName = streetNames[Math.floor(random() * streetNames.length)]
-    const streetType = streetTypes[Math.floor(random() * streetTypes.length)]
-    const location = cities[Math.floor(random() * cities.length)]
-    const zipSuffix = String(Math.floor(random() * 99)).padStart(2, "0")
+    const streetNum = Math.floor(random() * 9999) + 1;
+    const streetName = streetNames[Math.floor(random() * streetNames.length)];
+    const streetType = streetTypes[Math.floor(random() * streetTypes.length)];
+    const location = cities[Math.floor(random() * cities.length)];
+    const zipSuffix = String(Math.floor(random() * 99)).padStart(2, "0");
 
     // Generate 1-3 random tags
-    const tagCount = Math.floor(random() * 3) + 1
-    const shuffledTags = [...allTags].sort(() => random() - 0.5)
-    const tags = shuffledTags.slice(0, tagCount) as PropertyTag[]
+    const tagCount = Math.floor(random() * 3) + 1;
+    const shuffledTags = [...allTags].sort(() => random() - 0.5);
+    const tags = shuffledTags.slice(0, tagCount) as PropertyTag[];
 
     // Generate dates within the last year
-    const createdDaysAgo = Math.floor(random() * 365)
-    const createdAt = new Date()
-    createdAt.setDate(createdAt.getDate() - createdDaysAgo)
+    const createdDaysAgo = Math.floor(random() * 365);
+    const createdAt = new Date();
+    createdAt.setDate(createdAt.getDate() - createdDaysAgo);
 
-    const updatedDaysAgo = Math.floor(random() * createdDaysAgo)
-    const updatedAt = new Date()
-    updatedAt.setDate(updatedAt.getDate() - updatedDaysAgo)
+    const updatedDaysAgo = Math.floor(random() * createdDaysAgo);
+    const updatedAt = new Date();
+    updatedAt.setDate(updatedAt.getDate() - updatedDaysAgo);
 
     properties.push({
       id: `prop_${String(i + 1).padStart(4, "0")}`,
@@ -88,106 +137,119 @@ function generateMockProperties(count: number): Property[] {
       totalCost: Math.round(random() * 50 * 100) / 100, // $0.00 - $50.00
       createdAt,
       updatedAt,
-    })
+    });
   }
 
-  return properties
+  return properties;
 }
 
 // Generate 150 mock properties
-const mockProperties = generateMockProperties(150)
+const mockProperties = generateMockProperties(150);
 
-export type SortableColumn = "address" | "status" | "editCount" | "totalCost" | "createdAt"
-export type SortDirection = "asc" | "desc"
+export type SortableColumn =
+  | "address"
+  | "status"
+  | "editCount"
+  | "totalCost"
+  | "createdAt";
+export type SortDirection = "asc" | "desc";
 
 export interface PropertyFilters {
-  search?: string
-  status?: PropertyStatus | null
-  tags?: PropertyTag[]
-  sort?: [SortableColumn, SortDirection]
+  search?: string;
+  status?: PropertyStatus | null;
+  tags?: PropertyTag[];
+  sort?: [SortableColumn, SortDirection];
 }
 
 export interface GetPropertiesResponse {
-  data: Property[]
+  data: Property[];
   meta: {
-    cursor: string | null
-    hasMore: boolean
-    total: number
-    filteredTotal: number
-  }
+    cursor: string | null;
+    hasMore: boolean;
+    total: number;
+    filteredTotal: number;
+  };
 }
 
-function filterProperties(properties: Property[], filters: PropertyFilters): Property[] {
+function filterProperties(
+  properties: Property[],
+  filters: PropertyFilters,
+): Property[] {
   return properties.filter((property) => {
     // Search filter (address, city, state)
     if (filters.search) {
-      const searchLower = filters.search.toLowerCase()
+      const searchLower = filters.search.toLowerCase();
       const matchesSearch =
         property.address.toLowerCase().includes(searchLower) ||
         property.city.toLowerCase().includes(searchLower) ||
-        property.state.toLowerCase().includes(searchLower)
-      if (!matchesSearch) return false
+        property.state.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
     }
 
     // Status filter
     if (filters.status && property.status !== filters.status) {
-      return false
+      return false;
     }
 
     // Tags filter (match any)
     if (filters.tags && filters.tags.length > 0) {
-      const hasMatchingTag = filters.tags.some((tag) => property.tags.includes(tag))
-      if (!hasMatchingTag) return false
+      const hasMatchingTag = filters.tags.some((tag) =>
+        property.tags.includes(tag),
+      );
+      if (!hasMatchingTag) return false;
     }
 
-    return true
-  })
+    return true;
+  });
 }
 
-function sortProperties(properties: Property[], sort?: [SortableColumn, SortDirection]): Property[] {
-  if (!sort) return properties
+function sortProperties(
+  properties: Property[],
+  sort?: [SortableColumn, SortDirection],
+): Property[] {
+  if (!sort) return properties;
 
-  const [column, direction] = sort
-  const multiplier = direction === "asc" ? 1 : -1
+  const [column, direction] = sort;
+  const multiplier = direction === "asc" ? 1 : -1;
 
   return [...properties].sort((a, b) => {
-    let comparison = 0
+    let comparison = 0;
 
     switch (column) {
       case "address":
-        comparison = a.address.localeCompare(b.address)
-        break
+        comparison = a.address.localeCompare(b.address);
+        break;
       case "status":
-        comparison = a.status.localeCompare(b.status)
-        break
+        comparison = a.status.localeCompare(b.status);
+        break;
       case "editCount":
-        comparison = a.editCount - b.editCount
-        break
+        comparison = a.editCount - b.editCount;
+        break;
       case "totalCost":
-        comparison = a.totalCost - b.totalCost
-        break
+        comparison = a.totalCost - b.totalCost;
+        break;
       case "createdAt":
-        comparison = a.createdAt.getTime() - b.createdAt.getTime()
-        break
+        comparison = a.createdAt.getTime() - b.createdAt.getTime();
+        break;
     }
 
-    return comparison * multiplier
-  })
+    return comparison * multiplier;
+  });
 }
 
 export function getPropertiesPage(
   cursor: string | null = null,
   limit: number = 20,
-  filters: PropertyFilters = {}
+  filters: PropertyFilters = {},
 ): GetPropertiesResponse {
   // Apply filters first, then sort
-  const filteredProperties = filterProperties(mockProperties, filters)
-  const sortedProperties = sortProperties(filteredProperties, filters.sort)
+  const filteredProperties = filterProperties(mockProperties, filters);
+  const sortedProperties = sortProperties(filteredProperties, filters.sort);
 
-  const startIndex = cursor ? parseInt(cursor, 10) : 0
-  const endIndex = Math.min(startIndex + limit, sortedProperties.length)
-  const data = sortedProperties.slice(startIndex, endIndex)
-  const hasMore = endIndex < sortedProperties.length
+  const startIndex = cursor ? parseInt(cursor, 10) : 0;
+  const endIndex = Math.min(startIndex + limit, sortedProperties.length);
+  const data = sortedProperties.slice(startIndex, endIndex);
+  const hasMore = endIndex < sortedProperties.length;
 
   return {
     data,
@@ -197,13 +259,26 @@ export function getPropertiesPage(
       total: mockProperties.length,
       filteredTotal: sortedProperties.length,
     },
-  }
+  };
 }
 
 export function getAllProperties(): Property[] {
-  return mockProperties
+  return mockProperties;
 }
 
 // Export constants for filters
-export const ALL_STATUSES: PropertyStatus[] = ["active", "pending", "completed", "archived"]
-export const ALL_TAGS: PropertyTag[] = ["residential", "commercial", "luxury", "staging", "exterior", "interior", "renovation"]
+export const ALL_STATUSES: PropertyStatus[] = [
+  "active",
+  "pending",
+  "completed",
+  "archived",
+];
+export const ALL_TAGS: PropertyTag[] = [
+  "residential",
+  "commercial",
+  "luxury",
+  "staging",
+  "exterior",
+  "interior",
+  "renovation",
+];

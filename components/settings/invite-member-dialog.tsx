@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useState } from "react"
+import * as React from "react";
+import { useState } from "react";
 import {
   IconMail,
   IconUserPlus,
@@ -9,27 +9,32 @@ import {
   IconShield,
   IconUser,
   IconCheck,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
-import type { UserRole } from "@/lib/mock/workspace"
+} from "@/components/ui/dialog";
+import type { UserRole } from "@/lib/mock/workspace";
 
 interface InviteMemberDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const roleOptions: { value: UserRole; label: string; description: string; icon: React.ReactNode }[] = [
+const roleOptions: {
+  value: UserRole;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+}[] = [
   {
     value: "admin",
     label: "Admin",
@@ -42,41 +47,44 @@ const roleOptions: { value: UserRole; label: string; description: string; icon: 
     description: "Can create and manage their own projects",
     icon: <IconUser className="h-5 w-5" />,
   },
-]
+];
 
-export function InviteMemberDialog({ open, onOpenChange }: InviteMemberDialogProps) {
-  const [email, setEmail] = useState("")
-  const [role, setRole] = useState<UserRole>("member")
-  const [isSending, setIsSending] = useState(false)
-  const [sent, setSent] = useState(false)
+export function InviteMemberDialog({
+  open,
+  onOpenChange,
+}: InviteMemberDialogProps) {
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<UserRole>("member");
+  const [isSending, setIsSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!email) return
+    e.preventDefault();
+    if (!email) return;
 
-    setIsSending(true)
+    setIsSending(true);
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsSending(false)
-    setSent(true)
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setIsSending(false);
+    setSent(true);
 
     // Reset after showing success
     setTimeout(() => {
-      setSent(false)
-      setEmail("")
-      setRole("member")
-      onOpenChange(false)
-    }, 1500)
-  }
+      setSent(false);
+      setEmail("");
+      setRole("member");
+      onOpenChange(false);
+    }, 1500);
+  };
 
   const handleClose = () => {
     if (!isSending) {
-      setEmail("")
-      setRole("member")
-      setSent(false)
-      onOpenChange(false)
+      setEmail("");
+      setRole("member");
+      setSent(false);
+      onOpenChange(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -88,10 +96,14 @@ export function InviteMemberDialog({ open, onOpenChange }: InviteMemberDialogPro
               <div
                 className="flex h-8 w-8 items-center justify-center rounded-lg"
                 style={{
-                  backgroundColor: "color-mix(in oklch, var(--accent-teal) 15%, transparent)",
+                  backgroundColor:
+                    "color-mix(in oklch, var(--accent-teal) 15%, transparent)",
                 }}
               >
-                <IconUserPlus className="h-4 w-4" style={{ color: "var(--accent-teal)" }} />
+                <IconUserPlus
+                  className="h-4 w-4"
+                  style={{ color: "var(--accent-teal)" }}
+                />
               </div>
               Invite Team Member
             </DialogTitle>
@@ -109,10 +121,14 @@ export function InviteMemberDialog({ open, onOpenChange }: InviteMemberDialogPro
               <div
                 className="flex h-16 w-16 items-center justify-center rounded-full"
                 style={{
-                  backgroundColor: "color-mix(in oklch, var(--accent-green) 15%, transparent)",
+                  backgroundColor:
+                    "color-mix(in oklch, var(--accent-green) 15%, transparent)",
                 }}
               >
-                <IconCheck className="h-8 w-8" style={{ color: "var(--accent-green)" }} />
+                <IconCheck
+                  className="h-8 w-8"
+                  style={{ color: "var(--accent-green)" }}
+                />
               </div>
               <div>
                 <p className="text-lg font-semibold">Invitation Sent!</p>
@@ -157,7 +173,7 @@ export function InviteMemberDialog({ open, onOpenChange }: InviteMemberDialogPro
                         "flex items-start gap-3 rounded-xl p-4 text-left ring-2 transition-all duration-200",
                         role === option.value
                           ? "ring-[var(--accent-teal)] bg-[var(--accent-teal)]/5"
-                          : "ring-foreground/5 hover:ring-foreground/10 hover:bg-muted/30"
+                          : "ring-foreground/5 hover:ring-foreground/10 hover:bg-muted/30",
                       )}
                     >
                       <div
@@ -165,14 +181,16 @@ export function InviteMemberDialog({ open, onOpenChange }: InviteMemberDialogPro
                           "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors",
                           role === option.value
                             ? "bg-[var(--accent-teal)]/15 text-[var(--accent-teal)]"
-                            : "bg-muted text-muted-foreground"
+                            : "bg-muted text-muted-foreground",
                         )}
                       >
                         {option.icon}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-foreground">{option.label}</p>
+                          <p className="font-medium text-foreground">
+                            {option.label}
+                          </p>
                           {role === option.value && (
                             <IconCheck
                               className="h-4 w-4"
@@ -225,5 +243,5 @@ export function InviteMemberDialog({ open, onOpenChange }: InviteMemberDialogPro
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

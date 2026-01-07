@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -17,22 +17,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   ALL_STATUSES,
   ALL_TAGS,
   type PropertyStatus,
   type PropertyTag,
-} from "@/lib/mock/properties"
-import { usePropertyFilters } from "@/hooks/use-property-filters"
-import { IconSearch, IconX, IconFilter } from "@tabler/icons-react"
+} from "@/lib/mock/properties";
+import { usePropertyFilters } from "@/hooks/use-property-filters";
+import { IconSearch, IconX, IconFilter } from "@tabler/icons-react";
 
 const statusLabels: Record<PropertyStatus, string> = {
   active: "Active",
   pending: "Pending",
   completed: "Completed",
   archived: "Archived",
-}
+};
 
 const tagLabels: Record<PropertyTag, string> = {
   residential: "Residential",
@@ -42,7 +42,7 @@ const tagLabels: Record<PropertyTag, string> = {
   exterior: "Exterior",
   interior: "Interior",
   renovation: "Renovation",
-}
+};
 
 export function TableToolbar() {
   const {
@@ -53,7 +53,7 @@ export function TableToolbar() {
     toggleTag,
     clearFilter,
     clearAll,
-  } = usePropertyFilters()
+  } = usePropertyFilters();
 
   return (
     <div className="space-y-3">
@@ -75,7 +75,9 @@ export function TableToolbar() {
           {/* Status filter */}
           <Select
             value={filters.status || "all"}
-            onValueChange={(value) => setStatus(value === "all" ? null : (value as PropertyStatus))}
+            onValueChange={(value) =>
+              setStatus(value === "all" ? null : (value as PropertyStatus))
+            }
           >
             <SelectTrigger className="w-full bg-background/80 border-foreground/10 sm:w-[150px]">
               <SelectValue placeholder="Status" />
@@ -93,7 +95,10 @@ export function TableToolbar() {
           {/* Tags filter */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2 bg-background/80 border-foreground/10">
+              <Button
+                variant="outline"
+                className="gap-2 bg-background/80 border-foreground/10"
+              >
                 <IconFilter className="h-4 w-4" />
                 Tags
                 {filters.tags && filters.tags.length > 0 && (
@@ -164,7 +169,8 @@ export function TableToolbar() {
               className="gap-1.5 pr-1.5 animate-scale-in"
               style={{ animationDelay: "50ms" }}
             >
-              <span className="text-muted-foreground">Status:</span> {statusLabels[filters.status]}
+              <span className="text-muted-foreground">Status:</span>{" "}
+              {statusLabels[filters.status]}
               <button
                 onClick={() => clearFilter("status")}
                 className="ml-0.5 rounded-full p-0.5 hover:bg-foreground/10 transition-colors"
@@ -193,5 +199,5 @@ export function TableToolbar() {
         </div>
       )}
     </div>
-  )
+  );
 }

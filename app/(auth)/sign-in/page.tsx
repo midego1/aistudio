@@ -56,7 +56,7 @@ export default function SignInPage() {
           toast.error(ctx.error.message || "Invalid email or password");
           setIsLoading(false);
         },
-      }
+      },
     );
   };
 

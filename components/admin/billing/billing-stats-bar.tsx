@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
 import {
   IconFileInvoice,
   IconClock,
   IconCheck,
   IconReceipt,
-} from "@tabler/icons-react"
-import { type BillingStats, formatNOK } from "@/lib/mock/admin-billing"
+} from "@tabler/icons-react";
+import { type BillingStats, formatNOK } from "@/lib/mock/admin-billing";
 
 interface BillingStatsBarProps {
-  stats: BillingStats
+  stats: BillingStats;
 }
 
 export function BillingStatsBar({ stats }: BillingStatsBarProps) {
@@ -25,7 +25,10 @@ export function BillingStatsBar({ stats }: BillingStatsBarProps) {
                 "color-mix(in oklch, var(--accent-amber) 15%, transparent)",
             }}
           >
-            <IconClock className="h-5 w-5" style={{ color: "var(--accent-amber)" }} />
+            <IconClock
+              className="h-5 w-5"
+              style={{ color: "var(--accent-amber)" }}
+            />
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Ikke fakturert</p>
@@ -38,7 +41,10 @@ export function BillingStatsBar({ stats }: BillingStatsBarProps) {
               </span>
               <span className="text-sm text-muted-foreground">prosjekter</span>
             </div>
-            <p className="text-sm font-medium" style={{ color: "var(--accent-amber)" }}>
+            <p
+              className="text-sm font-medium"
+              style={{ color: "var(--accent-amber)" }}
+            >
               {formatNOK(stats.uninvoicedAmount)}
             </p>
           </div>
@@ -71,7 +77,10 @@ export function BillingStatsBar({ stats }: BillingStatsBarProps) {
               </span>
               <span className="text-sm text-muted-foreground">fakturaer</span>
             </div>
-            <p className="text-sm font-medium" style={{ color: "var(--accent-teal)" }}>
+            <p
+              className="text-sm font-medium"
+              style={{ color: "var(--accent-teal)" }}
+            >
               {formatNOK(stats.pendingPaymentAmount)}
             </p>
           </div>
@@ -88,7 +97,10 @@ export function BillingStatsBar({ stats }: BillingStatsBarProps) {
                 "color-mix(in oklch, var(--accent-green) 15%, transparent)",
             }}
           >
-            <IconCheck className="h-5 w-5" style={{ color: "var(--accent-green)" }} />
+            <IconCheck
+              className="h-5 w-5"
+              style={{ color: "var(--accent-green)" }}
+            />
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Denne måneden</p>
@@ -101,7 +113,10 @@ export function BillingStatsBar({ stats }: BillingStatsBarProps) {
               </span>
               <span className="text-sm text-muted-foreground">fakturaer</span>
             </div>
-            <p className="text-sm font-medium" style={{ color: "var(--accent-green)" }}>
+            <p
+              className="text-sm font-medium"
+              style={{ color: "var(--accent-green)" }}
+            >
               {formatNOK(stats.invoicedAmountThisMonth)}
             </p>
           </div>
@@ -134,12 +149,15 @@ export function BillingStatsBar({ stats }: BillingStatsBarProps) {
               </span>
               <span className="text-sm text-muted-foreground">fakturaer</span>
             </div>
-            <p className="text-sm font-medium" style={{ color: "var(--accent-violet)" }}>
+            <p
+              className="text-sm font-medium"
+              style={{ color: "var(--accent-violet)" }}
+            >
               {formatNOK(stats.invoicedAmount)}
             </p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

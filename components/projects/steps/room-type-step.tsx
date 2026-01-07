@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   IconSofa,
   IconBed,
@@ -9,10 +9,10 @@ import {
   IconArmchair,
   IconDesk,
   IconCheck,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { ROOM_TYPES, type RoomTypeOption } from "@/lib/style-templates"
+import { cn } from "@/lib/utils";
+import { ROOM_TYPES, type RoomTypeOption } from "@/lib/style-templates";
 
 // Map icon names to actual icons
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -22,26 +22,30 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   IconBath,
   IconArmchair,
   IconDesk,
-}
+};
 
 interface RoomTypeStepProps {
-  selectedRoomType: string | null
-  onSelectRoomType: (roomType: string) => void
+  selectedRoomType: string | null;
+  onSelectRoomType: (roomType: string) => void;
 }
 
-export function RoomTypeStep({ selectedRoomType, onSelectRoomType }: RoomTypeStepProps) {
+export function RoomTypeStep({
+  selectedRoomType,
+  onSelectRoomType,
+}: RoomTypeStepProps) {
   return (
     <div className="space-y-4">
       <div>
         <p className="text-sm text-muted-foreground">
-          Select the room type to help the AI better understand and transform your space.
+          Select the room type to help the AI better understand and transform
+          your space.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {ROOM_TYPES.map((roomType, index) => {
-          const isSelected = selectedRoomType === roomType.id
-          const IconComponent = ICON_MAP[roomType.icon]
+          const isSelected = selectedRoomType === roomType.id;
+          const IconComponent = ICON_MAP[roomType.icon];
 
           return (
             <button
@@ -52,7 +56,7 @@ export function RoomTypeStep({ selectedRoomType, onSelectRoomType }: RoomTypeSte
                 "animate-fade-in-up group relative flex flex-col items-center gap-3 rounded-xl p-5 text-center ring-2 transition-all duration-200",
                 isSelected
                   ? "bg-[var(--accent-teal)]/10 ring-[var(--accent-teal)] shadow-lg"
-                  : "bg-muted/30 ring-transparent hover:bg-muted/50 hover:ring-foreground/10"
+                  : "bg-muted/30 ring-transparent hover:bg-muted/50 hover:ring-foreground/10",
               )}
               style={{ animationDelay: `${index * 50}ms` }}
             >
@@ -62,7 +66,7 @@ export function RoomTypeStep({ selectedRoomType, onSelectRoomType }: RoomTypeSte
                   "flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-200",
                   isSelected
                     ? "bg-[var(--accent-teal)] text-white"
-                    : "bg-muted text-muted-foreground group-hover:text-foreground"
+                    : "bg-muted text-muted-foreground group-hover:text-foreground",
                 )}
               >
                 {IconComponent && <IconComponent className="h-6 w-6" />}
@@ -73,7 +77,7 @@ export function RoomTypeStep({ selectedRoomType, onSelectRoomType }: RoomTypeSte
                 <h3
                   className={cn(
                     "font-semibold leading-tight",
-                    isSelected ? "text-foreground" : "text-foreground"
+                    isSelected ? "text-foreground" : "text-foreground",
                   )}
                 >
                   {roomType.label}
@@ -90,9 +94,9 @@ export function RoomTypeStep({ selectedRoomType, onSelectRoomType }: RoomTypeSte
                 </div>
               )}
             </button>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }

@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
+import { useMemo } from "react";
 import {
   IconExternalLink,
   IconFileInvoice,
   IconBuilding,
-} from "@tabler/icons-react"
-import { Button } from "@/components/ui/button"
+} from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -14,13 +14,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import {
   getInvoiceHistory,
   formatNOK,
   type InvoiceStatus,
-} from "@/lib/mock/admin-billing"
+} from "@/lib/mock/admin-billing";
 
 function StatusBadge({ status }: { status: InvoiceStatus }) {
   switch (status) {
@@ -32,7 +32,7 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
         >
           Betalt
         </Badge>
-      )
+      );
     case "sent":
       return (
         <Badge
@@ -41,7 +41,7 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
         >
           Sendt
         </Badge>
-      )
+      );
     case "pending":
       return (
         <Badge
@@ -50,12 +50,12 @@ function StatusBadge({ status }: { status: InvoiceStatus }) {
         >
           Venter
         </Badge>
-      )
+      );
   }
 }
 
 export function InvoiceHistoryTable() {
-  const invoices = useMemo(() => getInvoiceHistory(), [])
+  const invoices = useMemo(() => getInvoiceHistory(), []);
 
   if (invoices.length === 0) {
     return (
@@ -77,7 +77,7 @@ export function InvoiceHistoryTable() {
           Fakturaer vil vises her når du begynner å fakturere.
         </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -162,12 +162,7 @@ export function InvoiceHistoryTable() {
                 </span>
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8"
-                  asChild
-                >
+                <Button variant="ghost" size="sm" className="h-8" asChild>
                   <a
                     href={`https://fiken.no/foretak/fiken-demo-mulig-hytte-as2/handel/salg/${invoice.fikenInvoiceId}`}
                     target="_blank"
@@ -193,5 +188,5 @@ export function InvoiceHistoryTable() {
         fakturaer totalt
       </div>
     </div>
-  )
+  );
 }

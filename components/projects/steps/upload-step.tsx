@@ -1,63 +1,72 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useCallback } from "react"
-import { IconUpload, IconPhoto, IconX, IconGripVertical } from "@tabler/icons-react"
+import * as React from "react";
+import { useCallback } from "react";
+import {
+  IconUpload,
+  IconPhoto,
+  IconX,
+  IconGripVertical,
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import type { UploadedImage } from "@/hooks/use-project-creation"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import type { UploadedImage } from "@/hooks/use-project-creation";
 
 interface UploadStepProps {
-  images: UploadedImage[]
-  onAddImages: (files: File[]) => void
-  onRemoveImage: (id: string) => void
+  images: UploadedImage[];
+  onAddImages: (files: File[]) => void;
+  onRemoveImage: (id: string) => void;
 }
 
-export function UploadStep({ images, onAddImages, onRemoveImage }: UploadStepProps) {
-  const [isDragging, setIsDragging] = React.useState(false)
-  const inputRef = React.useRef<HTMLInputElement>(null)
+export function UploadStep({
+  images,
+  onAddImages,
+  onRemoveImage,
+}: UploadStepProps) {
+  const [isDragging, setIsDragging] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }, [])
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-  }, [])
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
-      e.preventDefault()
-      setIsDragging(false)
+      e.preventDefault();
+      setIsDragging(false);
 
       const files = Array.from(e.dataTransfer.files).filter((file) =>
-        file.type.startsWith("image/")
-      )
+        file.type.startsWith("image/"),
+      );
       if (files.length > 0) {
-        onAddImages(files)
+        onAddImages(files);
       }
     },
-    [onAddImages]
-  )
+    [onAddImages],
+  );
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || [])
+      const files = Array.from(e.target.files || []);
       if (files.length > 0) {
-        onAddImages(files)
+        onAddImages(files);
       }
       // Reset input so same file can be selected again
-      e.target.value = ""
+      e.target.value = "";
     },
-    [onAddImages]
-  )
+    [onAddImages],
+  );
 
   const handleClick = useCallback(() => {
-    inputRef.current?.click()
-  }, [])
+    inputRef.current?.click();
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -71,7 +80,7 @@ export function UploadStep({ images, onAddImages, onRemoveImage }: UploadStepPro
           "relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed p-8 transition-all duration-200",
           isDragging
             ? "border-[var(--accent-teal)] bg-[var(--accent-teal)]/5"
-            : "border-foreground/10 bg-muted/30 hover:border-foreground/20 hover:bg-muted/50"
+            : "border-foreground/10 bg-muted/30 hover:border-foreground/20 hover:bg-muted/50",
         )}
       >
         <input
@@ -86,7 +95,7 @@ export function UploadStep({ images, onAddImages, onRemoveImage }: UploadStepPro
         <div
           className={cn(
             "flex h-16 w-16 items-center justify-center rounded-2xl transition-all duration-200",
-            isDragging ? "scale-110" : ""
+            isDragging ? "scale-110" : "",
           )}
           style={{
             backgroundColor: isDragging
@@ -97,7 +106,7 @@ export function UploadStep({ images, onAddImages, onRemoveImage }: UploadStepPro
           <IconUpload
             className={cn(
               "h-8 w-8 transition-colors",
-              isDragging ? "text-white" : ""
+              isDragging ? "text-white" : "",
             )}
             style={{ color: isDragging ? undefined : "var(--accent-teal)" }}
           />
@@ -151,8 +160,8 @@ export function UploadStep({ images, onAddImages, onRemoveImage }: UploadStepPro
                     variant="secondary"
                     size="icon-sm"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      onRemoveImage(image.id)
+                      e.stopPropagation();
+                      onRemoveImage(image.id);
                     }}
                     className="h-7 w-7 rounded-full bg-white/90 text-foreground hover:bg-white"
                   >
@@ -175,5 +184,5 @@ export function UploadStep({ images, onAddImages, onRemoveImage }: UploadStepPro
         </div>
       )}
     </div>
-  )
+  );
 }

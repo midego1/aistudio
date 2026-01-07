@@ -1,75 +1,137 @@
-"use client"
+"use client";
 
-import { useInfiniteScroll } from "@/hooks/use-infinite-scroll"
-import { useAdminWorkspaceFilters } from "@/hooks/use-admin-workspace-filters"
-import { useImpersonation } from "@/hooks/use-impersonation"
-import { getWorkspacesPage, type AdminWorkspace } from "@/lib/mock/admin-workspaces"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table"
-import { useVirtualizer } from "@tanstack/react-virtual"
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
-import { createWorkspaceColumns } from "./columns"
-import { WorkspaceVirtualRow } from "./virtual-row"
-import { WorkspacesTableToolbar } from "./table-toolbar"
-import { WorkspacesTableHeader } from "./table-header"
-import { IconLoader2, IconBuildingOff } from "@tabler/icons-react"
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
+import { useAdminWorkspaceFilters } from "@/hooks/use-admin-workspace-filters";
+import { useImpersonation } from "@/hooks/use-impersonation";
+import { fetchAdminWorkspacesAction } from "@/lib/actions/admin";
+import type {
+  AdminWorkspaceRow,
+  AdminWorkspacesMeta,
+} from "@/lib/types/admin";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
+import { createWorkspaceColumns } from "./columns";
+import { WorkspaceVirtualRow } from "./virtual-row";
+import { WorkspacesTableToolbar } from "./table-toolbar";
+import { WorkspacesTableHeader } from "./table-header";
+import { IconLoader2, IconBuildingOff } from "@tabler/icons-react";
 
-const ROW_HEIGHT = 64
+const ROW_HEIGHT = 64;
 
-export function WorkspacesDataTable() {
-  const parentRef = useRef<HTMLDivElement>(null)
-  const { startImpersonation } = useImpersonation()
+interface WorkspacesDataTableProps {
+  initialData: AdminWorkspaceRow[];
+  initialMeta: AdminWorkspacesMeta;
+}
+
+export function WorkspacesDataTable({
+  initialData,
+  initialMeta,
+}: WorkspacesDataTableProps) {
+  const parentRef = useRef<HTMLDivElement>(null);
+  const { startImpersonation } = useImpersonation();
 
   // Get filters from URL state
-  const { workspaceFilters, hasActiveFilters, sortColumn, sortDirection, toggleSort } = useAdminWorkspaceFilters()
+  const {
+    workspaceFilters,
+    hasActiveFilters,
+    sortColumn,
+    sortDirection,
+    toggleSort,
+  } = useAdminWorkspaceFilters();
 
   // Defer search to debounce filtering
-  const deferredFilters = useDeferredValue(workspaceFilters)
+  const deferredFilters = useDeferredValue(workspaceFilters);
+  const [isPending, startTransition] = useTransition();
 
-  // Pagination state
-  const [pages, setPages] = useState<AdminWorkspace[][]>([])
-  const [cursor, setCursor] = useState<string | null>(null)
-  const [hasNextPage, setHasNextPage] = useState(true)
-  const [filteredTotal, setFilteredTotal] = useState(0)
-  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  // Pagination state - initialize with SSR data
+  const [pages, setPages] = useState<AdminWorkspaceRow[][]>([initialData]);
+  const [cursor, setCursor] = useState<string | null>(initialMeta.cursor);
+  const [hasNextPage, setHasNextPage] = useState(initialMeta.hasMore);
+  const [filteredTotal, setFilteredTotal] = useState(initialMeta.total);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(false); // Already loaded via SSR
 
   // Create columns with impersonation handler
   const columns = useMemo(
-    () => createWorkspaceColumns((user) => {
-      startImpersonation(user)
-    }),
-    [startImpersonation]
-  )
+    () =>
+      createWorkspaceColumns((user) => {
+        startImpersonation(user);
+      }),
+    [startImpersonation],
+  );
 
   // Reset pagination when filters change
   useEffect(() => {
-    const response = getWorkspacesPage(null, 20, deferredFilters)
-    setPages([response.data])
-    setCursor(response.meta.cursor)
-    setHasNextPage(response.meta.hasMore)
-    setFilteredTotal(response.meta.filteredTotal)
-    setIsInitialLoad(false)
-  }, [deferredFilters])
+    // Skip if this is the initial render (SSR data already loaded)
+    const filtersChanged =
+      deferredFilters.search !== workspaceFilters.search ||
+      deferredFilters.status !== workspaceFilters.status ||
+      deferredFilters.plan !== workspaceFilters.plan;
+
+    if (!filtersChanged && pages[0] === initialData) {
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await fetchAdminWorkspacesAction(
+        null,
+        20,
+        {
+          search: deferredFilters.search || undefined,
+          status: deferredFilters.status || undefined,
+          plan: deferredFilters.plan || undefined,
+        },
+        sortColumn && sortDirection ? [sortColumn, sortDirection] : undefined
+      );
+
+      if (result.success) {
+        setPages([result.data.data]);
+        setCursor(result.data.meta.cursor);
+        setHasNextPage(result.data.meta.hasMore);
+        setFilteredTotal(result.data.meta.total);
+      }
+    });
+  }, [deferredFilters, sortColumn, sortDirection]);
 
   // Flatten all pages into single array
-  const tableData = useMemo(() => pages.flat(), [pages])
+  const tableData = useMemo(() => pages.flat(), [pages]);
 
   // Fetch next page function
-  const fetchNextPage = useCallback(() => {
-    if (isFetchingNextPage || !hasNextPage) return
+  const fetchNextPage = useCallback(async () => {
+    if (isFetchingNextPage || !hasNextPage) return;
 
-    setIsFetchingNextPage(true)
+    setIsFetchingNextPage(true);
 
-    setTimeout(() => {
-      const response = getWorkspacesPage(cursor, 20, deferredFilters)
-      setPages((prev) => [...prev, response.data])
-      setCursor(response.meta.cursor)
-      setHasNextPage(response.meta.hasMore)
-      setFilteredTotal(response.meta.filteredTotal)
-      setIsFetchingNextPage(false)
-    }, 300)
-  }, [cursor, hasNextPage, isFetchingNextPage, deferredFilters])
+    const result = await fetchAdminWorkspacesAction(
+      cursor,
+      20,
+      {
+        search: deferredFilters.search || undefined,
+        status: deferredFilters.status || undefined,
+        plan: deferredFilters.plan || undefined,
+      },
+      sortColumn && sortDirection ? [sortColumn, sortDirection] : undefined
+    );
+
+    if (result.success) {
+      setPages((prev) => [...prev, result.data.data]);
+      setCursor(result.data.meta.cursor);
+      setHasNextPage(result.data.meta.hasMore);
+      setFilteredTotal(result.data.meta.total);
+    }
+
+    setIsFetchingNextPage(false);
+  }, [cursor, hasNextPage, isFetchingNextPage, deferredFilters, sortColumn, sortDirection]);
 
   // Set up TanStack Table
   const table = useReactTable({
@@ -77,9 +139,9 @@ export function WorkspacesDataTable() {
     getRowId: (row) => row.id,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
-  const rows = table.getRowModel().rows
+  const rows = table.getRowModel().rows;
 
   // Set up row virtualization
   const rowVirtualizer = useVirtualizer({
@@ -87,7 +149,7 @@ export function WorkspacesDataTable() {
     getScrollElement: () => parentRef.current,
     estimateSize: () => ROW_HEIGHT,
     overscan: 10,
-  })
+  });
 
   // Infinite scroll hook
   useInfiniteScroll({
@@ -98,7 +160,7 @@ export function WorkspacesDataTable() {
     isFetchingNextPage,
     fetchNextPage,
     threshold: 10,
-  })
+  });
 
   // Loading skeleton state
   if (isInitialLoad) {
@@ -150,7 +212,7 @@ export function WorkspacesDataTable() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Empty state
@@ -161,9 +223,15 @@ export function WorkspacesDataTable() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
           <div
             className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl"
-            style={{ backgroundColor: "color-mix(in oklch, var(--accent-violet) 15%, transparent)" }}
+            style={{
+              backgroundColor:
+                "color-mix(in oklch, var(--accent-violet) 15%, transparent)",
+            }}
           >
-            <IconBuildingOff className="h-6 w-6" style={{ color: "var(--accent-violet)" }} />
+            <IconBuildingOff
+              className="h-6 w-6"
+              style={{ color: "var(--accent-violet)" }}
+            />
           </div>
           <h3 className="text-lg font-semibold">No workspaces yet</h3>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -171,7 +239,7 @@ export function WorkspacesDataTable() {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   // No results with filters
@@ -189,10 +257,10 @@ export function WorkspacesDataTable() {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
-  const virtualItems = rowVirtualizer.getVirtualItems()
+  const virtualItems = rowVirtualizer.getVirtualItems();
 
   return (
     <div className="space-y-4">
@@ -223,8 +291,8 @@ export function WorkspacesDataTable() {
             >
               {virtualItems.length > 0 ? (
                 virtualItems.map((virtualRow) => {
-                  const row = rows[virtualRow.index]
-                  if (!row) return null
+                  const row = rows[virtualRow.index];
+                  if (!row) return null;
 
                   return (
                     <WorkspaceVirtualRow
@@ -233,11 +301,14 @@ export function WorkspacesDataTable() {
                       virtualStart={virtualRow.start}
                       rowHeight={ROW_HEIGHT}
                     />
-                  )
+                  );
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
                     No results.
                   </TableCell>
                 </TableRow>
@@ -249,7 +320,9 @@ export function WorkspacesDataTable() {
           {isFetchingNextPage && (
             <div className="flex items-center justify-center py-4">
               <IconLoader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-              <span className="ml-2 text-sm text-muted-foreground">Loading more...</span>
+              <span className="ml-2 text-sm text-muted-foreground">
+                Loading more...
+              </span>
             </div>
           )}
         </div>
@@ -261,11 +334,11 @@ export function WorkspacesDataTable() {
             style={{ color: "var(--accent-violet)" }}
           >
             {tableData.length}
-          </span>
-          {" "}of {filteredTotal} workspaces
+          </span>{" "}
+          of {filteredTotal} workspaces
           {hasNextPage && " (scroll for more)"}
         </div>
       </div>
     </div>
-  )
+  );
 }

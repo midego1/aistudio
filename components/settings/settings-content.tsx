@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   IconSettings,
   IconBuilding,
   IconUsers,
   IconUserPlus,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { Button } from "@/components/ui/button"
-import { WorkspaceForm } from "@/components/settings/workspace-form"
-import { TeamMembersTable } from "@/components/settings/team-members-table"
-import { InviteMemberDialog } from "@/components/settings/invite-member-dialog"
-import type { Workspace } from "@/lib/db/schema"
-import type { TeamMember } from "@/lib/mock/workspace"
+import { Button } from "@/components/ui/button";
+import { WorkspaceForm } from "@/components/settings/workspace-form";
+import { TeamMembersTable } from "@/components/settings/team-members-table";
+import { InviteMemberDialog } from "@/components/settings/invite-member-dialog";
+import type { Workspace } from "@/lib/db/schema";
+import type { TeamMember } from "@/lib/mock/workspace";
 
 interface SettingsContentProps {
-  workspace: Workspace
-  members: TeamMember[]
-  currentUserId: string
+  workspace: Workspace;
+  members: TeamMember[];
+  currentUserId: string;
 }
 
 export function SettingsContent({
@@ -26,10 +26,10 @@ export function SettingsContent({
   members,
   currentUserId,
 }: SettingsContentProps) {
-  const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
-  const activeMembers = members.filter((m) => m.status === "active").length
-  const pendingInvites = members.filter((m) => m.status === "pending").length
+  const activeMembers = members.filter((m) => m.status === "active").length;
+  const pendingInvites = members.filter((m) => m.status === "pending").length;
 
   return (
     <div className="space-y-8 px-4 pb-8 md:px-6 lg:px-8">
@@ -112,7 +112,7 @@ export function SettingsContent({
 
           <Button
             onClick={() => setInviteDialogOpen(true)}
-            className="gap-2 shadow-sm"
+            className="gap-2 shadow-sm hover:opacity-90 hover:shadow-md transition-all duration-200"
             style={{ backgroundColor: "var(--accent-teal)" }}
           >
             <IconUserPlus className="h-4 w-4" />
@@ -131,5 +131,5 @@ export function SettingsContent({
         onOpenChange={setInviteDialogOpen}
       />
     </div>
-  )
+  );
 }

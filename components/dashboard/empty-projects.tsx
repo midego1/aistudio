@@ -1,22 +1,25 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { IconPhotoPlus, IconSparkles } from "@tabler/icons-react"
+import * as React from "react";
+import { IconPhotoPlus, IconSparkles } from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface EmptyProjectsProps {
-  onCreateClick?: () => void
-  className?: string
+  onCreateClick?: () => void;
+  className?: string;
 }
 
-export function EmptyProjects({ onCreateClick, className }: EmptyProjectsProps) {
+export function EmptyProjects({
+  onCreateClick,
+  className,
+}: EmptyProjectsProps) {
   return (
     <div
       className={cn(
         "relative flex min-h-[500px] flex-col items-center justify-center gap-6 overflow-hidden rounded-2xl border border-dashed border-foreground/10 bg-muted/30 px-8 py-16 text-center",
-        className
+        className,
       )}
     >
       {/* Background pattern */}
@@ -42,9 +45,7 @@ export function EmptyProjects({ onCreateClick, className }: EmptyProjectsProps) 
           />
         </div>
         {/* Sparkle accent */}
-        <div
-          className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-card shadow-md ring-1 ring-foreground/5"
-        >
+        <div className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-card shadow-md ring-1 ring-foreground/5">
           <IconSparkles className="h-4 w-4 text-amber-500" />
         </div>
       </div>
@@ -55,8 +56,8 @@ export function EmptyProjects({ onCreateClick, className }: EmptyProjectsProps) 
           Your first masterpiece awaits
         </h2>
         <p className="text-base text-muted-foreground">
-          Transform your real estate photos with AI-powered enhancements.
-          Upload images, choose a style, and watch the magic happen.
+          Transform your real estate photos with AI-powered enhancements. Upload
+          images, choose a style, and watch the magic happen.
         </p>
       </div>
 
@@ -91,5 +92,5 @@ export function EmptyProjects({ onCreateClick, className }: EmptyProjectsProps) 
         </span>
       </div>
     </div>
-  )
+  );
 }

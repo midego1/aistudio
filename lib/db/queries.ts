@@ -1,4 +1,4 @@
-import { eq, desc, count, and, sum, gt, max, or } from "drizzle-orm";
+import { eq, desc, count, and, sum, gt, max, or, ilike, asc, sql, countDistinct } from "drizzle-orm";
 import { db } from "./index";
 import {
   user,
@@ -17,15 +17,29 @@ import {
   type VideoClip,
   type MusicTrack,
   type VideoProjectStatus,
+  type WorkspaceStatus,
+  type WorkspacePlan,
   NewVideoClip,
 } from "./schema";
+import type {
+  AdminWorkspaceRow,
+  AdminWorkspaceFilters,
+  AdminWorkspacesMeta,
+  SortableWorkspaceColumn,
+  SortDirection,
+} from "@/lib/types/admin";
+import { COST_PER_IMAGE } from "@/lib/types/admin";
 
 // ============================================================================
 // User Queries
 // ============================================================================
 
 export async function getUserById(userId: string): Promise<User | null> {
-  const result = await db.select().from(user).where(eq(user.id, userId)).limit(1);
+  const result = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, userId))
+    .limit(1);
   return result[0] || null;
 }
 
@@ -40,7 +54,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 
 export async function updateUser(
   userId: string,
-  data: Partial<Omit<User, "id" | "createdAt">>
+  data: Partial<Omit<User, "id" | "createdAt">>,
 ): Promise<User | null> {
   const result = await db
     .update(user)
@@ -55,7 +69,7 @@ export async function updateUser(
 // ============================================================================
 
 export async function getWorkspaceById(
-  workspaceId: string
+  workspaceId: string,
 ): Promise<Workspace | null> {
   const result = await db
     .select()
@@ -66,7 +80,7 @@ export async function getWorkspaceById(
 }
 
 export async function getWorkspaceBySlug(
-  slug: string
+  slug: string,
 ): Promise<Workspace | null> {
   const result = await db
     .select()
@@ -78,7 +92,7 @@ export async function getWorkspaceBySlug(
 
 export async function updateWorkspace(
   workspaceId: string,
-  data: Partial<Omit<Workspace, "id" | "createdAt">>
+  data: Partial<Omit<Workspace, "id" | "createdAt">>,
 ): Promise<Workspace | null> {
   const result = await db
     .update(workspace)
@@ -88,7 +102,9 @@ export async function updateWorkspace(
   return result[0] || null;
 }
 
-export async function getWorkspaceMembers(workspaceId: string): Promise<User[]> {
+export async function getWorkspaceMembers(
+  workspaceId: string,
+): Promise<User[]> {
   return db
     .select()
     .from(user)
@@ -102,7 +118,7 @@ export async function getWorkspaceMembers(workspaceId: string): Promise<User[]> 
 
 export async function getImageGenerations(
   workspaceId: string,
-  options?: { limit?: number; offset?: number }
+  options?: { limit?: number; offset?: number },
 ): Promise<ImageGeneration[]> {
   const query = db
     .select()
@@ -122,7 +138,7 @@ export async function getImageGenerations(
 }
 
 export async function getImageGenerationById(
-  id: string
+  id: string,
 ): Promise<ImageGeneration | null> {
   const result = await db
     .select()
@@ -149,8 +165,8 @@ export async function getImageGenerationStats(workspaceId: string): Promise<{
     .where(
       and(
         eq(imageGeneration.workspaceId, workspaceId),
-        eq(imageGeneration.status, "completed")
-      )
+        eq(imageGeneration.status, "completed"),
+      ),
     );
 
   const [processingResult] = await db
@@ -159,8 +175,8 @@ export async function getImageGenerationStats(workspaceId: string): Promise<{
     .where(
       and(
         eq(imageGeneration.workspaceId, workspaceId),
-        eq(imageGeneration.status, "processing")
-      )
+        eq(imageGeneration.status, "processing"),
+      ),
     );
 
   const [failedResult] = await db
@@ -169,8 +185,8 @@ export async function getImageGenerationStats(workspaceId: string): Promise<{
     .where(
       and(
         eq(imageGeneration.workspaceId, workspaceId),
-        eq(imageGeneration.status, "failed")
-      )
+        eq(imageGeneration.status, "failed"),
+      ),
     );
 
   return {
@@ -182,7 +198,7 @@ export async function getImageGenerationStats(workspaceId: string): Promise<{
 }
 
 export async function createImageGeneration(
-  data: Omit<ImageGeneration, "id" | "createdAt" | "updatedAt">
+  data: Omit<ImageGeneration, "id" | "createdAt" | "updatedAt">,
 ): Promise<ImageGeneration> {
   const id = crypto.randomUUID();
   const [result] = await db
@@ -197,7 +213,7 @@ export async function createImageGeneration(
 
 export async function updateImageGeneration(
   id: string,
-  data: Partial<Omit<ImageGeneration, "id" | "createdAt">>
+  data: Partial<Omit<ImageGeneration, "id" | "createdAt">>,
 ): Promise<ImageGeneration | null> {
   const result = await db
     .update(imageGeneration)
@@ -237,7 +253,7 @@ export async function getUserWithWorkspace(userId: string): Promise<{
 
 export async function getProjects(
   workspaceId: string,
-  options?: { limit?: number; offset?: number; status?: ProjectStatus }
+  options?: { limit?: number; offset?: number; status?: ProjectStatus },
 ): Promise<Project[]> {
   let query = db
     .select()
@@ -246,9 +262,9 @@ export async function getProjects(
       options?.status
         ? and(
             eq(project.workspaceId, workspaceId),
-            eq(project.status, options.status)
+            eq(project.status, options.status),
           )
-        : eq(project.workspaceId, workspaceId)
+        : eq(project.workspaceId, workspaceId),
     )
     .orderBy(desc(project.createdAt));
 
@@ -307,8 +323,8 @@ export async function getProjectStats(workspaceId: string): Promise<{
     .where(
       and(
         eq(project.workspaceId, workspaceId),
-        eq(project.status, "completed")
-      )
+        eq(project.status, "completed"),
+      ),
     );
 
   const [processingResult] = await db
@@ -317,8 +333,8 @@ export async function getProjectStats(workspaceId: string): Promise<{
     .where(
       and(
         eq(project.workspaceId, workspaceId),
-        eq(project.status, "processing")
-      )
+        eq(project.status, "processing"),
+      ),
     );
 
   const [imagesResult] = await db
@@ -345,7 +361,7 @@ export async function getProjectStats(workspaceId: string): Promise<{
 }
 
 export async function createProject(
-  data: Omit<Project, "id" | "createdAt" | "updatedAt">
+  data: Omit<Project, "id" | "createdAt" | "updatedAt">,
 ): Promise<Project> {
   const id = crypto.randomUUID();
   const [result] = await db
@@ -360,7 +376,7 @@ export async function createProject(
 
 export async function updateProject(
   id: string,
-  data: Partial<Omit<Project, "id" | "createdAt">>
+  data: Partial<Omit<Project, "id" | "createdAt">>,
 ): Promise<Project | null> {
   const result = await db
     .update(project)
@@ -388,8 +404,8 @@ export async function updateProjectCounts(projectId: string): Promise<void> {
     .where(
       and(
         eq(imageGeneration.projectId, projectId),
-        eq(imageGeneration.status, "completed")
-      )
+        eq(imageGeneration.status, "completed"),
+      ),
     );
 
   const imageCount = totalResult?.count || 0;
@@ -410,8 +426,8 @@ export async function updateProjectCounts(projectId: string): Promise<void> {
       .where(
         and(
           eq(imageGeneration.projectId, projectId),
-          eq(imageGeneration.status, "processing")
-        )
+          eq(imageGeneration.status, "processing"),
+        ),
       );
 
     if ((processingResult?.count || 0) > 0) {
@@ -425,8 +441,8 @@ export async function updateProjectCounts(projectId: string): Promise<void> {
       .where(
         and(
           eq(imageGeneration.projectId, projectId),
-          eq(imageGeneration.status, "failed")
-        )
+          eq(imageGeneration.status, "failed"),
+        ),
       );
 
     if ((failedResult?.count || 0) > 0 && completedCount === 0) {
@@ -448,7 +464,7 @@ export async function updateProjectCounts(projectId: string): Promise<void> {
 
 // Get images for a project
 export async function getProjectImages(
-  projectId: string
+  projectId: string,
 ): Promise<ImageGeneration[]> {
   return db
     .select()
@@ -459,7 +475,7 @@ export async function getProjectImages(
 
 // Get all versions of an image (including the original)
 export async function getImageVersions(
-  imageId: string
+  imageId: string,
 ): Promise<ImageGeneration[]> {
   // First get the image to find its root
   const image = await getImageGenerationById(imageId);
@@ -469,13 +485,10 @@ export async function getImageVersions(
   const rootId = image.parentId || image.id;
 
   // Get all versions: the root + all images with parentId = rootId
-  const versions = await db
-    .select()
-    .from(imageGeneration)
-    .where(
-      // Either the root image itself OR any image with this parentId
-      eq(imageGeneration.id, rootId)
-    );
+  const versions = await db.select().from(imageGeneration).where(
+    // Either the root image itself OR any image with this parentId
+    eq(imageGeneration.id, rootId),
+  );
 
   const children = await db
     .select()
@@ -484,7 +497,7 @@ export async function getImageVersions(
 
   // Combine and sort by version
   const allVersions = [...versions, ...children].sort(
-    (a, b) => (a.version || 1) - (b.version || 1)
+    (a, b) => (a.version || 1) - (b.version || 1),
   );
 
   return allVersions;
@@ -492,7 +505,7 @@ export async function getImageVersions(
 
 // Get the latest version of an image
 export async function getLatestImageVersion(
-  imageId: string
+  imageId: string,
 ): Promise<ImageGeneration | null> {
   const versions = await getImageVersions(imageId);
   if (versions.length === 0) return null;
@@ -501,7 +514,7 @@ export async function getLatestImageVersion(
 
 // Get the highest version number for a root image
 export async function getLatestVersionNumber(
-  rootImageId: string
+  rootImageId: string,
 ): Promise<number> {
   // Get max version from: the root image itself OR any image with this parentId
   const [rootResult] = await db
@@ -524,7 +537,7 @@ export async function getLatestVersionNumber(
 // Delete all versions after a specific version number
 export async function deleteVersionsAfter(
   rootImageId: string,
-  afterVersion: number
+  afterVersion: number,
 ): Promise<number> {
   // Delete images where:
   // - parentId = rootImageId AND version > afterVersion
@@ -535,10 +548,10 @@ export async function deleteVersionsAfter(
       and(
         or(
           eq(imageGeneration.parentId, rootImageId),
-          eq(imageGeneration.id, rootImageId)
+          eq(imageGeneration.id, rootImageId),
         ),
-        gt(imageGeneration.version, afterVersion)
-      )
+        gt(imageGeneration.version, afterVersion),
+      ),
     )
     .returning();
 
@@ -547,7 +560,7 @@ export async function deleteVersionsAfter(
 
 // Get project images grouped by root (for version display)
 export async function getProjectImagesGrouped(
-  projectId: string
+  projectId: string,
 ): Promise<Map<string, ImageGeneration[]>> {
   const images = await getProjectImages(projectId);
 
@@ -572,7 +585,7 @@ export async function getProjectImagesGrouped(
 
 // Get only the latest version of each image in a project (for bulk download)
 export async function getLatestVersionImages(
-  projectId: string
+  projectId: string,
 ): Promise<ImageGeneration[]> {
   const grouped = await getProjectImagesGrouped(projectId);
   const latestVersions: ImageGeneration[] = [];
@@ -587,7 +600,7 @@ export async function getLatestVersionImages(
 
   // Sort by creation date (oldest first for consistent ordering)
   return latestVersions.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
   );
 }
 
@@ -597,7 +610,7 @@ export async function getLatestVersionImages(
 
 export async function getVideoProjects(
   workspaceId: string,
-  options?: { limit?: number; offset?: number; status?: VideoProjectStatus }
+  options?: { limit?: number; offset?: number; status?: VideoProjectStatus },
 ): Promise<VideoProject[]> {
   let query = db
     .select()
@@ -606,9 +619,9 @@ export async function getVideoProjects(
       options?.status
         ? and(
             eq(videoProject.workspaceId, workspaceId),
-            eq(videoProject.status, options.status)
+            eq(videoProject.status, options.status),
           )
-        : eq(videoProject.workspaceId, workspaceId)
+        : eq(videoProject.workspaceId, workspaceId),
     )
     .orderBy(desc(videoProject.createdAt));
 
@@ -631,7 +644,7 @@ export async function getVideoProjectById(id: string): Promise<{
   if (process.env.DEBUG_VIDEO === "1") {
     console.log(`[db:queries] getVideoProjectById starting for ID: ${id}`);
   }
-  
+
   try {
     const result = await db
       .select()
@@ -641,13 +654,17 @@ export async function getVideoProjectById(id: string): Promise<{
 
     if (!result[0]) {
       if (process.env.DEBUG_VIDEO === "1") {
-        console.warn(`[db:queries] getVideoProjectById: No project found with ID: ${id}`);
+        console.warn(
+          `[db:queries] getVideoProjectById: No project found with ID: ${id}`,
+        );
       }
       return null;
     }
 
     if (process.env.DEBUG_VIDEO === "1") {
-      console.log(`[db:queries] getVideoProjectById: Found project "${result[0].name}"`);
+      console.log(
+        `[db:queries] getVideoProjectById: Found project "${result[0].name}"`,
+      );
     }
 
     const clips = await db
@@ -657,7 +674,9 @@ export async function getVideoProjectById(id: string): Promise<{
       .orderBy(videoClip.sequenceOrder);
 
     if (process.env.DEBUG_VIDEO === "1") {
-      console.log(`[db:queries] getVideoProjectById: Found ${clips.length} clips for project ${id}`);
+      console.log(
+        `[db:queries] getVideoProjectById: Found ${clips.length} clips for project ${id}`,
+      );
     }
 
     let music: MusicTrack | null = null;
@@ -669,7 +688,9 @@ export async function getVideoProjectById(id: string): Promise<{
         .limit(1);
       music = musicResult[0] || null;
       if (process.env.DEBUG_VIDEO === "1") {
-        console.log(`[db:queries] getVideoProjectById: Music track ${result[0].musicTrackId} found: ${!!music}`);
+        console.log(
+          `[db:queries] getVideoProjectById: Music track ${result[0].musicTrackId} found: ${!!music}`,
+        );
       }
     }
 
@@ -679,13 +700,16 @@ export async function getVideoProjectById(id: string): Promise<{
       musicTrack: music,
     };
   } catch (error) {
-    console.error(`[db:queries] getVideoProjectById error for ID ${id}:`, error);
+    console.error(
+      `[db:queries] getVideoProjectById error for ID ${id}:`,
+      error,
+    );
     throw error;
   }
 }
 
 export async function createVideoProject(
-  data: Omit<VideoProject, "id" | "createdAt" | "updatedAt">
+  data: Omit<VideoProject, "id" | "createdAt" | "updatedAt">,
 ): Promise<VideoProject> {
   const id = crypto.randomUUID();
   const [result] = await db
@@ -700,12 +724,14 @@ export async function createVideoProject(
 
 export async function updateVideoProject(
   id: string,
-  data: Partial<Omit<VideoProject, "id" | "createdAt">>
+  data: Partial<Omit<VideoProject, "id" | "createdAt">>,
 ): Promise<VideoProject | null> {
   if (process.env.DEBUG_VIDEO === "1") {
-    console.log(`[db:queries] updateVideoProject starting for ID: ${id}`, { status: data.status });
+    console.log(`[db:queries] updateVideoProject starting for ID: ${id}`, {
+      status: data.status,
+    });
   }
-  
+
   try {
     const result = await db
       .update(videoProject)
@@ -715,7 +741,9 @@ export async function updateVideoProject(
 
     if (!result[0]) {
       if (process.env.DEBUG_VIDEO === "1") {
-        console.warn(`[db:queries] updateVideoProject: No project found to update with ID: ${id}`);
+        console.warn(
+          `[db:queries] updateVideoProject: No project found to update with ID: ${id}`,
+        );
       }
       return null;
     }
@@ -734,7 +762,9 @@ export async function deleteVideoProject(id: string): Promise<void> {
   await db.delete(videoProject).where(eq(videoProject.id, id));
 }
 
-export async function updateVideoProjectCounts(videoProjectId: string): Promise<void> {
+export async function updateVideoProjectCounts(
+  videoProjectId: string,
+): Promise<void> {
   // Count total clips
   const [totalResult] = await db
     .select({ count: count() })
@@ -748,8 +778,8 @@ export async function updateVideoProjectCounts(videoProjectId: string): Promise<
     .where(
       and(
         eq(videoClip.videoProjectId, videoProjectId),
-        eq(videoClip.status, "completed")
-      )
+        eq(videoClip.status, "completed"),
+      ),
     );
 
   const clipCount = totalResult?.count || 0;
@@ -779,7 +809,9 @@ export async function getVideoClipById(id: string): Promise<VideoClip | null> {
   return result[0] || null;
 }
 
-export async function getVideoClips(videoProjectId: string): Promise<VideoClip[]> {
+export async function getVideoClips(
+  videoProjectId: string,
+): Promise<VideoClip[]> {
   return db
     .select()
     .from(videoClip)
@@ -788,7 +820,7 @@ export async function getVideoClips(videoProjectId: string): Promise<VideoClip[]
 }
 
 export async function createVideoClip(
-  data: Omit<VideoClip, "id" | "createdAt" | "updatedAt">
+  data: Omit<VideoClip, "id" | "createdAt" | "updatedAt">,
 ): Promise<VideoClip> {
   const id = crypto.randomUUID();
   const [result] = await db
@@ -802,19 +834,22 @@ export async function createVideoClip(
 }
 
 export async function createVideoClips(
-  clips: Array<Omit<NewVideoClip, "id" | "createdAt" | "updatedAt">>
+  clips: Array<Omit<NewVideoClip, "id" | "createdAt" | "updatedAt">>,
 ): Promise<VideoClip[]> {
   const clipsWithIds = clips.map((clip) => ({
     ...clip,
     id: crypto.randomUUID(),
   }));
-  const result = await db.insert(videoClip).values(clipsWithIds as NewVideoClip[]).returning();
+  const result = await db
+    .insert(videoClip)
+    .values(clipsWithIds as NewVideoClip[])
+    .returning();
   return result;
 }
 
 export async function updateVideoClip(
   id: string,
-  data: Partial<Omit<VideoClip, "id" | "createdAt">>
+  data: Partial<Omit<VideoClip, "id" | "createdAt">>,
 ): Promise<VideoClip | null> {
   const result = await db
     .update(videoClip)
@@ -829,7 +864,7 @@ export async function deleteVideoClip(id: string): Promise<void> {
 }
 
 export async function updateClipSequenceOrders(
-  clips: Array<{ id: string; sequenceOrder: number }>
+  clips: Array<{ id: string; sequenceOrder: number }>,
 ): Promise<void> {
   for (const clip of clips) {
     await db
@@ -843,13 +878,16 @@ export async function updateClipSequenceOrders(
 // Music Track Queries
 // ============================================================================
 
-export async function getMusicTracks(
-  options?: { category?: string; activeOnly?: boolean }
-): Promise<MusicTrack[]> {
+export async function getMusicTracks(options?: {
+  category?: string;
+  activeOnly?: boolean;
+}): Promise<MusicTrack[]> {
   let query = db.select().from(musicTrack);
 
   if (options?.category) {
-    query = query.where(eq(musicTrack.category, options.category)) as typeof query;
+    query = query.where(
+      eq(musicTrack.category, options.category),
+    ) as typeof query;
   }
 
   if (options?.activeOnly !== false) {
@@ -859,7 +897,9 @@ export async function getMusicTracks(
   return query.orderBy(musicTrack.name);
 }
 
-export async function getMusicTrackById(id: string): Promise<MusicTrack | null> {
+export async function getMusicTrackById(
+  id: string,
+): Promise<MusicTrack | null> {
   const result = await db
     .select()
     .from(musicTrack)
@@ -869,7 +909,7 @@ export async function getMusicTrackById(id: string): Promise<MusicTrack | null> 
 }
 
 export async function createMusicTrack(
-  data: Omit<MusicTrack, "id" | "createdAt">
+  data: Omit<MusicTrack, "id" | "createdAt">,
 ): Promise<MusicTrack> {
   const id = crypto.randomUUID();
   const [result] = await db
@@ -903,8 +943,8 @@ export async function getVideoProjectStats(workspaceId: string): Promise<{
     .where(
       and(
         eq(videoProject.workspaceId, workspaceId),
-        eq(videoProject.status, "completed")
-      )
+        eq(videoProject.status, "completed"),
+      ),
     );
 
   const [processingResult] = await db
@@ -915,9 +955,9 @@ export async function getVideoProjectStats(workspaceId: string): Promise<{
         eq(videoProject.workspaceId, workspaceId),
         or(
           eq(videoProject.status, "generating"),
-          eq(videoProject.status, "compiling")
-        )
-      )
+          eq(videoProject.status, "compiling"),
+        ),
+      ),
     );
 
   const [costResult] = await db
@@ -930,5 +970,266 @@ export async function getVideoProjectStats(workspaceId: string): Promise<{
     completedVideos: completedResult?.count || 0,
     processingVideos: processingResult?.count || 0,
     totalCostCents: Number(costResult?.total) || 0,
+  };
+}
+
+// ============================================================================
+// Admin Queries (System Admin Only)
+// ============================================================================
+
+export async function getAdminWorkspaces(options: {
+  cursor?: string | null;
+  limit?: number;
+  filters?: AdminWorkspaceFilters;
+  sort?: [SortableWorkspaceColumn, SortDirection];
+}): Promise<{
+  data: AdminWorkspaceRow[];
+  meta: AdminWorkspacesMeta;
+}> {
+  const { cursor, limit = 20, filters, sort } = options;
+
+  // Build WHERE conditions
+  const conditions: ReturnType<typeof eq>[] = [];
+
+  if (filters?.status) {
+    conditions.push(eq(workspace.status, filters.status));
+  }
+
+  if (filters?.plan) {
+    conditions.push(eq(workspace.plan, filters.plan));
+  }
+
+  if (cursor) {
+    conditions.push(gt(workspace.id, cursor));
+  }
+
+  // Get total count (without cursor)
+  const totalConditions = conditions.filter((c) => c !== gt(workspace.id, cursor));
+  const [totalResult] = await db
+    .select({ count: count() })
+    .from(workspace)
+    .where(totalConditions.length > 0 ? and(...totalConditions) : undefined);
+
+  // Build the main query with raw SQL for complex aggregations
+  // We need to join user (for owner), count members, and sum images
+  const workspacesQuery = await db.execute<{
+    id: string;
+    name: string;
+    slug: string;
+    status: string;
+    plan: string;
+    created_at: Date;
+    updated_at: Date;
+    owner_id: string | null;
+    owner_name: string | null;
+    owner_email: string | null;
+    owner_image: string | null;
+    member_count: string;
+    images_generated: string;
+    last_activity_at: Date;
+  }>(sql`
+    SELECT
+      w.id,
+      w.name,
+      w.slug,
+      w.status,
+      w.plan,
+      w.created_at,
+      w.updated_at,
+      owner.id as owner_id,
+      owner.name as owner_name,
+      owner.email as owner_email,
+      owner.image as owner_image,
+      COALESCE(member_counts.member_count, 0)::text as member_count,
+      COALESCE(image_counts.images_generated, 0)::text as images_generated,
+      GREATEST(
+        w.updated_at,
+        COALESCE(project_activity.last_project_update, w.updated_at)
+      ) as last_activity_at
+    FROM workspace w
+    LEFT JOIN "user" owner ON owner.workspace_id = w.id AND owner.role = 'owner'
+    LEFT JOIN (
+      SELECT workspace_id, COUNT(*)::int as member_count
+      FROM "user"
+      GROUP BY workspace_id
+    ) member_counts ON member_counts.workspace_id = w.id
+    LEFT JOIN (
+      SELECT workspace_id, SUM(completed_count)::int as images_generated
+      FROM project
+      GROUP BY workspace_id
+    ) image_counts ON image_counts.workspace_id = w.id
+    LEFT JOIN (
+      SELECT workspace_id, MAX(updated_at) as last_project_update
+      FROM project
+      GROUP BY workspace_id
+    ) project_activity ON project_activity.workspace_id = w.id
+    WHERE 1=1
+    ${filters?.status ? sql`AND w.status = ${filters.status}` : sql``}
+    ${filters?.plan ? sql`AND w.plan = ${filters.plan}` : sql``}
+    ${filters?.search ? sql`AND (
+      w.name ILIKE ${'%' + filters.search + '%'} OR
+      w.slug ILIKE ${'%' + filters.search + '%'} OR
+      owner.email ILIKE ${'%' + filters.search + '%'} OR
+      owner.name ILIKE ${'%' + filters.search + '%'}
+    )` : sql``}
+    ${cursor ? sql`AND w.id > ${cursor}` : sql``}
+    ORDER BY ${
+      sort?.[0] === "name" ? (sort[1] === "asc" ? sql`w.name ASC` : sql`w.name DESC`) :
+      sort?.[0] === "memberCount" ? (sort[1] === "asc" ? sql`member_count ASC` : sql`member_count DESC`) :
+      sort?.[0] === "imagesGenerated" ? (sort[1] === "asc" ? sql`images_generated ASC` : sql`images_generated DESC`) :
+      sort?.[0] === "totalSpend" ? (sort[1] === "asc" ? sql`images_generated ASC` : sql`images_generated DESC`) :
+      sort?.[0] === "lastActivityAt" ? (sort[1] === "asc" ? sql`last_activity_at ASC` : sql`last_activity_at DESC`) :
+      sort?.[0] === "createdAt" ? (sort[1] === "asc" ? sql`w.created_at ASC` : sql`w.created_at DESC`) :
+      sql`w.created_at DESC`
+    }
+    LIMIT ${limit + 1}
+  `);
+
+  const rows = workspacesQuery.rows;
+  const hasMore = rows.length > limit;
+  const data = rows.slice(0, limit);
+
+  const result: AdminWorkspaceRow[] = data.map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    status: row.status as WorkspaceStatus,
+    plan: row.plan as WorkspacePlan,
+    memberCount: Number(row.member_count) || 0,
+    imagesGenerated: Number(row.images_generated) || 0,
+    totalSpend: Math.round(Number(row.images_generated) * COST_PER_IMAGE * 100) / 100,
+    ownerId: row.owner_id,
+    ownerName: row.owner_name,
+    ownerEmail: row.owner_email,
+    ownerImage: row.owner_image,
+    createdAt: row.created_at,
+    lastActivityAt: row.last_activity_at,
+  }));
+
+  return {
+    data: result,
+    meta: {
+      cursor: hasMore && data.length > 0 ? data[data.length - 1].id : null,
+      hasMore,
+      total: totalResult?.count || 0,
+    },
+  };
+}
+
+export async function getAdminWorkspaceById(
+  workspaceId: string
+): Promise<AdminWorkspaceRow | null> {
+  const result = await getAdminWorkspaces({
+    limit: 1,
+    filters: {},
+  });
+
+  // Use a direct query for single workspace
+  const workspaceData = await db
+    .select()
+    .from(workspace)
+    .where(eq(workspace.id, workspaceId))
+    .limit(1);
+
+  if (!workspaceData[0]) {
+    return null;
+  }
+
+  // Get owner
+  const ownerData = await db
+    .select()
+    .from(user)
+    .where(and(eq(user.workspaceId, workspaceId), eq(user.role, "owner")))
+    .limit(1);
+
+  // Get member count
+  const [memberCount] = await db
+    .select({ count: count() })
+    .from(user)
+    .where(eq(user.workspaceId, workspaceId));
+
+  // Get image count
+  const [imageCount] = await db
+    .select({ total: sum(project.completedCount) })
+    .from(project)
+    .where(eq(project.workspaceId, workspaceId));
+
+  // Get last activity
+  const [lastActivity] = await db
+    .select({ lastUpdate: max(project.updatedAt) })
+    .from(project)
+    .where(eq(project.workspaceId, workspaceId));
+
+  const w = workspaceData[0];
+  const owner = ownerData[0];
+  const imagesGenerated = Number(imageCount?.total) || 0;
+
+  return {
+    id: w.id,
+    name: w.name,
+    slug: w.slug,
+    status: w.status as WorkspaceStatus,
+    plan: w.plan as WorkspacePlan,
+    memberCount: memberCount?.count || 0,
+    imagesGenerated,
+    totalSpend: Math.round(imagesGenerated * COST_PER_IMAGE * 100) / 100,
+    ownerId: owner?.id || null,
+    ownerName: owner?.name || null,
+    ownerEmail: owner?.email || null,
+    ownerImage: owner?.image || null,
+    createdAt: w.createdAt,
+    lastActivityAt: lastActivity?.lastUpdate || w.updatedAt,
+  };
+}
+
+export async function getAdminWorkspaceStats(): Promise<{
+  total: number;
+  active: number;
+  suspended: number;
+  trial: number;
+  byPlan: { free: number; pro: number; enterprise: number };
+}> {
+  const [totalResult] = await db.select({ count: count() }).from(workspace);
+
+  const [activeResult] = await db
+    .select({ count: count() })
+    .from(workspace)
+    .where(eq(workspace.status, "active"));
+
+  const [suspendedResult] = await db
+    .select({ count: count() })
+    .from(workspace)
+    .where(eq(workspace.status, "suspended"));
+
+  const [trialResult] = await db
+    .select({ count: count() })
+    .from(workspace)
+    .where(eq(workspace.status, "trial"));
+
+  const [freeResult] = await db
+    .select({ count: count() })
+    .from(workspace)
+    .where(eq(workspace.plan, "free"));
+
+  const [proResult] = await db
+    .select({ count: count() })
+    .from(workspace)
+    .where(eq(workspace.plan, "pro"));
+
+  const [enterpriseResult] = await db
+    .select({ count: count() })
+    .from(workspace)
+    .where(eq(workspace.plan, "enterprise"));
+
+  return {
+    total: totalResult?.count || 0,
+    active: activeResult?.count || 0,
+    suspended: suspendedResult?.count || 0,
+    trial: trialResult?.count || 0,
+    byPlan: {
+      free: freeResult?.count || 0,
+      pro: proResult?.count || 0,
+      enterprise: enterpriseResult?.count || 0,
+    },
   };
 }

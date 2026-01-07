@@ -1,13 +1,17 @@
-import { ImpersonationProvider } from "@/hooks/use-impersonation"
-import { AdminHeader } from "@/components/admin/admin-header"
-import { ImpersonationBanner } from "@/components/admin/impersonation-banner"
-import { Toaster } from "@/components/ui/sonner"
+import { ImpersonationProvider } from "@/hooks/use-impersonation";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { ImpersonationBanner } from "@/components/admin/impersonation-banner";
+import { Toaster } from "@/components/ui/sonner";
+import { requireSystemAdmin } from "@/lib/admin-auth";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
+  // Verify system admin access - redirects if not authorized
+  await requireSystemAdmin();
+
   return (
     <ImpersonationProvider>
       <div className="min-h-screen bg-background">
@@ -17,5 +21,5 @@ export default function AdminLayout({
         <Toaster />
       </div>
     </ImpersonationProvider>
-  )
+  );
 }

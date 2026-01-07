@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import {
   IconBuilding,
   IconSparkles,
   IconCurrencyDollar,
   IconTrendingUp,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
 type StatItemProps = {
-  icon: React.ReactNode
-  label: string
-  value: string | number
-  accentColor: string
-  delay: number
-}
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  accentColor: string;
+  delay: number;
+};
 
 function StatItem({ icon, label, value, accentColor, delay }: StatItemProps) {
-  const [isVisible, setIsVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), delay)
-    return () => clearTimeout(timer)
-  }, [delay])
+    const timer = setTimeout(() => setIsVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
 
   return (
     <div
@@ -32,7 +32,9 @@ function StatItem({ icon, label, value, accentColor, delay }: StatItemProps) {
     >
       <div
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-        style={{ backgroundColor: `color-mix(in oklch, ${accentColor} 15%, transparent)` }}
+        style={{
+          backgroundColor: `color-mix(in oklch, ${accentColor} 15%, transparent)`,
+        }}
       >
         <div style={{ color: accentColor }}>{icon}</div>
       </div>
@@ -48,15 +50,15 @@ function StatItem({ icon, label, value, accentColor, delay }: StatItemProps) {
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 type StatsBarProps = {
-  totalProperties: number
-  activeProperties: number
-  totalEdits: number
-  totalCost: number
-}
+  totalProperties: number;
+  activeProperties: number;
+  totalEdits: number;
+  totalCost: number;
+};
 
 export function StatsBar({
   totalProperties,
@@ -95,5 +97,5 @@ export function StatsBar({
         delay={300}
       />
     </div>
-  )
+  );
 }

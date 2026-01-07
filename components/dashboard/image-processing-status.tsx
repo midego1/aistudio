@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useEffect, useCallback } from "react"
-import { useRealtimeRun } from "@trigger.dev/react-hooks"
-import { useRouter } from "next/navigation"
-import type { processImageTask } from "@/trigger/process-image"
-import type { inpaintImageTask } from "@/trigger/inpaint-image"
+import { useEffect, useCallback } from "react";
+import { useRealtimeRun } from "@trigger.dev/react-hooks";
+import { useRouter } from "next/navigation";
+import type { processImageTask } from "@/trigger/process-image";
+import type { inpaintImageTask } from "@/trigger/inpaint-image";
 
 interface ProcessImageStatus {
-  step: string
-  label: string
-  progress?: number
+  step: string;
+  label: string;
+  progress?: number;
 }
 
 interface ImageProcessingStatusProps {
-  runId: string
-  accessToken: string
-  onComplete?: () => void
-  taskType?: "process" | "inpaint"
+  runId: string;
+  accessToken: string;
+  onComplete?: () => void;
+  taskType?: "process" | "inpaint";
 }
 
 export function ImageProcessingStatus({
@@ -25,28 +25,26 @@ export function ImageProcessingStatus({
   onComplete,
   taskType = "process",
 }: ImageProcessingStatusProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleComplete = useCallback(() => {
     // Refresh the page data
-    router.refresh()
-    onComplete?.()
-  }, [router, onComplete])
+    router.refresh();
+    onComplete?.();
+  }, [router, onComplete]);
 
-  const { run, error } = useRealtimeRun<typeof processImageTask | typeof inpaintImageTask>(runId, {
+  const { run, error } = useRealtimeRun<
+    typeof processImageTask | typeof inpaintImageTask
+  >(runId, {
     accessToken,
     onComplete: handleComplete,
-  })
+  });
 
   // Extract status from metadata
-  const status = run?.metadata?.status as ProcessImageStatus | undefined
+  const status = run?.metadata?.status as ProcessImageStatus | undefined;
 
   if (error) {
-    return (
-      <span className="text-xs text-red-500">
-        Error loading status
-      </span>
-    )
+    return <span className="text-xs text-red-500">Error loading status</span>;
   }
 
   if (!run) {
@@ -54,48 +52,40 @@ export function ImageProcessingStatus({
       <span className="text-xs text-muted-foreground animate-pulse">
         Connecting\u2026
       </span>
-    )
+    );
   }
 
   // Show different states based on run status
   if (run.status === "COMPLETED") {
-    return (
-      <span className="text-xs text-green-500">
-        Complete
-      </span>
-    )
+    return <span className="text-xs text-green-500">Complete</span>;
   }
 
-  if (run.status === "FAILED" || run.status === "CRASHED" || run.status === "SYSTEM_FAILURE") {
-    return (
-      <span className="text-xs text-red-500">
-        Failed
-      </span>
-    )
+  if (
+    run.status === "FAILED" ||
+    run.status === "CRASHED" ||
+    run.status === "SYSTEM_FAILURE"
+  ) {
+    return <span className="text-xs text-red-500">Failed</span>;
   }
 
   // Show the label from metadata, or a default based on run status
-  const label = status?.label || getDefaultLabel(run.status)
+  const label = status?.label || getDefaultLabel(run.status);
 
-  return (
-    <span className="text-xs text-muted-foreground">
-      {label}
-    </span>
-  )
+  return <span className="text-xs text-muted-foreground">{label}</span>;
 }
 
 function getDefaultLabel(status: string): string {
   switch (status) {
     case "PENDING":
     case "QUEUED":
-      return "Queued\u2026"
+      return "Queued\u2026";
     case "EXECUTING":
     case "WAITING":
-      return "Processing\u2026"
+      return "Processing\u2026";
     case "DELAYED":
-      return "Scheduled\u2026"
+      return "Scheduled\u2026";
     default:
-      return "Processing\u2026"
+      return "Processing\u2026";
   }
 }
 
@@ -103,23 +93,23 @@ function getDefaultLabel(status: string): string {
 export function useProcessingRuns(
   runIds: string[],
   accessToken: string | null,
-  onComplete?: () => void
+  onComplete?: () => void,
 ) {
-  const router = useRouter()
+  const router = useRouter();
 
   // We'll track completion in an effect
   useEffect(() => {
-    if (!accessToken || runIds.length === 0) return
+    if (!accessToken || runIds.length === 0) return;
 
     // When all runs are done, refresh
     const checkInterval = setInterval(() => {
-      router.refresh()
-    }, 5000)
+      router.refresh();
+    }, 5000);
 
-    return () => clearInterval(checkInterval)
-  }, [runIds, accessToken, router])
+    return () => clearInterval(checkInterval);
+  }, [runIds, accessToken, router]);
 
-  return { runIds, accessToken }
+  return { runIds, accessToken };
 }
 
 // Component for showing status in the image card overlay
@@ -128,22 +118,13 @@ export function ImageCardStatus({
   accessToken,
   fallbackLabel = "Processing\u2026",
 }: {
-  runId?: string
-  accessToken?: string | null
-  fallbackLabel?: string
+  runId?: string;
+  accessToken?: string | null;
+  fallbackLabel?: string;
 }) {
   if (!runId || !accessToken) {
-    return (
-      <span className="text-xs text-white/90">
-        {fallbackLabel}
-      </span>
-    )
+    return <span className="text-xs text-white/90">{fallbackLabel}</span>;
   }
 
-  return (
-    <ImageProcessingStatus
-      runId={runId}
-      accessToken={accessToken}
-    />
-  )
+  return <ImageProcessingStatus runId={runId} accessToken={accessToken} />;
 }

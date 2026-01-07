@@ -1,26 +1,26 @@
-export type UserRole = "owner" | "admin" | "member"
-export type MemberStatus = "active" | "pending" | "inactive"
+export type UserRole = "owner" | "admin" | "member";
+export type MemberStatus = "active" | "pending" | "inactive";
 
 export interface Workspace {
-  id: string
-  name: string
-  slug: string
-  orgNumber: string
-  contactEmail: string
-  contactPerson: string
-  logo: string | null
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  name: string;
+  slug: string;
+  orgNumber: string;
+  contactEmail: string;
+  contactPerson: string;
+  logo: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface TeamMember {
-  id: string
-  name: string
-  email: string
-  image: string | null
-  role: UserRole
-  status: MemberStatus
-  joinedAt: Date
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  role: UserRole;
+  status: MemberStatus;
+  joinedAt: Date;
 }
 
 export const mockWorkspace: Workspace = {
@@ -33,7 +33,7 @@ export const mockWorkspace: Workspace = {
   logo: null,
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-12-15"),
-}
+};
 
 export const mockMembers: TeamMember[] = [
   {
@@ -81,23 +81,23 @@ export const mockMembers: TeamMember[] = [
     status: "pending",
     joinedAt: new Date("2024-12-10"),
   },
-]
+];
 
 export function getWorkspace(): Workspace {
-  return mockWorkspace
+  return mockWorkspace;
 }
 
 export function getMembers(): TeamMember[] {
-  return mockMembers
+  return mockMembers;
 }
 
 export function getMembersByStatus(status: MemberStatus): TeamMember[] {
-  return mockMembers.filter((m) => m.status === status)
+  return mockMembers.filter((m) => m.status === status);
 }
 
 export function getMembersByRole(role: UserRole): TeamMember[] {
-  return mockMembers.filter((m) => m.role === role)
+  return mockMembers.filter((m) => m.role === role);
 }
 
-export const ALL_ROLES: UserRole[] = ["owner", "admin", "member"]
-export const ASSIGNABLE_ROLES: UserRole[] = ["admin", "member"] // Roles that can be assigned to new members
+export const ALL_ROLES: UserRole[] = ["owner", "admin", "member"];
+export const ASSIGNABLE_ROLES: UserRole[] = ["admin", "member"]; // Roles that can be assigned to new members

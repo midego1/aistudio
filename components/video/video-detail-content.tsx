@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { format } from "date-fns"
+import * as React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import {
   IconArrowLeft,
   IconDownload,
@@ -23,13 +23,13 @@ import {
   IconRefresh,
   IconTrash,
   IconAspectRatio,
-} from "@tabler/icons-react"
-import { toast } from "sonner"
-import { useRealtimeRun } from "@trigger.dev/react-hooks"
+} from "@tabler/icons-react";
+import { toast } from "sonner";
+import { useRealtimeRun } from "@trigger.dev/react-hooks";
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Slider } from "@/components/ui/slider"
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,19 +39,28 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import type { VideoProject, VideoClip, MusicTrack, VideoProjectStatus } from "@/lib/db/schema"
-import { VIDEO_ROOM_TYPES } from "@/lib/video/room-sequence"
-import { cn } from "@/lib/utils"
-import { deleteVideoProject, retryFailedClip } from "@/lib/actions/video"
-import type { generateVideoTask } from "@/trigger/video-orchestrator"
+} from "@/components/ui/alert-dialog";
+import type {
+  VideoProject,
+  VideoClip,
+  MusicTrack,
+  VideoProjectStatus,
+} from "@/lib/db/schema";
+import { VIDEO_ROOM_TYPES } from "@/lib/video/room-sequence";
+import { cn } from "@/lib/utils";
+import { deleteVideoProject, retryFailedClip } from "@/lib/actions/video";
+import type { generateVideoTask } from "@/trigger/video-orchestrator";
 
 const statusConfig: Record<
   VideoProjectStatus,
   {
-    label: string
-    variant: "status-active" | "status-pending" | "status-completed" | "destructive"
-    icon: React.ReactNode
+    label: string;
+    variant:
+      | "status-active"
+      | "status-pending"
+      | "status-completed"
+      | "destructive";
+    icon: React.ReactNode;
   }
 > = {
   draft: {
@@ -79,14 +88,14 @@ const statusConfig: Record<
     variant: "destructive",
     icon: <IconAlertTriangle className="h-3 w-3" />,
   },
-}
+};
 
 const clipStatusConfig = {
   pending: { label: "Pending", color: "bg-muted" },
   processing: { label: "Processing", color: "bg-[var(--accent-teal)]" },
   completed: { label: "Completed", color: "bg-[var(--accent-green)]" },
   failed: { label: "Failed", color: "bg-destructive" },
-}
+};
 
 // Real-time progress component for video generation
 function RealtimeVideoProgress({
@@ -95,45 +104,58 @@ function RealtimeVideoProgress({
   clipCount,
   onComplete,
 }: {
-  runId?: string
-  accessToken?: string | null
-  clipCount: number
-  onComplete?: () => void
+  runId?: string;
+  accessToken?: string | null;
+  clipCount: number;
+  onComplete?: () => void;
 }) {
-  const router = useRouter()
+  const router = useRouter();
   const { run } = useRealtimeRun<typeof generateVideoTask>(runId ?? "", {
     accessToken: accessToken ?? "",
     enabled: !!runId && !!accessToken,
-  })
+  });
 
-  const isFailed = run?.status === "CANCELED" || run?.status === "CRASHED" || run?.status === "SYSTEM_FAILURE" || run?.status === "EXPIRED" || run?.status === "TIMED_OUT"
-  const isCompleted = run?.status === "COMPLETED"
+  const isFailed =
+    run?.status === "CANCELED" ||
+    run?.status === "CRASHED" ||
+    run?.status === "SYSTEM_FAILURE" ||
+    run?.status === "EXPIRED" ||
+    run?.status === "TIMED_OUT";
+  const isCompleted = run?.status === "COMPLETED";
 
   // Metadata is nested under "status" key from the orchestrator
-  const metadata = run?.metadata as {
-    status?: {
-      step?: string
-      label?: string
-      clipIndex?: number
-      totalClips?: number
-      progress?: number
-    }
-  } | undefined
-  const status = metadata?.status
-  const step = status?.step || (isFailed ? "failed" : "generating")
-  const currentClip = status?.clipIndex || 0
-  const total = status?.totalClips || clipCount
-  const progressFromMetadata = status?.progress
+  const metadata = run?.metadata as
+    | {
+        status?: {
+          step?: string;
+          label?: string;
+          clipIndex?: number;
+          totalClips?: number;
+          progress?: number;
+        };
+      }
+    | undefined;
+  const status = metadata?.status;
+  const step = status?.step || (isFailed ? "failed" : "generating");
+  const currentClip = status?.clipIndex || 0;
+  const total = status?.totalClips || clipCount;
+  const progressFromMetadata = status?.progress;
 
   // Use metadata progress if available, otherwise calculate from clips
-  const progress = progressFromMetadata ?? (step === "compiling" ? 70 : isFailed ? 0 : Math.round((currentClip / total) * 100))
+  const progress =
+    progressFromMetadata ??
+    (step === "compiling"
+      ? 70
+      : isFailed
+        ? 0
+        : Math.round((currentClip / total) * 100));
 
   // Auto-refresh page when run completes or fails to get latest data
   React.useEffect(() => {
     if (isCompleted || isFailed) {
-      onComplete?.()
+      onComplete?.();
     }
-  }, [run?.status, onComplete, isCompleted, isFailed])
+  }, [run?.status, onComplete, isCompleted, isFailed]);
 
   if (isFailed) {
     return (
@@ -143,14 +165,17 @@ function RealtimeVideoProgress({
             <IconAlertTriangle className="h-6 w-6" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-destructive">Generation Failed</h3>
+            <h3 className="font-semibold text-destructive">
+              Generation Failed
+            </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {status?.label || `The background task failed with status: ${run?.status}. Please try again.`}
+              {status?.label ||
+                `The background task failed with status: ${run?.status}. Please try again.`}
             </p>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => router.refresh()}
             className="flex items-center gap-2"
           >
@@ -159,7 +184,7 @@ function RealtimeVideoProgress({
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -175,7 +200,10 @@ function RealtimeVideoProgress({
           </div>
           <div>
             <div className="font-medium">
-              {status?.label || (step === "compiling" ? "Compiling video…" : `Generating clip ${currentClip} of ${total}`)}
+              {status?.label ||
+                (step === "compiling"
+                  ? "Compiling video…"
+                  : `Generating clip ${currentClip} of ${total}`)}
             </div>
             <div className="text-sm text-muted-foreground">
               {step === "starting"
@@ -189,10 +217,12 @@ function RealtimeVideoProgress({
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-2xl font-bold text-[var(--accent-teal)]">{progress}%</span>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <span className="text-2xl font-bold text-[var(--accent-teal)]">
+            {progress}%
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => router.refresh()}
             title="Manual refresh"
             className="h-8 w-8 text-muted-foreground hover:text-foreground"
@@ -211,7 +241,7 @@ function RealtimeVideoProgress({
         />
       </div>
     </div>
-  )
+  );
 }
 
 // Video Player Component
@@ -219,78 +249,78 @@ function VideoPlayer({
   videoUrl,
   thumbnailUrl,
 }: {
-  videoUrl: string
-  thumbnailUrl: string | null
+  videoUrl: string;
+  thumbnailUrl: string | null;
 }) {
-  const videoRef = React.useRef<HTMLVideoElement>(null)
-  const [isPlaying, setIsPlaying] = React.useState(false)
-  const [currentTime, setCurrentTime] = React.useState(0)
-  const [duration, setDuration] = React.useState(0)
-  const [volume, setVolume] = React.useState(1)
-  const [isMuted, setIsMuted] = React.useState(false)
-  const [showControls, setShowControls] = React.useState(true)
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const [currentTime, setCurrentTime] = React.useState(0);
+  const [duration, setDuration] = React.useState(0);
+  const [volume, setVolume] = React.useState(1);
+  const [isMuted, setIsMuted] = React.useState(false);
+  const [showControls, setShowControls] = React.useState(true);
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = Math.floor(seconds % 60)
-    return `${mins}:${secs.toString().padStart(2, "0")}`
-  }
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const togglePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {
-        videoRef.current.pause()
+        videoRef.current.pause();
       } else {
-        videoRef.current.play()
+        videoRef.current.play();
       }
-      setIsPlaying(!isPlaying)
+      setIsPlaying(!isPlaying);
     }
-  }
+  };
 
   const handleTimeUpdate = () => {
     if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime)
+      setCurrentTime(videoRef.current.currentTime);
     }
-  }
+  };
 
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
-      setDuration(videoRef.current.duration)
+      setDuration(videoRef.current.duration);
     }
-  }
+  };
 
   const handleSeek = (value: number[]) => {
     if (videoRef.current) {
-      videoRef.current.currentTime = value[0]
-      setCurrentTime(value[0])
+      videoRef.current.currentTime = value[0];
+      setCurrentTime(value[0]);
     }
-  }
+  };
 
   const handleVolumeChange = (value: number[]) => {
     if (videoRef.current) {
-      const newVolume = value[0]
-      videoRef.current.volume = newVolume
-      setVolume(newVolume)
-      setIsMuted(newVolume === 0)
+      const newVolume = value[0];
+      videoRef.current.volume = newVolume;
+      setVolume(newVolume);
+      setIsMuted(newVolume === 0);
     }
-  }
+  };
 
   const toggleMute = () => {
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted
-      setIsMuted(!isMuted)
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
     }
-  }
+  };
 
   const toggleFullscreen = () => {
     if (videoRef.current) {
       if (document.fullscreenElement) {
-        document.exitFullscreen()
+        document.exitFullscreen();
       } else {
-        videoRef.current.requestFullscreen()
+        videoRef.current.requestFullscreen();
       }
     }
-  }
+  };
 
   return (
     <div
@@ -325,7 +355,7 @@ function VideoPlayer({
       <div
         className={cn(
           "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity",
-          showControls ? "opacity-100" : "opacity-0"
+          showControls ? "opacity-100" : "opacity-0",
         )}
       >
         {/* Progress bar */}
@@ -384,13 +414,13 @@ function VideoPlayer({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface VideoDetailContentProps {
-  videoProject: VideoProject
-  clips: VideoClip[]
-  musicTrack: MusicTrack | null
+  videoProject: VideoProject;
+  clips: VideoClip[];
+  musicTrack: MusicTrack | null;
 }
 
 export function VideoDetailContent({
@@ -398,64 +428,65 @@ export function VideoDetailContent({
   clips,
   musicTrack,
 }: VideoDetailContentProps) {
-  const router = useRouter()
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
-  const [isDeleting, setIsDeleting] = React.useState(false)
+  const router = useRouter();
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
-  const status = statusConfig[videoProject.status]
-  const isProcessing = videoProject.status === "generating" || videoProject.status === "compiling"
-  const isCompleted = videoProject.status === "completed"
-  const isFailed = videoProject.status === "failed"
+  const status = statusConfig[videoProject.status];
+  const isProcessing =
+    videoProject.status === "generating" || videoProject.status === "compiling";
+  const isCompleted = videoProject.status === "completed";
+  const isFailed = videoProject.status === "failed";
 
   const handleDelete = async () => {
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
-      const result = await deleteVideoProject(videoProject.id)
+      const result = await deleteVideoProject(videoProject.id);
       if (result.success) {
-        toast.success("Video deleted")
-        router.push("/video")
+        toast.success("Video deleted");
+        router.push("/video");
       } else {
-        throw new Error("Failed to delete video")
+        throw new Error("Failed to delete video");
       }
     } catch {
-      toast.error("Failed to delete video")
-      setIsDeleting(false)
+      toast.error("Failed to delete video");
+      setIsDeleting(false);
     }
-  }
+  };
 
   const handleDownload = async () => {
-    if (!videoProject.finalVideoUrl) return
+    if (!videoProject.finalVideoUrl) return;
 
     try {
-      const response = await fetch(videoProject.finalVideoUrl)
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `${videoProject.name.replace(/[^a-z0-9]/gi, "_")}.mp4`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      toast.success("Download started")
+      const response = await fetch(videoProject.finalVideoUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${videoProject.name.replace(/[^a-z0-9]/gi, "_")}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Download started");
     } catch {
-      toast.error("Failed to download video")
+      toast.error("Failed to download video");
     }
-  }
+  };
 
   const handleRetryClip = async (clipId: string) => {
     try {
-      const result = await retryFailedClip(clipId)
+      const result = await retryFailedClip(clipId);
       if (result.success) {
-        toast.success("Retry started")
-        router.refresh()
+        toast.success("Retry started");
+        router.refresh();
       } else {
-        throw new Error("Failed to retry clip")
+        throw new Error("Failed to retry clip");
       }
     } catch {
-      toast.error("Failed to retry clip")
+      toast.error("Failed to retry clip");
     }
-  }
+  };
 
   return (
     <div className="py-6">
@@ -470,21 +501,31 @@ export function VideoDetailContent({
             </Button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight">{videoProject.name}</h1>
+                <h1 className="text-2xl font-bold tracking-tight">
+                  {videoProject.name}
+                </h1>
                 <Badge variant={status.variant} className="gap-1.5">
                   {status.icon}
                   {status.label}
                 </Badge>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
-                Created {format(new Date(videoProject.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                Created{" "}
+                {format(
+                  new Date(videoProject.createdAt),
+                  "MMM d, yyyy 'at' h:mm a",
+                )}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             {isCompleted && videoProject.finalVideoUrl && (
-              <Button onClick={handleDownload} className="gap-2" style={{ backgroundColor: "var(--accent-teal)" }}>
+              <Button
+                onClick={handleDownload}
+                className="gap-2"
+                style={{ backgroundColor: "var(--accent-teal)" }}
+              >
                 <IconDownload className="h-4 w-4" />
                 Download
               </Button>
@@ -519,16 +560,21 @@ export function VideoDetailContent({
             ) : isFailed ? (
               <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center">
                 <IconAlertTriangle className="mx-auto h-12 w-12 text-destructive" />
-                <h3 className="mt-4 font-semibold text-destructive">Video Generation Failed</h3>
+                <h3 className="mt-4 font-semibold text-destructive">
+                  Video Generation Failed
+                </h3>
                 <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-                  {videoProject.errorMessage || "An error occurred during video generation. You can retry failed clips below."}
+                  {videoProject.errorMessage ||
+                    "An error occurred during video generation. You can retry failed clips below."}
                 </p>
               </div>
             ) : (
               <div className="aspect-video rounded-xl border-2 border-dashed flex items-center justify-center bg-muted/30">
                 <div className="text-center">
                   <IconMovie className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <p className="mt-2 text-muted-foreground">Video not yet generated</p>
+                  <p className="mt-2 text-muted-foreground">
+                    Video not yet generated
+                  </p>
                 </div>
               </div>
             )}
@@ -541,23 +587,30 @@ export function VideoDetailContent({
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {clips.map((clip, index) => {
-                  const roomConfig = VIDEO_ROOM_TYPES.find((r) => r.id === clip.roomType)
-                  const clipStatus = clipStatusConfig[clip.status]
+                  const roomConfig = VIDEO_ROOM_TYPES.find(
+                    (r) => r.id === clip.roomType,
+                  );
+                  const clipStatus = clipStatusConfig[clip.status];
 
                   return (
                     <div
                       key={clip.id}
                       className={cn(
                         "relative overflow-hidden rounded-xl border bg-card",
-                        clip.status === "processing" && "ring-2 ring-[var(--accent-teal)]",
-                        clip.status === "failed" && "ring-2 ring-destructive"
+                        clip.status === "processing" &&
+                          "ring-2 ring-[var(--accent-teal)]",
+                        clip.status === "failed" && "ring-2 ring-destructive",
                       )}
                     >
                       {/* Thumbnail */}
                       <div className="relative aspect-video bg-muted">
                         <Image
                           src={clip.sourceImageUrl}
-                          alt={clip.roomLabel || roomConfig?.label || `Clip ${index + 1}`}
+                          alt={
+                            clip.roomLabel ||
+                            roomConfig?.label ||
+                            `Clip ${index + 1}`
+                          }
                           fill
                           className="object-cover"
                           sizes="(max-width: 640px) 50vw, 33vw"
@@ -570,7 +623,12 @@ export function VideoDetailContent({
 
                         {/* Status indicator */}
                         <div className="absolute top-2 right-2">
-                          <div className={cn("h-2.5 w-2.5 rounded-full", clipStatus.color)} />
+                          <div
+                            className={cn(
+                              "h-2.5 w-2.5 rounded-full",
+                              clipStatus.color,
+                            )}
+                          />
                         </div>
 
                         {/* Processing shimmer */}
@@ -604,7 +662,7 @@ export function VideoDetailContent({
                         </div>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -655,7 +713,9 @@ export function VideoDetailContent({
                   </div>
                 </div>
               ) : (
-                <div className="text-sm text-muted-foreground">No background music</div>
+                <div className="text-sm text-muted-foreground">
+                  No background music
+                </div>
               )}
             </div>
 
@@ -665,9 +725,12 @@ export function VideoDetailContent({
                 <h3 className="font-medium mb-4">Generation Progress</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Completed Clips</span>
+                    <span className="text-muted-foreground">
+                      Completed Clips
+                    </span>
                     <span className="font-medium text-[var(--accent-green)]">
-                      {videoProject.completedClipCount} / {videoProject.clipCount}
+                      {videoProject.completedClipCount} /{" "}
+                      {videoProject.clipCount}
                     </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-muted">
@@ -692,8 +755,8 @@ export function VideoDetailContent({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Video?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete &quot;{videoProject.name}&quot; and all its clips.
-              This action cannot be undone.
+              This will permanently delete &quot;{videoProject.name}&quot; and
+              all its clips. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -716,5 +779,5 @@ export function VideoDetailContent({
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

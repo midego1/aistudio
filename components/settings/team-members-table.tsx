@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   IconUser,
   IconCrown,
@@ -10,32 +10,32 @@ import {
   IconArrowUp,
   IconArrowDown,
   IconMail,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import type { TeamMember, UserRole, MemberStatus } from "@/lib/mock/workspace"
+} from "@/components/ui/dropdown-menu";
+import type { TeamMember, UserRole, MemberStatus } from "@/lib/mock/workspace";
 
 interface TeamMembersTableProps {
-  members: TeamMember[]
-  currentUserId?: string
+  members: TeamMember[];
+  currentUserId?: string;
 }
 
 const roleConfig: Record<
   UserRole,
   {
-    label: string
-    icon: React.ReactNode
-    variant: "default" | "secondary" | "outline"
-    color: string
+    label: string;
+    icon: React.ReactNode;
+    variant: "default" | "secondary" | "outline";
+    color: string;
   }
 > = {
   owner: {
@@ -56,22 +56,23 @@ const roleConfig: Record<
     variant: "outline",
     color: "var(--muted-foreground)",
   },
-}
+};
 
-const statusConfig: Record<MemberStatus, { label: string; className: string }> = {
-  active: {
-    label: "Active",
-    className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  },
-  pending: {
-    label: "Pending",
-    className: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-  },
-  inactive: {
-    label: "Inactive",
-    className: "bg-zinc-500/15 text-zinc-600 dark:text-zinc-400",
-  },
-}
+const statusConfig: Record<MemberStatus, { label: string; className: string }> =
+  {
+    active: {
+      label: "Active",
+      className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+    },
+    pending: {
+      label: "Pending",
+      className: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+    },
+    inactive: {
+      label: "Inactive",
+      className: "bg-zinc-500/15 text-zinc-600 dark:text-zinc-400",
+    },
+  };
 
 function MemberAvatar({ member }: { member: TeamMember }) {
   const initials = member.name
@@ -79,7 +80,7 @@ function MemberAvatar({ member }: { member: TeamMember }) {
     .map((n) => n[0])
     .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 
   return (
     <div
@@ -94,7 +95,7 @@ function MemberAvatar({ member }: { member: TeamMember }) {
         <span style={{ color: "var(--accent-teal)" }}>{initials}</span>
       )}
     </div>
-  )
+  );
 }
 
 function MemberRow({
@@ -102,18 +103,18 @@ function MemberRow({
   isCurrentUser,
   index,
 }: {
-  member: TeamMember
-  isCurrentUser: boolean
-  index: number
+  member: TeamMember;
+  isCurrentUser: boolean;
+  index: number;
 }) {
-  const role = roleConfig[member.role]
-  const status = statusConfig[member.status]
+  const role = roleConfig[member.role];
+  const status = statusConfig[member.status];
 
   return (
     <tr
       className={cn(
         "animate-fade-in-up group border-b border-foreground/5 transition-colors hover:bg-muted/30",
-        isCurrentUser && "bg-muted/20"
+        isCurrentUser && "bg-muted/20",
       )}
       style={{ animationDelay: `${index * 30}ms` }}
     >
@@ -168,7 +169,7 @@ function MemberRow({
         <span
           className={cn(
             "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-            status.className
+            status.className,
           )}
         >
           {status.label}
@@ -227,7 +228,7 @@ function MemberRow({
         </DropdownMenu>
       </td>
     </tr>
-  )
+  );
 }
 
 export function TeamMembersTable({
@@ -236,11 +237,11 @@ export function TeamMembersTable({
 }: TeamMembersTableProps) {
   // Sort: owner first, then admins, then members, within each group sort by name
   const sortedMembers = [...members].sort((a, b) => {
-    const roleOrder = { owner: 0, admin: 1, member: 2 }
-    const roleCompare = roleOrder[a.role] - roleOrder[b.role]
-    if (roleCompare !== 0) return roleCompare
-    return a.name.localeCompare(b.name)
-  })
+    const roleOrder = { owner: 0, admin: 1, member: 2 };
+    const roleCompare = roleOrder[a.role] - roleOrder[b.role];
+    if (roleCompare !== 0) return roleCompare;
+    return a.name.localeCompare(b.name);
+  });
 
   return (
     <div className="overflow-hidden rounded-xl border border-foreground/5">
@@ -276,5 +277,5 @@ export function TeamMembersTable({
         </tbody>
       </table>
     </div>
-  )
+  );
 }

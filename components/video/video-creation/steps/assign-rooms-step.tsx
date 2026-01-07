@@ -1,25 +1,28 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
+import * as React from "react";
+import Image from "next/image";
 import {
   IconGripVertical,
   IconWand,
   IconChevronDown,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { VIDEO_ROOM_TYPES } from "@/lib/video/room-sequence"
-import type { VideoImageItem } from "@/hooks/use-video-creation"
-import type { VideoRoomType } from "@/lib/db/schema"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { VIDEO_ROOM_TYPES } from "@/lib/video/room-sequence";
+import type { VideoImageItem } from "@/hooks/use-video-creation";
+import type { VideoRoomType } from "@/lib/db/schema";
 
 interface AssignRoomsStepProps {
-  images: VideoImageItem[]
-  onUpdateImage: (id: string, updates: Partial<Omit<VideoImageItem, "id" | "url">>) => void
-  onReorderImages: (fromIndex: number, toIndex: number) => void
-  onAutoArrange: () => void
+  images: VideoImageItem[];
+  onUpdateImage: (
+    id: string,
+    updates: Partial<Omit<VideoImageItem, "id" | "url">>,
+  ) => void;
+  onReorderImages: (fromIndex: number, toIndex: number) => void;
+  onAutoArrange: () => void;
 }
 
 export function AssignRoomsStep({
@@ -28,34 +31,39 @@ export function AssignRoomsStep({
   onReorderImages,
   onAutoArrange,
 }: AssignRoomsStepProps) {
-  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null)
-  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null)
+  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
 
   const handleDragStart = (index: number) => {
-    setDraggedIndex(index)
-  }
+    setDraggedIndex(index);
+  };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault()
+    e.preventDefault();
     if (draggedIndex !== null && draggedIndex !== index) {
-      setDragOverIndex(index)
+      setDragOverIndex(index);
     }
-  }
+  };
 
   const handleDragEnd = () => {
-    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
-      onReorderImages(draggedIndex, dragOverIndex)
+    if (
+      draggedIndex !== null &&
+      dragOverIndex !== null &&
+      draggedIndex !== dragOverIndex
+    ) {
+      onReorderImages(draggedIndex, dragOverIndex);
     }
-    setDraggedIndex(null)
-    setDragOverIndex(null)
-  }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   return (
     <div className="space-y-6">
       {/* Actions Bar */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">{images.length}</span> clips in sequence
+          <span className="font-medium text-foreground">{images.length}</span>{" "}
+          clips in sequence
         </div>
         <Button
           variant="outline"
@@ -81,8 +89,9 @@ export function AssignRoomsStep({
               "group flex items-center gap-4 rounded-xl border bg-card p-3 transition-all duration-200",
               "hover:border-(--accent-teal)/30 hover:shadow-md",
               draggedIndex === index && "opacity-50 scale-[0.98]",
-              dragOverIndex === index && "border-(--accent-teal) bg-(--accent-teal)/5",
-              "animate-fade-in-up"
+              dragOverIndex === index &&
+                "border-(--accent-teal) bg-(--accent-teal)/5",
+              "animate-fade-in-up",
             )}
             style={{ animationDelay: `${index * 30}ms` }}
           >
@@ -112,10 +121,14 @@ export function AssignRoomsStep({
               <div className="relative min-w-[180px]">
                 <select
                   value={image.roomType}
-                  onChange={(e) => onUpdateImage(image.id, { roomType: e.target.value as VideoRoomType })}
+                  onChange={(e) =>
+                    onUpdateImage(image.id, {
+                      roomType: e.target.value as VideoRoomType,
+                    })
+                  }
                   className={cn(
                     "w-full appearance-none rounded-lg border bg-background px-3 py-2 pr-10 text-sm",
-                    "focus:border-(--accent-teal) focus:outline-none focus:ring-2 focus:ring-(--accent-teal)/20"
+                    "focus:border-(--accent-teal) focus:outline-none focus:ring-2 focus:ring-(--accent-teal)/20",
                   )}
                 >
                   {VIDEO_ROOM_TYPES.map((room) => (
@@ -130,7 +143,9 @@ export function AssignRoomsStep({
               {/* Custom Label */}
               <Input
                 value={image.roomLabel}
-                onChange={(e) => onUpdateImage(image.id, { roomLabel: e.target.value })}
+                onChange={(e) =>
+                  onUpdateImage(image.id, { roomLabel: e.target.value })
+                }
                 placeholder="Custom label (optional)"
                 className="max-w-[200px] text-sm"
               />
@@ -149,7 +164,9 @@ export function AssignRoomsStep({
         <h4 className="mb-3 text-sm font-medium">Sequence Preview</h4>
         <div className="flex flex-wrap gap-2">
           {images.map((image, index) => {
-            const roomConfig = VIDEO_ROOM_TYPES.find((r) => r.id === image.roomType)
+            const roomConfig = VIDEO_ROOM_TYPES.find(
+              (r) => r.id === image.roomType,
+            );
             return (
               <div
                 key={image.id}
@@ -161,13 +178,14 @@ export function AssignRoomsStep({
                   <span className="ml-1 text-muted-foreground">→</span>
                 )}
               </div>
-            )
+            );
           })}
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          Total duration: {images.length * 5} seconds ({images.length} clips × 5 sec)
+          Total duration: {images.length * 5} seconds ({images.length} clips × 5
+          sec)
         </p>
       </div>
     </div>
-  )
+  );
 }

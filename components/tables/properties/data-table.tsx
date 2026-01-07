@@ -1,67 +1,80 @@
-"use client"
+"use client";
 
-import { useInfiniteScroll } from "@/hooks/use-infinite-scroll"
-import { usePropertyFilters } from "@/hooks/use-property-filters"
-import { getPropertiesPage, type Property } from "@/lib/mock/properties"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { getCoreRowModel, useReactTable } from "@tanstack/react-table"
-import { useVirtualizer } from "@tanstack/react-virtual"
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
-import { columns } from "./columns"
-import { EmptyState, NoResults } from "./empty-states"
-import { VirtualRow } from "./virtual-row"
-import { TableToolbar } from "./table-toolbar"
-import { DataTableHeader } from "./table-header"
-import { IconLoader2 } from "@tabler/icons-react"
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
+import { usePropertyFilters } from "@/hooks/use-property-filters";
+import { getPropertiesPage, type Property } from "@/lib/mock/properties";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { columns } from "./columns";
+import { EmptyState, NoResults } from "./empty-states";
+import { VirtualRow } from "./virtual-row";
+import { TableToolbar } from "./table-toolbar";
+import { DataTableHeader } from "./table-header";
+import { IconLoader2 } from "@tabler/icons-react";
 
-const ROW_HEIGHT = 56
+const ROW_HEIGHT = 56;
 
 export function DataTable() {
-  const parentRef = useRef<HTMLDivElement>(null)
+  const parentRef = useRef<HTMLDivElement>(null);
 
   // Get filters from URL state
-  const { propertyFilters, hasActiveFilters, sortColumn, sortDirection, toggleSort } = usePropertyFilters()
+  const {
+    propertyFilters,
+    hasActiveFilters,
+    sortColumn,
+    sortDirection,
+    toggleSort,
+  } = usePropertyFilters();
 
   // Defer search to debounce filtering
-  const deferredFilters = useDeferredValue(propertyFilters)
+  const deferredFilters = useDeferredValue(propertyFilters);
 
   // Pagination state
-  const [pages, setPages] = useState<Property[][]>([])
-  const [cursor, setCursor] = useState<string | null>(null)
-  const [hasNextPage, setHasNextPage] = useState(true)
-  const [filteredTotal, setFilteredTotal] = useState(0)
-  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [pages, setPages] = useState<Property[][]>([]);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [filteredTotal, setFilteredTotal] = useState(0);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Reset pagination when filters change
   useEffect(() => {
-    const response = getPropertiesPage(null, 20, deferredFilters)
-    setPages([response.data])
-    setCursor(response.meta.cursor)
-    setHasNextPage(response.meta.hasMore)
-    setFilteredTotal(response.meta.filteredTotal)
-    setIsInitialLoad(false)
-  }, [deferredFilters])
+    const response = getPropertiesPage(null, 20, deferredFilters);
+    setPages([response.data]);
+    setCursor(response.meta.cursor);
+    setHasNextPage(response.meta.hasMore);
+    setFilteredTotal(response.meta.filteredTotal);
+    setIsInitialLoad(false);
+  }, [deferredFilters]);
 
   // Flatten all pages into single array
-  const tableData = useMemo(() => pages.flat(), [pages])
+  const tableData = useMemo(() => pages.flat(), [pages]);
 
   // Fetch next page function
   const fetchNextPage = useCallback(() => {
-    if (isFetchingNextPage || !hasNextPage) return
+    if (isFetchingNextPage || !hasNextPage) return;
 
-    setIsFetchingNextPage(true)
+    setIsFetchingNextPage(true);
 
     // Simulate async fetch with slight delay
     setTimeout(() => {
-      const response = getPropertiesPage(cursor, 20, deferredFilters)
-      setPages((prev) => [...prev, response.data])
-      setCursor(response.meta.cursor)
-      setHasNextPage(response.meta.hasMore)
-      setFilteredTotal(response.meta.filteredTotal)
-      setIsFetchingNextPage(false)
-    }, 300)
-  }, [cursor, hasNextPage, isFetchingNextPage, deferredFilters])
+      const response = getPropertiesPage(cursor, 20, deferredFilters);
+      setPages((prev) => [...prev, response.data]);
+      setCursor(response.meta.cursor);
+      setHasNextPage(response.meta.hasMore);
+      setFilteredTotal(response.meta.filteredTotal);
+      setIsFetchingNextPage(false);
+    }, 300);
+  }, [cursor, hasNextPage, isFetchingNextPage, deferredFilters]);
 
   // Set up TanStack Table
   const table = useReactTable({
@@ -69,9 +82,9 @@ export function DataTable() {
     getRowId: (row) => row.id,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
-  const rows = table.getRowModel().rows
+  const rows = table.getRowModel().rows;
 
   // Set up row virtualization
   const rowVirtualizer = useVirtualizer({
@@ -79,7 +92,7 @@ export function DataTable() {
     getScrollElement: () => parentRef.current,
     estimateSize: () => ROW_HEIGHT,
     overscan: 10,
-  })
+  });
 
   // Infinite scroll hook
   useInfiniteScroll({
@@ -90,7 +103,7 @@ export function DataTable() {
     isFetchingNextPage,
     fetchNextPage,
     threshold: 15,
-  })
+  });
 
   // Loading skeleton state
   if (isInitialLoad) {
@@ -135,7 +148,7 @@ export function DataTable() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Empty state (no data at all)
@@ -145,7 +158,7 @@ export function DataTable() {
         <TableToolbar />
         <EmptyState />
       </div>
-    )
+    );
   }
 
   // No results (filters applied but no matches)
@@ -155,10 +168,10 @@ export function DataTable() {
         <TableToolbar />
         <NoResults />
       </div>
-    )
+    );
   }
 
-  const virtualItems = rowVirtualizer.getVirtualItems()
+  const virtualItems = rowVirtualizer.getVirtualItems();
 
   return (
     <div className="space-y-4">
@@ -189,8 +202,8 @@ export function DataTable() {
             >
               {virtualItems.length > 0 ? (
                 virtualItems.map((virtualRow) => {
-                  const row = rows[virtualRow.index]
-                  if (!row) return null
+                  const row = rows[virtualRow.index];
+                  if (!row) return null;
 
                   return (
                     <VirtualRow
@@ -199,7 +212,7 @@ export function DataTable() {
                       virtualStart={virtualRow.start}
                       rowHeight={ROW_HEIGHT}
                     />
-                  )
+                  );
                 })
               ) : (
                 <TableRow>
@@ -218,7 +231,9 @@ export function DataTable() {
           {isFetchingNextPage && (
             <div className="flex items-center justify-center py-4">
               <IconLoader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-              <span className="ml-2 text-sm text-muted-foreground">Loading more...</span>
+              <span className="ml-2 text-sm text-muted-foreground">
+                Loading more...
+              </span>
             </div>
           )}
         </div>
@@ -230,11 +245,11 @@ export function DataTable() {
             style={{ color: "var(--accent-teal)" }}
           >
             {tableData.length}
-          </span>
-          {" "}of {filteredTotal} properties
+          </span>{" "}
+          of {filteredTotal} properties
           {hasNextPage && " (scroll for more)"}
         </div>
       </div>
     </div>
-  )
+  );
 }

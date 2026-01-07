@@ -41,31 +41,40 @@ AI Studio is a cutting-edge real estate photo editing platform that leverages ar
 ## Key Features
 
 ### AI Photo Enhancement
+
 Upload property photos and apply AI-powered enhancements. Choose from professionally designed style templates that transform ordinary photos into marketing-ready visuals optimized for real estate listings.
 
 ### Style Templates
+
 Curated collection of photography styles including:
+
 - **Modern Minimalist** – Clean lines, contemporary appeal
 - **Luxury Estate** – High-end, sophisticated presentation
 - **Cozy Family Home** – Warm, inviting atmosphere
 - **Urban Chic** – City lifestyle appeal
 
 ### Team Workspaces
+
 Create collaborative workspaces for your real estate team:
+
 - **Role-based Access** – Owner, admin, and member permissions
 - **Shared Projects** – Work together on property listings
 - **Team Invitations** – Invite members via email
 - **Custom Branding** – White-label options for agencies
 
 ### Project Management
+
 Organize your photo editing projects with:
+
 - **Project Dashboard** – Grid and table views of all projects
 - **Before/After Comparison** – Side-by-side image comparison
 - **Status Tracking** – Monitor processing status and completion
 - **Bulk Operations** – Edit multiple photos simultaneously
 
 ### Admin Panel
+
 Comprehensive admin functionality for platform management:
+
 - **User Management** – View and manage all users
 - **Workspace Oversight** – Monitor team workspaces
 - **Analytics Dashboard** – Track usage and performance metrics
@@ -121,48 +130,55 @@ pnpm db:push
 
 ### Useful Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start development server |
-| `pnpm build` | Production build |
-| `pnpm start` | Start production server |
-| `pnpm lint` | Run ESLint |
-| `pnpm db:push` | Push schema changes to database |
-| `pnpm db:generate` | Generate Drizzle migrations |
-| `pnpm db:studio` | Open Drizzle Studio |
-| `pnpm email` | Preview email templates |
+| Command            | Description                     |
+| ------------------ | ------------------------------- |
+| `pnpm dev`         | Start development server        |
+| `pnpm build`       | Production build                |
+| `pnpm start`       | Start production server         |
+| `pnpm lint`        | Run ESLint                      |
+| `pnpm db:push`     | Push schema changes to database |
+| `pnpm db:generate` | Generate Drizzle migrations     |
+| `pnpm db:studio`   | Open Drizzle Studio             |
+| `pnpm email`       | Preview email templates         |
 
 ## Tech Stack
 
 ### Core Framework
+
 - **Next.js 16** – App Router, Server Actions, TypeScript
 - **React 19** – Latest React with concurrent features
 - **TypeScript 5** – Type-safe development
 
 ### Database & ORM
+
 - **PostgreSQL** – Primary database
 - **Drizzle ORM** – Type-safe database operations
 
 ### Authentication & Security
+
 - **Better Auth** – Modern authentication with OAuth providers
 - **Session Management** – Secure session handling
 
 ### AI & Image Processing
+
 - **Fal.ai** – AI-powered image generation and editing
 - **Custom Style Templates** – Curated prompts for real estate photography
 
 ### UI & Styling
+
 - **Tailwind CSS v4** – Utility-first CSS framework
 - **shadcn/ui** – High-quality React components
 - **Radix UI** – Accessible component primitives
 - **@tabler/icons-react** – Consistent icon library
 
 ### Development Tools
+
 - **ESLint** – Code linting and formatting
 - **Drizzle Kit** – Database migration and studio
 - **React Email** – Email template development
 
 ### Platforms
+
 - [Vercel](https://vercel.com/) – Deployment and preview environments
 - [Supabase](https://supabase.com/) – PostgreSQL database and storage
 - [Trigger.dev](https://trigger.dev/) – Background jobs and task scheduling

@@ -1,27 +1,38 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { IconPhoto, IconClock, IconCheck, IconLoader2, IconAlertTriangle, IconPhotoOff } from "@tabler/icons-react"
+import * as React from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  IconPhoto,
+  IconClock,
+  IconCheck,
+  IconLoader2,
+  IconAlertTriangle,
+  IconPhotoOff,
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import type { Project, ProjectStatus } from "@/lib/db/schema"
-import { getTemplateById } from "@/lib/style-templates"
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import type { Project, ProjectStatus } from "@/lib/db/schema";
+import { getTemplateById } from "@/lib/style-templates";
 
 interface ProjectCardProps {
-  project: Project
-  className?: string
-  style?: React.CSSProperties
+  project: Project;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 const statusConfig: Record<
   ProjectStatus,
   {
-    label: string
-    variant: "status-active" | "status-pending" | "status-completed" | "status-archived"
-    icon: React.ReactNode
+    label: string;
+    variant:
+      | "status-active"
+      | "status-pending"
+      | "status-completed"
+      | "status-archived";
+    icon: React.ReactNode;
   }
 > = {
   completed: {
@@ -44,24 +55,25 @@ const statusConfig: Record<
     variant: "status-archived",
     icon: <IconAlertTriangle className="h-3 w-3" />,
   },
-}
+};
 
 function formatRelativeDate(date: Date): string {
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return "Today"
-  if (diffDays === 1) return "Yesterday"
-  if (diffDays < 7) return `${diffDays} days ago`
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
-  return `${Math.floor(diffDays / 365)} years ago`
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+  return `${Math.floor(diffDays / 365)} years ago`;
 }
 
 export function ProjectCard({ project, className, style }: ProjectCardProps) {
-  const template = getTemplateById(project.styleTemplateId)
-  const status = statusConfig[project.status as ProjectStatus] || statusConfig.pending
+  const template = getTemplateById(project.styleTemplateId);
+  const status =
+    statusConfig[project.status as ProjectStatus] || statusConfig.pending;
 
   return (
     <Link
@@ -70,12 +82,14 @@ export function ProjectCard({ project, className, style }: ProjectCardProps) {
         "group relative flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/5 transition-all duration-300",
         "hover:ring-foreground/10 hover:shadow-lg hover:-translate-y-1",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-        className
+        className,
       )}
-      style={{
-        ...style,
-        "--focus-ring": "var(--accent-teal)",
-      } as React.CSSProperties}
+      style={
+        {
+          ...style,
+          "--focus-ring": "var(--accent-teal)",
+        } as React.CSSProperties
+      }
     >
       {/* Thumbnail with overlay */}
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -98,7 +112,10 @@ export function ProjectCard({ project, className, style }: ProjectCardProps) {
 
         {/* Status badge */}
         <div className="absolute right-3 top-3">
-          <Badge variant={status.variant} className="gap-1 shadow-sm backdrop-blur-sm">
+          <Badge
+            variant={status.variant}
+            className="gap-1 shadow-sm backdrop-blur-sm"
+          >
             {status.icon}
             {status.label}
           </Badge>
@@ -142,5 +159,5 @@ export function ProjectCard({ project, className, style }: ProjectCardProps) {
         </div>
       </div>
     </Link>
-  )
+  );
 }

@@ -1,103 +1,133 @@
-"use client"
+"use client";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import type { AdminWorkspace, WorkspaceStatus, WorkspacePlan } from "@/lib/mock/admin-workspaces"
-import { IconDotsVertical, IconEye, IconUserCircle, IconBan } from "@tabler/icons-react"
-import type { ColumnDef } from "@tanstack/react-table"
-import { memo } from "react"
+} from "@/components/ui/dropdown-menu";
+import type { AdminWorkspaceRow } from "@/lib/types/admin";
+import type { WorkspaceStatus, WorkspacePlan } from "@/lib/db/schema";
+import {
+  IconDotsVertical,
+  IconEye,
+  IconUserCircle,
+  IconBan,
+} from "@tabler/icons-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { memo } from "react";
 
 // Status badge variants
-const statusVariantMap: Record<WorkspaceStatus, "status-active" | "status-suspended" | "status-trial"> = {
+const statusVariantMap: Record<
+  WorkspaceStatus,
+  "status-active" | "status-suspended" | "status-trial"
+> = {
   active: "status-active",
   suspended: "status-suspended",
   trial: "status-trial",
-}
+};
 
 const statusLabelMap: Record<WorkspaceStatus, string> = {
   active: "Active",
   suspended: "Suspended",
   trial: "Trial",
-}
+};
 
 // Plan badge variants
-const planVariantMap: Record<WorkspacePlan, "plan-free" | "plan-pro" | "plan-enterprise"> = {
+const planVariantMap: Record<
+  WorkspacePlan,
+  "plan-free" | "plan-pro" | "plan-enterprise"
+> = {
   free: "plan-free",
   pro: "plan-pro",
   enterprise: "plan-enterprise",
-}
+};
 
 const planLabelMap: Record<WorkspacePlan, string> = {
   free: "Free",
   pro: "Pro",
   enterprise: "Enterprise",
-}
+};
 
 // Memoized cell components
 const WorkspaceCell = memo(({ name, slug }: { name: string; slug: string }) => (
   <div className="flex flex-col min-w-0">
     <span className="font-medium truncate">{name}</span>
-    <span className="text-xs text-muted-foreground truncate font-mono">/{slug}</span>
+    <span className="text-xs text-muted-foreground truncate font-mono">
+      /{slug}
+    </span>
   </div>
-))
-WorkspaceCell.displayName = "WorkspaceCell"
+));
+WorkspaceCell.displayName = "WorkspaceCell";
 
-const OwnerCell = memo(({ name, email, image }: { name: string; email: string; image: string | null }) => {
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
+const OwnerCell = memo(
+  ({
+    name,
+    email,
+    image,
+  }: {
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  }) => {
+    if (!name || !email) {
+      return (
+        <span className="text-sm text-muted-foreground italic">No owner</span>
+      );
+    }
 
-  return (
-    <div className="flex items-center gap-2.5 min-w-0">
-      <Avatar className="h-7 w-7 shrink-0">
-        {image && <AvatarImage src={image} alt={name} />}
-        <AvatarFallback className="text-[10px] font-medium">{initials}</AvatarFallback>
-      </Avatar>
-      <div className="flex flex-col min-w-0">
-        <span className="text-sm font-medium truncate">{name}</span>
-        <span className="text-xs text-muted-foreground truncate">{email}</span>
+    const initials = name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+
+    return (
+      <div className="flex items-center gap-2.5 min-w-0">
+        <Avatar className="h-7 w-7 shrink-0">
+          {image && <AvatarImage src={image} alt={name} />}
+          <AvatarFallback className="text-[10px] font-medium">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm font-medium truncate">{name}</span>
+          <span className="text-xs text-muted-foreground truncate">
+            {email}
+          </span>
+        </div>
       </div>
-    </div>
-  )
-})
-OwnerCell.displayName = "OwnerCell"
+    );
+  },
+);
+OwnerCell.displayName = "OwnerCell";
 
 const MemberCountCell = memo(({ count }: { count: number }) => (
   <Badge variant="secondary" className="font-mono">
     {count}
   </Badge>
-))
-MemberCountCell.displayName = "MemberCountCell"
+));
+MemberCountCell.displayName = "MemberCountCell";
 
 const ImagesCell = memo(({ count }: { count: number }) => (
   <span className="font-mono text-sm">{count.toLocaleString()}</span>
-))
-ImagesCell.displayName = "ImagesCell"
+));
+ImagesCell.displayName = "ImagesCell";
 
 const StatusCell = memo(({ status }: { status: WorkspaceStatus }) => (
-  <Badge variant={statusVariantMap[status]}>
-    {statusLabelMap[status]}
-  </Badge>
-))
-StatusCell.displayName = "StatusCell"
+  <Badge variant={statusVariantMap[status]}>{statusLabelMap[status]}</Badge>
+));
+StatusCell.displayName = "StatusCell";
 
 const PlanCell = memo(({ plan }: { plan: WorkspacePlan }) => (
-  <Badge variant={planVariantMap[plan]}>
-    {planLabelMap[plan]}
-  </Badge>
-))
-PlanCell.displayName = "PlanCell"
+  <Badge variant={planVariantMap[plan]}>{planLabelMap[plan]}</Badge>
+));
+PlanCell.displayName = "PlanCell";
 
 const SpendCell = memo(({ amount }: { amount: number }) => (
   <span
@@ -106,80 +136,100 @@ const SpendCell = memo(({ amount }: { amount: number }) => (
   >
     ${amount.toFixed(2)}
   </span>
-))
-SpendCell.displayName = "SpendCell"
+));
+SpendCell.displayName = "SpendCell";
 
 const DateCell = memo(({ date }: { date: Date }) => {
   const formatted = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
-  }).format(date)
-  return <span className="text-sm text-muted-foreground">{formatted}</span>
-})
-DateCell.displayName = "DateCell"
+  }).format(date);
+  return <span className="text-sm text-muted-foreground">{formatted}</span>;
+});
+DateCell.displayName = "DateCell";
 
-const ActionsCell = memo(({
-  workspaceId,
-  ownerId,
-  ownerName,
-  ownerEmail,
-  workspaceName,
-  onImpersonate,
-}: {
-  workspaceId: string
-  ownerId: string
-  ownerName: string
-  ownerEmail: string
-  workspaceName: string
-  onImpersonate?: (user: { id: string; name: string; email: string; workspaceId: string; workspaceName: string }) => void
-}) => (
-  <div className="flex items-center justify-center">
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <IconDotsVertical className="h-4 w-4" />
-          <span className="sr-only">Open menu</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => console.log("View", workspaceId)}>
-          <IconEye className="mr-2 h-4 w-4" />
-          View details
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => {
-            if (onImpersonate) {
-              onImpersonate({
-                id: ownerId,
-                name: ownerName,
-                email: ownerEmail,
-                workspaceId,
-                workspaceName,
-              })
-            }
-          }}
-        >
-          <IconUserCircle className="mr-2 h-4 w-4" />
-          Impersonate owner
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => console.log("Suspend", workspaceId)}
-          className="text-destructive focus:text-destructive"
-        >
-          <IconBan className="mr-2 h-4 w-4" />
-          Suspend workspace
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  </div>
-))
-ActionsCell.displayName = "ActionsCell"
+const ActionsCell = memo(
+  ({
+    workspaceId,
+    ownerId,
+    ownerName,
+    ownerEmail,
+    workspaceName,
+    onImpersonate,
+  }: {
+    workspaceId: string;
+    ownerId: string | null;
+    ownerName: string | null;
+    ownerEmail: string | null;
+    workspaceName: string;
+    onImpersonate?: (user: {
+      id: string;
+      name: string;
+      email: string;
+      workspaceId: string;
+      workspaceName: string;
+    }) => void;
+  }) => {
+    const canImpersonate = ownerId && ownerName && ownerEmail;
+
+    return (
+      <div className="flex items-center justify-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <IconDotsVertical className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => console.log("View", workspaceId)}>
+              <IconEye className="mr-2 h-4 w-4" />
+              View details
+            </DropdownMenuItem>
+            {canImpersonate && (
+              <DropdownMenuItem
+                onClick={() => {
+                  if (onImpersonate) {
+                    onImpersonate({
+                      id: ownerId,
+                      name: ownerName,
+                      email: ownerEmail,
+                      workspaceId,
+                      workspaceName,
+                    });
+                  }
+                }}
+              >
+                <IconUserCircle className="mr-2 h-4 w-4" />
+                Impersonate owner
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => console.log("Suspend", workspaceId)}
+              className="text-destructive focus:text-destructive"
+            >
+              <IconBan className="mr-2 h-4 w-4" />
+              Suspend workspace
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  },
+);
+ActionsCell.displayName = "ActionsCell";
 
 export function createWorkspaceColumns(
-  onImpersonate?: (user: { id: string; name: string; email: string; workspaceId: string; workspaceName: string }) => void
-): ColumnDef<AdminWorkspace>[] {
+  onImpersonate?: (user: {
+    id: string;
+    name: string;
+    email: string;
+    workspaceId: string;
+    workspaceName: string;
+  }) => void,
+): ColumnDef<AdminWorkspaceRow>[] {
   return [
     {
       id: "workspace",
@@ -188,10 +238,7 @@ export function createWorkspaceColumns(
       size: 220,
       minSize: 180,
       cell: ({ row }) => (
-        <WorkspaceCell
-          name={row.original.name}
-          slug={row.original.slug}
-        />
+        <WorkspaceCell name={row.original.name} slug={row.original.slug} />
       ),
     },
     {
@@ -282,5 +329,5 @@ export function createWorkspaceColumns(
         />
       ),
     },
-  ]
+  ];
 }

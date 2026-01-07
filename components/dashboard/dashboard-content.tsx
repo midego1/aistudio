@@ -1,26 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { parseAsStringLiteral, useQueryState } from "nuqs"
-import { IconSparkles, IconPlus, IconLayoutGrid, IconTable } from "@tabler/icons-react"
+import { useState } from "react";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
+import {
+  IconSparkles,
+  IconPlus,
+  IconLayoutGrid,
+  IconTable,
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { ProjectsGrid } from "@/components/dashboard/projects-grid"
-import { EmptyProjects } from "@/components/dashboard/empty-projects"
-import { StatsBar } from "@/components/dashboard/stats-bar"
-import { DataTable } from "@/components/tables/properties/data-table"
-import { NewProjectDialog } from "@/components/projects/new-project-dialog"
-import type { Project } from "@/lib/db/schema"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ProjectsGrid } from "@/components/dashboard/projects-grid";
+import { EmptyProjects } from "@/components/dashboard/empty-projects";
+import { StatsBar } from "@/components/dashboard/stats-bar";
+import { DataTable } from "@/components/tables/properties/data-table";
+import { NewProjectDialog } from "@/components/projects/new-project-dialog";
+import type { Project } from "@/lib/db/schema";
 
-type ViewMode = "grid" | "table"
+type ViewMode = "grid" | "table";
 
 function ViewToggle({
   view,
   onViewChange,
 }: {
-  view: ViewMode
-  onViewChange: (view: ViewMode) => void
+  view: ViewMode;
+  onViewChange: (view: ViewMode) => void;
 }) {
   return (
     <div className="flex items-center rounded-lg bg-muted/50 p-1 ring-1 ring-foreground/5">
@@ -30,7 +35,7 @@ function ViewToggle({
           "flex h-8 w-8 items-center justify-center rounded-md transition-all duration-200",
           view === "grid"
             ? "bg-background shadow-sm ring-1 ring-foreground/5"
-            : "text-muted-foreground hover:text-foreground"
+            : "text-muted-foreground hover:text-foreground",
         )}
         aria-label="Grid view"
       >
@@ -45,7 +50,7 @@ function ViewToggle({
           "flex h-8 w-8 items-center justify-center rounded-md transition-all duration-200",
           view === "table"
             ? "bg-background shadow-sm ring-1 ring-foreground/5"
-            : "text-muted-foreground hover:text-foreground"
+            : "text-muted-foreground hover:text-foreground",
         )}
         aria-label="Table view"
       >
@@ -55,28 +60,28 @@ function ViewToggle({
         />
       </button>
     </div>
-  )
+  );
 }
 
 interface DashboardContentProps {
-  projects: Project[]
+  projects: Project[];
   stats: {
-    totalProjects: number
-    completedProjects: number
-    processingProjects: number
-    totalImages: number
-    totalCost: number
-  }
+    totalProjects: number;
+    completedProjects: number;
+    processingProjects: number;
+    totalImages: number;
+    totalCost: number;
+  };
 }
 
 export function DashboardContent({ projects, stats }: DashboardContentProps) {
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [view, setView] = useQueryState(
     "view",
-    parseAsStringLiteral(["grid", "table"] as const).withDefault("grid")
-  )
+    parseAsStringLiteral(["grid", "table"] as const).withDefault("grid"),
+  );
 
-  const hasProjects = projects.length > 0
+  const hasProjects = projects.length > 0;
 
   return (
     <div className="space-y-6 px-4 md:px-6 lg:px-8">
@@ -142,5 +147,5 @@ export function DashboardContent({ projects, stats }: DashboardContentProps) {
       {/* New Project Dialog */}
       <NewProjectDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
-  )
+  );
 }

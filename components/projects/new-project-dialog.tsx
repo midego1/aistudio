@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   IconUpload,
   IconHome,
@@ -11,28 +11,31 @@ import {
   IconArrowLeft,
   IconSparkles,
   IconLoader2,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
-import { useProjectCreation, type CreationStep } from "@/hooks/use-project-creation"
-import { useImageUpload } from "@/hooks/use-image-upload"
-import { UploadStep } from "@/components/projects/steps/upload-step"
-import { RoomTypeStep } from "@/components/projects/steps/room-type-step"
-import { StyleStep } from "@/components/projects/steps/style-step"
-import { ConfirmStep } from "@/components/projects/steps/confirm-step"
-import { createProjectAction } from "@/lib/actions"
+} from "@/components/ui/dialog";
+import {
+  useProjectCreation,
+  type CreationStep,
+} from "@/hooks/use-project-creation";
+import { useImageUpload } from "@/hooks/use-image-upload";
+import { UploadStep } from "@/components/projects/steps/upload-step";
+import { RoomTypeStep } from "@/components/projects/steps/room-type-step";
+import { StyleStep } from "@/components/projects/steps/style-step";
+import { ConfirmStep } from "@/components/projects/steps/confirm-step";
+import { createProjectAction } from "@/lib/actions";
 
 interface NewProjectDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const STEPS: { id: CreationStep; label: string; icon: React.ReactNode }[] = [
@@ -40,31 +43,32 @@ const STEPS: { id: CreationStep; label: string; icon: React.ReactNode }[] = [
   { id: "room-type", label: "Room", icon: <IconHome className="h-4 w-4" /> },
   { id: "style", label: "Style", icon: <IconPalette className="h-4 w-4" /> },
   { id: "confirm", label: "Confirm", icon: <IconCheck className="h-4 w-4" /> },
-]
+];
 
 function StepIndicator({
   steps,
   currentStep,
 }: {
-  steps: typeof STEPS
-  currentStep: CreationStep
+  steps: typeof STEPS;
+  currentStep: CreationStep;
 }) {
-  const currentIndex = steps.findIndex((s) => s.id === currentStep)
+  const currentIndex = steps.findIndex((s) => s.id === currentStep);
 
   return (
     <div className="flex items-center justify-center gap-2">
       {steps.map((step, index) => {
-        const isActive = step.id === currentStep
-        const isCompleted = index < currentIndex
+        const isActive = step.id === currentStep;
+        const isCompleted = index < currentIndex;
 
         return (
           <React.Fragment key={step.id}>
             <div
               className={cn(
                 "flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-200",
-                isActive && "bg-[var(--accent-teal)]/10 text-[var(--accent-teal)]",
+                isActive &&
+                  "bg-[var(--accent-teal)]/10 text-[var(--accent-teal)]",
                 isCompleted && "text-[var(--accent-teal)]",
-                !isActive && !isCompleted && "text-muted-foreground"
+                !isActive && !isCompleted && "text-muted-foreground",
               )}
             >
               <span
@@ -72,10 +76,14 @@ function StepIndicator({
                   "flex h-6 w-6 items-center justify-center rounded-full text-xs transition-all duration-200",
                   isActive && "bg-[var(--accent-teal)] text-white",
                   isCompleted && "bg-[var(--accent-teal)] text-white",
-                  !isActive && !isCompleted && "bg-muted text-muted-foreground"
+                  !isActive && !isCompleted && "bg-muted text-muted-foreground",
                 )}
               >
-                {isCompleted ? <IconCheck className="h-3.5 w-3.5" /> : index + 1}
+                {isCompleted ? (
+                  <IconCheck className="h-3.5 w-3.5" />
+                ) : (
+                  index + 1
+                )}
               </span>
               <span className="hidden sm:inline">{step.label}</span>
             </div>
@@ -84,73 +92,81 @@ function StepIndicator({
               <div
                 className={cn(
                   "h-px w-8 transition-colors duration-200",
-                  index < currentIndex ? "bg-[var(--accent-teal)]" : "bg-border"
+                  index < currentIndex
+                    ? "bg-[var(--accent-teal)]"
+                    : "bg-border",
                 )}
               />
             )}
           </React.Fragment>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
-export function NewProjectDialog({ open, onOpenChange }: NewProjectDialogProps) {
-  const router = useRouter()
-  const creation = useProjectCreation()
-  const imageUpload = useImageUpload()
+export function NewProjectDialog({
+  open,
+  onOpenChange,
+}: NewProjectDialogProps) {
+  const router = useRouter();
+  const creation = useProjectCreation();
+  const imageUpload = useImageUpload();
 
   const handleClose = React.useCallback(() => {
-    creation.reset()
-    imageUpload.reset()
-    onOpenChange(false)
-  }, [creation, imageUpload, onOpenChange])
+    creation.reset();
+    imageUpload.reset();
+    onOpenChange(false);
+  }, [creation, imageUpload, onOpenChange]);
 
   const handleSubmit = React.useCallback(async () => {
-    if (!creation.canProceed() || !creation.selectedTemplate) return
+    if (!creation.canProceed() || !creation.selectedTemplate) return;
 
-    creation.setIsSubmitting(true)
+    creation.setIsSubmitting(true);
 
     try {
       // Step 1: Create the project
-      const projectFormData = new FormData()
-      projectFormData.set("name", creation.projectName)
-      projectFormData.set("styleTemplateId", creation.selectedTemplate.id)
+      const projectFormData = new FormData();
+      projectFormData.set("name", creation.projectName);
+      projectFormData.set("styleTemplateId", creation.selectedTemplate.id);
       if (creation.roomType) {
-        projectFormData.set("roomType", creation.roomType)
+        projectFormData.set("roomType", creation.roomType);
       }
 
-      const projectResult = await createProjectAction(projectFormData)
+      const projectResult = await createProjectAction(projectFormData);
 
       if (!projectResult.success) {
-        console.error("Failed to create project:", projectResult.error)
-        creation.setIsSubmitting(false)
-        return
+        console.error("Failed to create project:", projectResult.error);
+        creation.setIsSubmitting(false);
+        return;
       }
 
-      const project = projectResult.data
+      const project = projectResult.data;
 
       // Step 2: Upload images directly to Supabase (client-side)
-      const files = creation.images.map((img) => img.file)
-      const uploadSuccess = await imageUpload.uploadImages(project.id, files)
+      const files = creation.images.map((img) => img.file);
+      const uploadSuccess = await imageUpload.uploadImages(project.id, files);
 
       if (!uploadSuccess) {
-        console.error("Failed to upload images:", imageUpload.error)
+        console.error("Failed to upload images:", imageUpload.error);
         // Project was created but images failed - still redirect to project
       }
 
       // Success - redirect to project detail page
-      creation.reset()
-      imageUpload.reset()
-      onOpenChange(false)
-      router.push(`/dashboard/${project.id}`)
+      creation.reset();
+      imageUpload.reset();
+      onOpenChange(false);
+      router.push(`/dashboard/${project.id}`);
     } catch (error) {
-      console.error("Project creation error:", error)
-      creation.setIsSubmitting(false)
+      console.error("Project creation error:", error);
+      creation.setIsSubmitting(false);
     }
-  }, [creation, imageUpload, onOpenChange, router])
+  }, [creation, imageUpload, onOpenChange, router]);
 
-  const stepTitles: Record<CreationStep, { title: string; description: string }> = {
+  const stepTitles: Record<
+    CreationStep,
+    { title: string; description: string }
+  > = {
     upload: {
       title: "Upload Images",
       description: "Add the real estate photos you want to enhance",
@@ -167,19 +183,24 @@ export function NewProjectDialog({ open, onOpenChange }: NewProjectDialogProps) 
       title: "Review & Confirm",
       description: "Name your project and review before processing",
     },
-  }
+  };
 
-  const currentStepInfo = stepTitles[creation.step]
+  const currentStepInfo = stepTitles[creation.step];
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent size="lg" className="flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0">
+      <DialogContent
+        size="lg"
+        className="flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0"
+      >
         {/* Header */}
         <div className="border-b px-6 py-4">
           <DialogHeader className="space-y-3">
             <StepIndicator steps={STEPS} currentStep={creation.step} />
             <div className="pt-2 text-center">
-              <DialogTitle className="text-xl">{currentStepInfo.title}</DialogTitle>
+              <DialogTitle className="text-xl">
+                {currentStepInfo.title}
+              </DialogTitle>
               <DialogDescription className="mt-1">
                 {currentStepInfo.description}
               </DialogDescription>
@@ -235,7 +256,11 @@ export function NewProjectDialog({ open, onOpenChange }: NewProjectDialogProps) 
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={handleClose} disabled={creation.isSubmitting}>
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={creation.isSubmitting}
+            >
               Cancel
             </Button>
 
@@ -273,5 +298,5 @@ export function NewProjectDialog({ open, onOpenChange }: NewProjectDialogProps) 
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
