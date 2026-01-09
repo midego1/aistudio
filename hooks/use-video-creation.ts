@@ -148,7 +148,8 @@ export function useVideoCreation() {
         | "endImageUrl"
         | "endImageGenerationId"
       >,
-      slotIndex: number
+      slotIndex: number,
+      framesToSet: "start" | "end" | "both" = "both"
     ) => {
       setState((prev) => {
         // Remove any existing image in this slot
@@ -159,12 +160,22 @@ export function useVideoCreation() {
         // Add new image at specific sequence order (1-based)
         const newImage = {
           ...image,
-          startImageUrl: image.url,
-          startImageId: image.id,
-          startImageGenerationId: image.imageGenerationId,
-          endImageUrl: image.url,
-          endImageId: image.id,
-          endImageGenerationId: image.imageGenerationId,
+          startImageUrl:
+            framesToSet === "start" || framesToSet === "both" ? image.url : "",
+          startImageId:
+            framesToSet === "start" || framesToSet === "both" ? image.id : "",
+          startImageGenerationId:
+            framesToSet === "start" || framesToSet === "both"
+              ? image.imageGenerationId
+              : null,
+          endImageUrl:
+            framesToSet === "end" || framesToSet === "both" ? image.url : "",
+          endImageId:
+            framesToSet === "end" || framesToSet === "both" ? image.id : "",
+          endImageGenerationId:
+            framesToSet === "end" || framesToSet === "both"
+              ? image.imageGenerationId
+              : null,
           sequenceOrder: slotIndex + 1,
           transitionType: image.transitionType || "seamless",
         };

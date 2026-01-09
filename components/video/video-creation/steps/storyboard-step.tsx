@@ -31,7 +31,8 @@ interface StoryboardStepProps {
       | "endImageId"
       | "endImageGenerationId"
     >,
-    slotIndex: number
+    slotIndex: number,
+    framesToSet?: "start" | "end" | "both"
   ) => void;
   onUpdateSlotImage: (
     slotIndex: number,
@@ -98,10 +99,30 @@ export function StoryboardStep({
               index
             );
           } else {
-            onUpdateSlotImage(index, frameType, {
-              id: result.imageId,
-              url: result.url,
-            });
+            // Check if slot is empty
+            const existingImage = images.find(
+              (img) => img.sequenceOrder === index + 1
+            );
+            if (existingImage) {
+              // Slot has image, update the specific frame
+              onUpdateSlotImage(index, frameType, {
+                id: result.imageId,
+                url: result.url,
+              });
+            } else {
+              // Slot is empty, create new entry with only the specified frame
+              const slot = template.slots[index];
+              onAddImageToSlot(
+                {
+                  id: result.imageId,
+                  url: result.url,
+                  roomType: slot?.roomType || "other",
+                  roomLabel: slot?.label || "",
+                },
+                index,
+                frameType
+              );
+            }
           }
         } else {
           toast.error("Failed to upload image");
@@ -113,7 +134,7 @@ export function StoryboardStep({
         setUploadingSlotIndex(null);
       }
     },
-    [template, onAddImageToSlot, onUpdateSlotImage]
+    [template, images, onAddImageToSlot, onUpdateSlotImage]
   );
 
   const handleAddClick = (
@@ -268,7 +289,7 @@ export function StoryboardStep({
                 >
                   <div className="group/match pointer-events-auto mb-2 flex items-center -space-x-2.5">
                     <div className="relative h-14 w-10 overflow-hidden rounded-l-xl border-y border-l bg-muted/30 shadow-xs ring-1 ring-black/5 transition-transform group-hover/match:-translate-x-1">
-                      {image && (
+                      {image && image.endImageUrl && (
                         <Image
                           alt="End frame"
                           className="object-cover opacity-40"
@@ -284,7 +305,7 @@ export function StoryboardStep({
                       />
                     </div>
                     <div className="relative h-14 w-10 overflow-hidden rounded-r-xl border-y border-r bg-muted/30 shadow-xs ring-1 ring-black/5 transition-transform group-hover/match:translate-x-1">
-                      {nextImage && (
+                      {nextImage && nextImage.startImageUrl && (
                         <Image
                           alt="Start frame"
                           className="object-cover opacity-40"
@@ -390,14 +411,10 @@ export function StoryboardStep({
                         ? handleAddClick(index, "start")
                         : handleAddClick(index, "both")
                     }
-                    onDragOver={(e) =>
-                      handleDragOver(e, index, image ? "start" : "both")
-                    }
-                    onDrop={(e) =>
-                      handleDrop(e, index, image ? "start" : "both")
-                    }
+                    onDragOver={(e) => handleDragOver(e, index, "start")}
+                    onDrop={(e) => handleDrop(e, index, "start")}
                   >
-                    {image ? (
+                    {image && image.startImageUrl ? (
                       <Image
                         alt={`${slot.label} start`}
                         className="object-cover"
@@ -419,7 +436,7 @@ export function StoryboardStep({
                       Start
                     </div>
 
-                    {image && (
+                    {image && image.startImageUrl && (
                       <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/start:opacity-100">
                         <div className="flex flex-col items-center gap-3">
                           <button
@@ -461,16 +478,14 @@ export function StoryboardStep({
                       </div>
                     )}
 
-                    {dragOverIndex === index &&
-                      (dragOverFrame === "start" ||
-                        (dragOverFrame === "both" && !image)) && (
-                        <div className="fade-in absolute inset-0 z-20 flex animate-in flex-col items-center justify-center bg-(--accent-teal)/80 duration-200">
-                          <IconPlus className="h-8 w-8 animate-bounce text-white" />
-                          <span className="mt-2 font-bold text-white text-xs">
-                            Drop image
-                          </span>
-                        </div>
-                      )}
+                    {dragOverIndex === index && dragOverFrame === "start" && (
+                      <div className="fade-in absolute inset-0 z-20 flex animate-in flex-col items-center justify-center bg-(--accent-teal)/80 duration-200">
+                        <IconPlus className="h-8 w-8 animate-bounce text-white" />
+                        <span className="mt-2 font-bold text-white text-xs">
+                          Drop image
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Transition Arrow */}
@@ -489,12 +504,10 @@ export function StoryboardStep({
                         ? handleAddClick(index, "end")
                         : handleAddClick(index, "both")
                     }
-                    onDragOver={(e) =>
-                      handleDragOver(e, index, image ? "end" : "both")
-                    }
-                    onDrop={(e) => handleDrop(e, index, image ? "end" : "both")}
+                    onDragOver={(e) => handleDragOver(e, index, "end")}
+                    onDrop={(e) => handleDrop(e, index, "end")}
                   >
-                    {image ? (
+                    {image && image.endImageUrl ? (
                       <Image
                         alt={`${slot.label} end`}
                         className="object-cover"
@@ -516,7 +529,7 @@ export function StoryboardStep({
                       End
                     </div>
 
-                    {image && (
+                    {image && image.endImageUrl && (
                       <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/end:opacity-100">
                         <div className="flex flex-col items-center gap-3">
                           <button
