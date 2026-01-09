@@ -684,16 +684,28 @@ function ImageLightbox({
   );
 }
 
+interface PaymentStatus {
+  isPaid: boolean;
+  method?: "stripe" | "invoice" | "free";
+  status?: "pending" | "completed" | "failed" | "refunded";
+}
+
 interface ProjectDetailContentProps {
   project: Project;
   images: ImageGeneration[];
+  paymentRequired?: boolean;
+  paymentStatus?: PaymentStatus;
 }
 
 export function ProjectDetailContent({
   project,
   images,
+  paymentRequired = false,
+  paymentStatus,
 }: ProjectDetailContentProps) {
   const router = useRouter();
+  const [isRedirectingToPayment, setIsRedirectingToPayment] =
+    React.useState(false);
   const [selectedImage, setSelectedImage] =
     React.useState<ImageGeneration | null>(null);
   const [editingImage, setEditingImage] =
@@ -1069,6 +1081,45 @@ export function ProjectDetailContent({
           </div>
 
           <div className="flex items-center gap-2">
+            {paymentRequired && (
+              <Button
+                className="gap-2"
+                disabled={isRedirectingToPayment}
+                onClick={async () => {
+                  setIsRedirectingToPayment(true);
+                  try {
+                    const { createStripeCheckoutSession } = await import(
+                      "@/lib/actions/payments"
+                    );
+                    const result = await createStripeCheckoutSession(
+                      project.id
+                    );
+                    if (result.success) {
+                      window.location.href = result.data.url;
+                    } else {
+                      toast.error(result.error || "Failed to create checkout");
+                      setIsRedirectingToPayment(false);
+                    }
+                  } catch {
+                    toast.error("Payment failed");
+                    setIsRedirectingToPayment(false);
+                  }
+                }}
+                style={{ backgroundColor: "var(--accent-amber)" }}
+              >
+                {isRedirectingToPayment ? (
+                  <>
+                    <IconLoader2 className="h-4 w-4 animate-spin" />
+                    Redirecting…
+                  </>
+                ) : (
+                  <>
+                    <IconSparkles className="h-4 w-4" />
+                    Pay $99 to Process
+                  </>
+                )}
+              </Button>
+            )}
             {canAddMore && (
               <Button
                 className="gap-2"

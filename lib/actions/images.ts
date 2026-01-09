@@ -112,6 +112,7 @@ export async function createSignedUploadUrls(
 export type ImageWithRunId = ImageGeneration & { runId?: string };
 
 // Record images in database after client-side upload completes
+// NOTE: Processing is now gated by payment status
 export async function recordUploadedImages(
   projectId: string,
   images: {
@@ -166,7 +167,7 @@ export async function recordUploadedImages(
       const roomType = image.roomType || projectData.project.roomType;
       const prompt = generatePrompt(template, roomType);
 
-      // Create database record
+      // Create database record with status "pending" (will be processed after payment)
       const imageRecord = await createImageGeneration({
         workspaceId,
         userId: session.user.id,
@@ -199,22 +200,58 @@ export async function recordUploadedImages(
     // Update project counts
     await updateProjectCounts(projectId);
 
-    // Trigger image processing using Trigger.dev tasks
-    for (const image of uploadedImages) {
-      // Trigger the background task
-      const handle = await processImageTask.trigger({ imageId: image.id });
+    // Import payment functions dynamically to avoid circular dependencies
+    const {
+      canUseInvoiceBilling,
+      createInvoicePayment,
+      getProjectPaymentStatus,
+    } = await import("./payments");
 
-      // Store run ID in metadata and update status
-      await updateImageGeneration(image.id, {
-        status: "processing",
-        metadata: {
-          ...(image.metadata as object),
-          runId: handle.id,
-        },
-      });
+    // Check if workspace is invoice eligible
+    const invoiceEligibility = await canUseInvoiceBilling(workspaceId);
 
-      // Store run ID for real-time subscription
-      image.runId = handle.id;
+    if (invoiceEligibility.eligible) {
+      // Invoice-eligible workspace: Create invoice payment and process immediately
+      const paymentResult = await createInvoicePayment(projectId);
+
+      if (paymentResult.success) {
+        // Trigger processing for invoice customers
+        for (const image of uploadedImages) {
+          const handle = await processImageTask.trigger({ imageId: image.id });
+
+          await updateImageGeneration(image.id, {
+            status: "processing",
+            metadata: {
+              ...(image.metadata as object),
+              runId: handle.id,
+            },
+          });
+
+          image.runId = handle.id;
+        }
+      }
+    } else {
+      // Non-invoice workspace: Check if already paid (shouldn't be at this point)
+      const paymentStatus = await getProjectPaymentStatus(projectId);
+
+      if (paymentStatus.isPaid) {
+        // Already paid - trigger processing
+        for (const image of uploadedImages) {
+          const handle = await processImageTask.trigger({ imageId: image.id });
+
+          await updateImageGeneration(image.id, {
+            status: "processing",
+            metadata: {
+              ...(image.metadata as object),
+              runId: handle.id,
+            },
+          });
+
+          image.runId = handle.id;
+        }
+      }
+      // If not paid, images stay in "pending" status
+      // Payment will be handled via Stripe checkout, and webhook will trigger processing
     }
 
     revalidatePath("/dashboard");
@@ -224,6 +261,54 @@ export async function recordUploadedImages(
   } catch (error) {
     console.error("Failed to record uploaded images:", error);
     return { success: false, error: "Failed to record images" };
+  }
+}
+
+/**
+ * Trigger processing for all pending images in a project
+ * Called by Stripe webhook after successful payment
+ */
+export async function triggerProjectProcessing(
+  projectId: string
+): Promise<ActionResult<{ processedCount: number }>> {
+  try {
+    const projectData = await getProjectById(projectId);
+    if (!projectData) {
+      return { success: false, error: "Project not found" };
+    }
+
+    // Get all pending images for this project
+    const pendingImages = projectData.images.filter(
+      (img) => img.status === "pending"
+    );
+
+    if (pendingImages.length === 0) {
+      return { success: true, data: { processedCount: 0 } };
+    }
+
+    // Trigger processing for each pending image
+    for (const image of pendingImages) {
+      const handle = await processImageTask.trigger({ imageId: image.id });
+
+      await updateImageGeneration(image.id, {
+        status: "processing",
+        metadata: {
+          ...(image.metadata as object),
+          runId: handle.id,
+        },
+      });
+    }
+
+    // Update project status
+    await updateProject(projectId, { status: "processing" });
+
+    revalidatePath("/dashboard");
+    revalidatePath(`/dashboard/${projectId}`);
+
+    return { success: true, data: { processedCount: pendingImages.length } };
+  } catch (error) {
+    console.error("Failed to trigger project processing:", error);
+    return { success: false, error: "Failed to trigger processing" };
   }
 }
 

@@ -9,10 +9,15 @@ import { getProjectById, getUserWithWorkspace } from "@/lib/db/queries";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ payment?: string }>;
 }
 
-export default async function ProjectDetailPage({ params }: PageProps) {
+export default async function ProjectDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { id } = await params;
+  const { payment: paymentParam } = await searchParams;
 
   // Get session
   const session = await auth.api.getSession({
@@ -57,9 +62,15 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     );
   }
 
+  // Get payment status
+  const { getProjectPaymentStatus } = await import("@/lib/actions/payments");
+  const paymentStatus = await getProjectPaymentStatus(id);
+
   return (
     <ProjectDetailContent
       images={projectData.images}
+      paymentRequired={!paymentStatus.isPaid && paymentParam !== "success"}
+      paymentStatus={paymentStatus}
       project={projectData.project}
     />
   );

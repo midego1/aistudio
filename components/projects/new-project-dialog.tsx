@@ -141,6 +141,7 @@ export function NewProjectDialog({
       const project = projectResult.data;
 
       // Step 2: Upload images directly to Supabase (client-side)
+      // Note: Processing is gated by payment status in the server action
       const files = creation.images.map((img) => img.file);
       const uploadSuccess = await imageUpload.uploadImages(project.id, files);
 
@@ -149,11 +150,82 @@ export function NewProjectDialog({
         // Project was created but images failed - still redirect to project
       }
 
-      // Success - redirect to project detail page
-      creation.reset();
-      imageUpload.reset();
-      onOpenChange(false);
-      router.push(`/dashboard/${project.id}`);
+      // Step 3: Check invoice eligibility and handle payment
+      // Import dynamically to ensure it's available
+      const { canUseInvoiceBilling, createStripeCheckoutSession } =
+        await import("@/lib/actions/payments");
+
+      const invoiceEligibility = await canUseInvoiceBilling(
+        project.workspaceId
+      );
+
+      if (invoiceEligibility.eligible) {
+        // Invoice-eligible workspace: Processing started via server action
+        // Just redirect to project page
+        creation.reset();
+        imageUpload.reset();
+        onOpenChange(false);
+        router.push(`/dashboard/${project.id}`);
+      } else {
+        // Non-invoice workspace: Check for saved payment methods first
+        const { getWorkspacePaymentMethods, chargeWithSavedPaymentMethod } =
+          await import("@/lib/actions/payments");
+
+        const paymentMethodsResult = await getWorkspacePaymentMethods(
+          project.workspaceId
+        );
+
+        if (
+          paymentMethodsResult.success &&
+          paymentMethodsResult.data.paymentMethods.length > 0
+        ) {
+          // Has saved card - charge directly without redirect
+          const defaultCard = paymentMethodsResult.data.paymentMethods[0];
+          const chargeResult = await chargeWithSavedPaymentMethod(
+            project.id,
+            defaultCard.id
+          );
+
+          if (chargeResult.success) {
+            // Payment succeeded - redirect to project
+            creation.reset();
+            imageUpload.reset();
+            onOpenChange(false);
+            router.push(`/dashboard/${project.id}?payment=success`);
+          } else {
+            // Charge failed - fall back to checkout
+            console.error("Saved card charge failed:", chargeResult.error);
+            const checkoutResult = await createStripeCheckoutSession(
+              project.id
+            );
+            if (checkoutResult.success) {
+              window.location.href = checkoutResult.data.url;
+            } else {
+              creation.reset();
+              imageUpload.reset();
+              onOpenChange(false);
+              router.push(`/dashboard/${project.id}?payment=required`);
+            }
+          }
+        } else {
+          // No saved card - redirect to Stripe checkout
+          const checkoutResult = await createStripeCheckoutSession(project.id);
+
+          if (checkoutResult.success) {
+            // Redirect to Stripe Checkout
+            // Don't reset state yet - Stripe will redirect back
+            window.location.href = checkoutResult.data.url;
+          } else {
+            // Checkout creation failed - redirect to project page anyway
+            // User can pay from there
+            console.error("Failed to create checkout:", checkoutResult.error);
+            creation.reset();
+            imageUpload.reset();
+            onOpenChange(false);
+            router.push(`/dashboard/${project.id}?payment=required`);
+          }
+        }
+      }
     } catch (error) {
       console.error("Project creation error:", error);
       creation.setIsSubmitting(false);

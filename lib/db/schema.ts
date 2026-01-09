@@ -36,6 +36,11 @@ export const workspace = pgTable("workspace", {
   suspendedAt: timestamp("suspended_at"),
   suspendedReason: text("suspended_reason"),
 
+  // Invoice eligibility (for Norwegian B2B customers)
+  invoiceEligible: boolean("invoice_eligible").notNull().default(false),
+  invoiceEligibleAt: timestamp("invoice_eligible_at"),
+  invitedByAdmin: boolean("invited_by_admin").notNull().default(false),
+
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -689,3 +694,87 @@ export type NewAffiliateRelationship =
 export type AffiliateEarning = typeof affiliateEarning.$inferSelect;
 export type NewAffiliateEarning = typeof affiliateEarning.$inferInsert;
 export type AffiliateEarningStatus = "pending" | "paid_out";
+
+// ============================================================================
+// STRIPE PAYMENT SCHEMA
+// ============================================================================
+
+/**
+ * Stripe Customer - Links workspace to Stripe customer ID
+ */
+export const stripeCustomer = pgTable(
+  "stripe_customer",
+  {
+    id: text("id").primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .unique()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    stripeCustomerId: text("stripe_customer_id").notNull().unique(), // cus_xxx
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("stripe_customer_workspace_idx").on(table.workspaceId),
+    index("stripe_customer_stripe_idx").on(table.stripeCustomerId),
+  ]
+);
+
+/**
+ * Project Payment - Tracks payment for each project
+ * Payment must be completed before AI processing begins
+ */
+export const projectPayment = pgTable(
+  "project_payment",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .unique()
+      .references(() => project.id, { onDelete: "cascade" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+
+    // Payment method: 'stripe' | 'invoice' | 'free'
+    paymentMethod: text("payment_method").notNull(),
+
+    // Stripe fields (for payment_method = 'stripe')
+    stripeCheckoutSessionId: text("stripe_checkout_session_id"), // cs_xxx
+    stripePaymentIntentId: text("stripe_payment_intent_id"), // pi_xxx
+
+    // Invoice fields (for payment_method = 'invoice')
+    invoiceLineItemId: text("invoice_line_item_id").references(
+      () => invoiceLineItem.id,
+      { onDelete: "set null" }
+    ),
+
+    // Amounts
+    amountCents: integer("amount_cents").notNull(), // 9900 = $99 USD or 100000 = 1000 NOK
+    currency: text("currency").notNull(), // 'usd' | 'nok'
+
+    // Status: 'pending' | 'completed' | 'failed' | 'refunded'
+    status: text("status").notNull().default("pending"),
+
+    paidAt: timestamp("paid_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("project_payment_project_idx").on(table.projectId),
+    index("project_payment_workspace_idx").on(table.workspaceId),
+    index("project_payment_status_idx").on(table.status),
+    index("project_payment_stripe_session_idx").on(
+      table.stripeCheckoutSessionId
+    ),
+  ]
+);
+
+// Stripe type exports
+export type StripeCustomer = typeof stripeCustomer.$inferSelect;
+export type NewStripeCustomer = typeof stripeCustomer.$inferInsert;
+
+export type ProjectPayment = typeof projectPayment.$inferSelect;
+export type NewProjectPayment = typeof projectPayment.$inferInsert;
+export type PaymentMethod = "stripe" | "invoice" | "free";
+export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
