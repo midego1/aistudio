@@ -62,14 +62,22 @@ export default async function ProjectDetailPage({
     );
   }
 
-  // Get payment status
-  const { getProjectPaymentStatus } = await import("@/lib/actions/payments");
+  // Get payment status and invoice eligibility
+  const { getProjectPaymentStatus, canUseInvoiceBilling } = await import(
+    "@/lib/actions/payments"
+  );
   const paymentStatus = await getProjectPaymentStatus(id);
+  const invoiceEligibility = await canUseInvoiceBilling(userData.workspace.id);
+
+  // Invoice-eligible workspaces don't need the payment button - they pay via invoice
+  const paymentRequired =
+    !(paymentStatus.isPaid || invoiceEligibility.eligible) &&
+    paymentParam !== "success";
 
   return (
     <ProjectDetailContent
       images={projectData.images}
-      paymentRequired={!paymentStatus.isPaid && paymentParam !== "success"}
+      paymentRequired={paymentRequired}
       paymentStatus={paymentStatus}
       project={projectData.project}
     />

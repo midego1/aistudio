@@ -200,59 +200,11 @@ export async function recordUploadedImages(
     // Update project counts
     await updateProjectCounts(projectId);
 
-    // Import payment functions dynamically to avoid circular dependencies
-    const {
-      canUseInvoiceBilling,
-      createInvoicePayment,
-      getProjectPaymentStatus,
-    } = await import("./payments");
-
-    // Check if workspace is invoice eligible
-    const invoiceEligibility = await canUseInvoiceBilling(workspaceId);
-
-    if (invoiceEligibility.eligible) {
-      // Invoice-eligible workspace: Create invoice payment and process immediately
-      const paymentResult = await createInvoicePayment(projectId);
-
-      if (paymentResult.success) {
-        // Trigger processing for invoice customers
-        for (const image of uploadedImages) {
-          const handle = await processImageTask.trigger({ imageId: image.id });
-
-          await updateImageGeneration(image.id, {
-            status: "processing",
-            metadata: {
-              ...(image.metadata as object),
-              runId: handle.id,
-            },
-          });
-
-          image.runId = handle.id;
-        }
-      }
-    } else {
-      // Non-invoice workspace: Check if already paid (shouldn't be at this point)
-      const paymentStatus = await getProjectPaymentStatus(projectId);
-
-      if (paymentStatus.isPaid) {
-        // Already paid - trigger processing
-        for (const image of uploadedImages) {
-          const handle = await processImageTask.trigger({ imageId: image.id });
-
-          await updateImageGeneration(image.id, {
-            status: "processing",
-            metadata: {
-              ...(image.metadata as object),
-              runId: handle.id,
-            },
-          });
-
-          image.runId = handle.id;
-        }
-      }
-      // If not paid, images stay in "pending" status
-      // Payment will be handled via Stripe checkout, and webhook will trigger processing
-    }
+    // NOTE: Processing is NO LONGER automatically triggered here.
+    // Images stay in "pending" status until:
+    // 1. User assigns room types to all images on project detail page
+    // 2. User clicks "Start Processing" which handles payment and triggers processing
+    // This allows per-image room type assignment before processing begins.
 
     revalidatePath("/dashboard");
     revalidatePath(`/dashboard/${projectId}`);
@@ -309,6 +261,339 @@ export async function triggerProjectProcessing(
   } catch (error) {
     console.error("Failed to trigger project processing:", error);
     return { success: false, error: "Failed to trigger processing" };
+  }
+}
+
+/**
+ * Update room type for a single image
+ */
+export async function updateImageRoomType(
+  imageId: string,
+  roomType: string
+): Promise<ActionResult<ImageGeneration>> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  // Get user's workspace
+  const currentUser = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, session.user.id))
+    .limit(1);
+
+  if (!currentUser[0]?.workspaceId) {
+    return { success: false, error: "Workspace not found" };
+  }
+
+  // Get image record
+  const image = await getImageGenerationById(imageId);
+  if (!image || image.workspaceId !== currentUser[0].workspaceId) {
+    return { success: false, error: "Image not found" };
+  }
+
+  // Get template for regenerating prompt
+  const templateId = (image.metadata as { templateId?: string })?.templateId;
+  const template = templateId ? getTemplateById(templateId) : null;
+
+  if (!template) {
+    return { success: false, error: "Style template not found" };
+  }
+
+  // Generate new prompt with updated room type
+  const prompt = generatePrompt(template, roomType);
+
+  try {
+    const updated = await updateImageGeneration(imageId, {
+      prompt,
+      metadata: {
+        ...(image.metadata as object),
+        roomType,
+      },
+    });
+
+    if (!updated) {
+      return { success: false, error: "Failed to update image" };
+    }
+
+    revalidatePath(`/dashboard/${image.projectId}`);
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Failed to update image room type:", error);
+    return { success: false, error: "Failed to update room type" };
+  }
+}
+
+/**
+ * Bulk update room types for multiple images
+ */
+export async function bulkUpdateImageRoomTypes(
+  imageIds: string[],
+  roomType: string
+): Promise<ActionResult<{ updatedCount: number }>> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (imageIds.length === 0) {
+    return { success: false, error: "No images selected" };
+  }
+
+  // Get user's workspace
+  const currentUser = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, session.user.id))
+    .limit(1);
+
+  if (!currentUser[0]?.workspaceId) {
+    return { success: false, error: "Workspace not found" };
+  }
+
+  const workspaceId = currentUser[0].workspaceId;
+
+  try {
+    // Get all selected images
+    const selectedImages = await db
+      .select()
+      .from(imageGeneration)
+      .where(inArray(imageGeneration.id, imageIds));
+
+    // Verify all images belong to user's workspace
+    for (const img of selectedImages) {
+      if (img.workspaceId !== workspaceId) {
+        return { success: false, error: "Unauthorized access to image" };
+      }
+    }
+
+    // Track project IDs for revalidation
+    const projectIds = new Set<string>();
+
+    // Update each image
+    for (const image of selectedImages) {
+      projectIds.add(image.projectId);
+
+      const templateId = (image.metadata as { templateId?: string })
+        ?.templateId;
+      const template = templateId ? getTemplateById(templateId) : null;
+
+      if (template) {
+        const prompt = generatePrompt(template, roomType);
+        await updateImageGeneration(image.id, {
+          prompt,
+          metadata: {
+            ...(image.metadata as object),
+            roomType,
+          },
+        });
+      }
+    }
+
+    // Revalidate all affected project pages
+    for (const projectId of projectIds) {
+      revalidatePath(`/dashboard/${projectId}`);
+    }
+
+    return { success: true, data: { updatedCount: selectedImages.length } };
+  } catch (error) {
+    console.error("Failed to bulk update room types:", error);
+    return { success: false, error: "Failed to update room types" };
+  }
+}
+
+/**
+ * Start processing for a project after room types are assigned
+ * Validates all images have room types, handles payment, and triggers processing
+ */
+export async function startProjectProcessing(projectId: string): Promise<
+  ActionResult<{
+    processedCount: number;
+    requiresPayment?: boolean;
+    checkoutUrl?: string;
+  }>
+> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  // Get user's workspace
+  const currentUser = await db
+    .select()
+    .from(user)
+    .where(eq(user.id, session.user.id))
+    .limit(1);
+
+  if (!currentUser[0]?.workspaceId) {
+    return { success: false, error: "Workspace not found" };
+  }
+
+  const workspaceId = currentUser[0].workspaceId;
+
+  // Get project and verify ownership
+  const projectData = await getProjectById(projectId);
+  if (!projectData || projectData.project.workspaceId !== workspaceId) {
+    return { success: false, error: "Project not found" };
+  }
+
+  // Get pending images
+  const pendingImages = projectData.images.filter(
+    (img) => img.status === "pending"
+  );
+
+  if (pendingImages.length === 0) {
+    return { success: true, data: { processedCount: 0 } };
+  }
+
+  // Validate all pending images have room types
+  const imagesWithoutRoomType = pendingImages.filter((img) => {
+    const roomType = (img.metadata as { roomType?: string })?.roomType;
+    return !roomType;
+  });
+
+  if (imagesWithoutRoomType.length > 0) {
+    return {
+      success: false,
+      error: `${imagesWithoutRoomType.length} image(s) need room types assigned before processing`,
+    };
+  }
+
+  try {
+    // Import payment functions
+    const {
+      canUseInvoiceBilling,
+      createInvoicePayment,
+      getProjectPaymentStatus,
+      createStripeCheckoutSession,
+      chargeWithSavedPaymentMethod,
+      getWorkspacePaymentMethods,
+    } = await import("./payments");
+
+    // Check invoice eligibility
+    const invoiceEligibility = await canUseInvoiceBilling(workspaceId);
+
+    if (invoiceEligibility.eligible) {
+      // Invoice customer - create invoice and process
+      const paymentResult = await createInvoicePayment(projectId);
+
+      if (!paymentResult.success) {
+        return { success: false, error: "Failed to create invoice" };
+      }
+
+      // Trigger processing
+      for (const image of pendingImages) {
+        const handle = await processImageTask.trigger({ imageId: image.id });
+
+        await updateImageGeneration(image.id, {
+          status: "processing",
+          metadata: {
+            ...(image.metadata as object),
+            runId: handle.id,
+          },
+        });
+      }
+
+      await updateProject(projectId, { status: "processing" });
+
+      revalidatePath("/dashboard");
+      revalidatePath(`/dashboard/${projectId}`);
+
+      return { success: true, data: { processedCount: pendingImages.length } };
+    }
+
+    // Non-invoice workspace - check payment status
+    const paymentStatus = await getProjectPaymentStatus(projectId);
+
+    if (paymentStatus.isPaid) {
+      // Already paid - trigger processing
+      for (const image of pendingImages) {
+        const handle = await processImageTask.trigger({ imageId: image.id });
+
+        await updateImageGeneration(image.id, {
+          status: "processing",
+          metadata: {
+            ...(image.metadata as object),
+            runId: handle.id,
+          },
+        });
+      }
+
+      await updateProject(projectId, { status: "processing" });
+
+      revalidatePath("/dashboard");
+      revalidatePath(`/dashboard/${projectId}`);
+
+      return { success: true, data: { processedCount: pendingImages.length } };
+    }
+
+    // Not paid - try saved payment method first
+    const paymentMethodsResult = await getWorkspacePaymentMethods(workspaceId);
+
+    if (
+      paymentMethodsResult.success &&
+      paymentMethodsResult.data.paymentMethods.length > 0
+    ) {
+      const defaultCard = paymentMethodsResult.data.paymentMethods[0];
+      const chargeResult = await chargeWithSavedPaymentMethod(
+        projectId,
+        defaultCard.id
+      );
+
+      if (chargeResult.success) {
+        // Payment succeeded - trigger processing
+        for (const image of pendingImages) {
+          const handle = await processImageTask.trigger({ imageId: image.id });
+
+          await updateImageGeneration(image.id, {
+            status: "processing",
+            metadata: {
+              ...(image.metadata as object),
+              runId: handle.id,
+            },
+          });
+        }
+
+        await updateProject(projectId, { status: "processing" });
+
+        revalidatePath("/dashboard");
+        revalidatePath(`/dashboard/${projectId}`);
+
+        return {
+          success: true,
+          data: { processedCount: pendingImages.length },
+        };
+      }
+    }
+
+    // No saved card or charge failed - create checkout session
+    const checkoutResult = await createStripeCheckoutSession(projectId);
+
+    if (checkoutResult.success) {
+      return {
+        success: true,
+        data: {
+          processedCount: 0,
+          requiresPayment: true,
+          checkoutUrl: checkoutResult.data.url,
+        },
+      };
+    }
+
+    return { success: false, error: "Failed to create payment session" };
+  } catch (error) {
+    console.error("Failed to start project processing:", error);
+    return { success: false, error: "Failed to start processing" };
   }
 }
 

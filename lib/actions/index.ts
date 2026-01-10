@@ -1,6 +1,7 @@
 // Re-export all server actions
 
 export {
+  bulkUpdateImageRoomTypes,
   createSignedUploadUrls,
   deleteProjectImage,
   deleteSelectedImages,
@@ -8,7 +9,9 @@ export {
   recordUploadedImages,
   regenerateImage,
   retryImageProcessing,
+  startProjectProcessing,
   triggerInpaintTask,
+  updateImageRoomType,
   updateImageStatus,
 } from "./images";
 export { completeOnboarding } from "./onboarding";

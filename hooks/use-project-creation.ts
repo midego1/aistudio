@@ -10,7 +10,7 @@ export interface UploadedImage {
   name: string;
 }
 
-export type CreationStep = "upload" | "room-type" | "style" | "confirm";
+export type CreationStep = "upload" | "style" | "confirm";
 
 export interface ProjectCreationState {
   step: CreationStep;
@@ -90,8 +90,6 @@ export function useProjectCreation() {
     switch (state.step) {
       case "upload":
         return state.images.length > 0;
-      case "room-type":
-        return state.roomType !== null;
       case "style":
         return state.selectedTemplate !== null;
       case "confirm":
@@ -102,7 +100,6 @@ export function useProjectCreation() {
   }, [
     state.step,
     state.images.length,
-    state.roomType,
     state.selectedTemplate,
     state.projectName,
   ]);
@@ -113,8 +110,6 @@ export function useProjectCreation() {
     setState((prev) => {
       switch (prev.step) {
         case "upload":
-          return { ...prev, step: "room-type" };
-        case "room-type":
           return { ...prev, step: "style" };
         case "style":
           return { ...prev, step: "confirm" };
@@ -127,10 +122,8 @@ export function useProjectCreation() {
   const goToPreviousStep = useCallback(() => {
     setState((prev) => {
       switch (prev.step) {
-        case "room-type":
-          return { ...prev, step: "upload" };
         case "style":
-          return { ...prev, step: "room-type" };
+          return { ...prev, step: "upload" };
         case "confirm":
           return { ...prev, step: "style" };
         default:

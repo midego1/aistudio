@@ -37,9 +37,22 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { deleteSelectedImages, retryImageProcessing } from "@/lib/actions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  bulkUpdateImageRoomTypes,
+  deleteSelectedImages,
+  retryImageProcessing,
+  startProjectProcessing,
+  updateImageRoomType,
+} from "@/lib/actions";
 import type { ImageGeneration, Project, ProjectStatus } from "@/lib/db/schema";
-import { getTemplateById } from "@/lib/style-templates";
+import { getTemplateById, ROOM_TYPES } from "@/lib/style-templates";
 import { cn } from "@/lib/utils";
 import type { processImageTask } from "@/trigger/process-image";
 import { AddImagesDialog } from "./add-images-dialog";
@@ -723,6 +736,10 @@ export function ProjectDetailContent({
     new Set()
   );
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [isStartingProcessing, setIsStartingProcessing] = React.useState(false);
+  const [roomTypeSelectedIds, setRoomTypeSelectedIds] = React.useState<
+    Set<string>
+  >(new Set());
 
   // Real-time run tracking for processing images
   const [runIds, setRunIds] = React.useState<Map<string, string>>(() => {
@@ -805,6 +822,90 @@ export function ProjectDetailContent({
   // Count only root images (not versions) for the "add more" limit
   const rootImageCount = imageGroups.length;
   const canAddMore = rootImageCount < 10;
+
+  // Room type assignment status
+  const pendingImages = images.filter((img) => img.status === "pending");
+  const imagesNeedingRoomType = pendingImages.filter((img) => {
+    const metadata = img.metadata as { roomType?: string } | null;
+    return !metadata?.roomType;
+  });
+  const allPendingHaveRoomTypes =
+    pendingImages.length > 0 && imagesNeedingRoomType.length === 0;
+  const showRoomTypeAssignment =
+    pendingImages.length > 0 && project.status === "pending";
+
+  // Images to show in main grid (exclude pending when room type section is visible)
+  const displayGroups = showRoomTypeAssignment
+    ? imageGroups.filter((g) => g.latestVersion.status !== "pending")
+    : imageGroups;
+
+  // Room type assignment handlers
+  const handleRoomTypeChange = React.useCallback(
+    async (imageId: string, roomType: string) => {
+      const result = await updateImageRoomType(imageId, roomType);
+      if (result.success) {
+        router.refresh();
+      } else {
+        toast.error(result.error || "Failed to update room type");
+      }
+    },
+    [router]
+  );
+
+  const handleBulkRoomTypeAssign = React.useCallback(
+    async (roomType: string) => {
+      if (roomTypeSelectedIds.size === 0) return;
+
+      const result = await bulkUpdateImageRoomTypes(
+        Array.from(roomTypeSelectedIds),
+        roomType
+      );
+      if (result.success) {
+        setRoomTypeSelectedIds(new Set());
+        setRoomTypeSelectionMode(false);
+        toast.success(`Updated ${result.data.updatedCount} image(s)`);
+        router.refresh();
+      } else {
+        toast.error(result.error || "Failed to update room types");
+      }
+    },
+    [roomTypeSelectedIds, router]
+  );
+
+  const toggleRoomTypeSelection = React.useCallback((imageId: string) => {
+    setRoomTypeSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(imageId)) {
+        next.delete(imageId);
+      } else {
+        next.add(imageId);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleStartProcessing = React.useCallback(async () => {
+    setIsStartingProcessing(true);
+    try {
+      const result = await startProjectProcessing(project.id);
+      if (result.success) {
+        if (result.data.requiresPayment && result.data.checkoutUrl) {
+          window.location.href = result.data.checkoutUrl;
+        } else if (result.data.processedCount > 0) {
+          toast.success(
+            `Processing started for ${result.data.processedCount} image(s)`
+          );
+          router.refresh();
+        }
+      } else {
+        toast.error(result.error || "Failed to start processing");
+      }
+    } catch {
+      toast.error("Failed to start processing");
+    } finally {
+      setIsStartingProcessing(false);
+    }
+  }, [project.id, router]);
 
   // Helper to start editing an image with version info
   const startEditing = React.useCallback(
@@ -1244,12 +1345,162 @@ export function ProjectDetailContent({
           </div>
         </div>
 
-        {/* Image grid */}
-        <div className="stagger-2 animate-fade-in-up">
-          <h2 className="mb-4 font-semibold text-lg">Images</h2>
-          {imageGroups.length > 0 ? (
+        {/* Room Type Assignment Section */}
+        {showRoomTypeAssignment && (
+          <div className="stagger-2 animate-fade-in-up space-y-4">
+            {/* Banner */}
+            <div
+              className="flex items-center justify-between gap-4 rounded-xl px-4 py-3"
+              style={{
+                backgroundColor:
+                  "color-mix(in oklch, var(--accent-amber) 15%, transparent)",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                  style={{ backgroundColor: "var(--accent-amber)" }}
+                >
+                  <IconAlertTriangle className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="font-medium">
+                    {imagesNeedingRoomType.length > 0
+                      ? `${imagesNeedingRoomType.length} of ${pendingImages.length} images need room types`
+                      : "All images have room types assigned"}
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    {imagesNeedingRoomType.length > 0
+                      ? "Assign room types to enable processing"
+                      : "Ready to start processing"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  className="gap-2"
+                  disabled={!allPendingHaveRoomTypes || isStartingProcessing}
+                  onClick={handleStartProcessing}
+                  size="sm"
+                  style={{
+                    backgroundColor: allPendingHaveRoomTypes
+                      ? "var(--accent-teal)"
+                      : undefined,
+                  }}
+                >
+                  {isStartingProcessing ? (
+                    <>
+                      <IconLoader2 className="h-4 w-4 animate-spin" />
+                      Starting…
+                    </>
+                  ) : (
+                    <>
+                      <IconSparkles className="h-4 w-4" />
+                      Start Processing
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Pending images with room type dropdowns */}
+            <div
+              className={cn(
+                "rounded-xl bg-card p-4 ring-1 ring-foreground/5",
+                roomTypeSelectedIds.size > 0 && "pb-20"
+              )}
+            >
+              <h3 className="mb-3 font-medium text-sm">
+                Assign Room Types ({pendingImages.length} pending)
+              </h3>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {pendingImages.map((image) => {
+                  const metadata = image.metadata as {
+                    roomType?: string;
+                  } | null;
+                  const currentRoomType = metadata?.roomType || "";
+                  const isSelectedForBulk = roomTypeSelectedIds.has(image.id);
+
+                  return (
+                    <div
+                      className={cn(
+                        "group relative cursor-pointer overflow-hidden rounded-lg bg-muted ring-1 transition-all",
+                        isSelectedForBulk
+                          ? "ring-2 ring-[var(--accent-teal)]"
+                          : "ring-foreground/5 hover:ring-foreground/10"
+                      )}
+                      key={image.id}
+                      onClick={() => toggleRoomTypeSelection(image.id)}
+                    >
+                      <div className="relative aspect-square">
+                        <Image
+                          alt="Pending image"
+                          className="object-cover"
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          src={image.originalImageUrl}
+                        />
+                        {/* Selection checkbox - visible on hover or when selected */}
+                        <div
+                          className={cn(
+                            "absolute top-2 left-2 flex h-6 w-6 items-center justify-center rounded-full border-2 transition-all",
+                            isSelectedForBulk
+                              ? "border-[var(--accent-teal)] bg-[var(--accent-teal)]"
+                              : "border-white/50 bg-black/20 opacity-0 group-hover:opacity-100"
+                          )}
+                        >
+                          {isSelectedForBulk && (
+                            <IconCheck className="h-3.5 w-3.5 text-white" />
+                          )}
+                        </div>
+                        {/* Room type badge */}
+                        {currentRoomType && (
+                          <div className="absolute top-2 right-2 rounded-full bg-[var(--accent-teal)] px-2 py-0.5 font-medium text-white text-xs">
+                            {ROOM_TYPES.find((r) => r.id === currentRoomType)
+                              ?.label || currentRoomType}
+                          </div>
+                        )}
+                      </div>
+                      {/* Always show dropdown - click doesn't propagate to card */}
+                      <div className="p-2" onClick={(e) => e.stopPropagation()}>
+                        <Select
+                          onValueChange={(value) =>
+                            handleRoomTypeChange(image.id, value)
+                          }
+                          value={currentRoomType}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="Select room type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ROOM_TYPES.map((room) => (
+                              <SelectItem
+                                className="text-xs"
+                                key={room.id}
+                                value={room.id}
+                              >
+                                {room.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Image grid - hide when only pending images exist (they're in room type section) */}
+        {displayGroups.length > 0 && (
+          <div className="stagger-2 animate-fade-in-up">
+            <h2 className="mb-4 font-semibold text-lg">
+              {showRoomTypeAssignment ? "Processed Images" : "Images"}
+            </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {imageGroups.map((group, index) => (
+              {displayGroups.map((group, index) => (
                 <ImageCard
                   accessToken={accessToken}
                   image={group.latestVersion}
@@ -1286,7 +1537,13 @@ export function ProjectDetailContent({
                 />
               ))}
             </div>
-          ) : (
+          </div>
+        )}
+
+        {/* Empty state - only when NO images at all */}
+        {imageGroups.length === 0 && (
+          <div className="stagger-2 animate-fade-in-up">
+            <h2 className="mb-4 font-semibold text-lg">Images</h2>
             <div className="flex flex-col items-center justify-center rounded-xl border border-foreground/10 border-dashed py-12 text-center">
               <IconPhoto className="h-12 w-12 text-muted-foreground/30" />
               <p className="mt-4 text-muted-foreground text-sm">
@@ -1301,8 +1558,8 @@ export function ProjectDetailContent({
                 Add Images
               </Button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Floating Selection Bar */}
@@ -1352,6 +1609,52 @@ export function ProjectDetailContent({
               >
                 <IconDownload className="h-4 w-4" />
                 Download
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Room Type Selection Bar */}
+      {roomTypeSelectedIds.size > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 flex animate-slide-up items-center justify-center p-4">
+          <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-card/95 px-6 py-3 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center gap-2">
+              <div
+                className="flex h-7 w-7 items-center justify-center rounded-full"
+                style={{ backgroundColor: "var(--accent-teal)" }}
+              >
+                <IconCheck className="h-4 w-4 text-white" />
+              </div>
+              <span className="font-medium">
+                {roomTypeSelectedIds.size} selected
+              </span>
+            </div>
+
+            <div className="h-6 w-px bg-border" />
+
+            <div className="flex items-center gap-2">
+              <Select onValueChange={handleBulkRoomTypeAssign}>
+                <SelectTrigger className="h-9 w-48">
+                  <SelectValue placeholder="Assign room type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROOM_TYPES.map((room) => (
+                    <SelectItem key={room.id} value={room.id}>
+                      {room.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                className="gap-1.5 text-muted-foreground hover:text-foreground"
+                onClick={() => setRoomTypeSelectedIds(new Set())}
+                size="sm"
+                variant="ghost"
+              >
+                <IconX className="h-4 w-4" />
+                Clear
               </Button>
             </div>
           </div>

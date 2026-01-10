@@ -4,7 +4,6 @@ import {
   IconArrowLeft,
   IconArrowRight,
   IconCheck,
-  IconHome,
   IconLoader2,
   IconPalette,
   IconSparkles,
@@ -13,7 +12,6 @@ import {
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { ConfirmStep } from "@/components/projects/steps/confirm-step";
-import { RoomTypeStep } from "@/components/projects/steps/room-type-step";
 import { StyleStep } from "@/components/projects/steps/style-step";
 import { UploadStep } from "@/components/projects/steps/upload-step";
 import { Button } from "@/components/ui/button";
@@ -39,7 +37,6 @@ interface NewProjectDialogProps {
 
 const STEPS: { id: CreationStep; label: string; icon: React.ReactNode }[] = [
   { id: "upload", label: "Upload", icon: <IconUpload className="h-4 w-4" /> },
-  { id: "room-type", label: "Room", icon: <IconHome className="h-4 w-4" /> },
   { id: "style", label: "Style", icon: <IconPalette className="h-4 w-4" /> },
   { id: "confirm", label: "Confirm", icon: <IconCheck className="h-4 w-4" /> },
 ];
@@ -240,10 +237,6 @@ export function NewProjectDialog({
       title: "Upload Images",
       description: "Add the real estate photos you want to enhance",
     },
-    "room-type": {
-      title: "Select Room Type",
-      description: "Help the AI understand what kind of space this is",
-    },
     style: {
       title: "Choose Style",
       description: "Select a transformation style for your photos",
@@ -284,12 +277,6 @@ export function NewProjectDialog({
               images={creation.images}
               onAddImages={creation.addImages}
               onRemoveImage={creation.removeImage}
-            />
-          )}
-          {creation.step === "room-type" && (
-            <RoomTypeStep
-              onSelectRoomType={creation.setRoomType}
-              selectedRoomType={creation.roomType}
             />
           )}
           {creation.step === "style" && (
