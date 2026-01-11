@@ -1,9 +1,8 @@
 import { logger, metadata, task } from "@trigger.dev/sdk/v3";
 import sharp from "sharp";
 import {
-  createImageGeneration,
-  deleteVersionsAfter,
   getImageGenerationById,
+  updateImageGeneration,
   updateProjectCounts,
 } from "@/lib/db/queries";
 import {
@@ -23,10 +22,10 @@ export type EditMode = "remove" | "add";
 
 export interface InpaintImagePayload {
   imageId: string;
+  newImageId: string; // Pre-created record ID for real-time tracking
   maskDataUrl?: string;
   prompt: string;
   mode: EditMode;
-  replaceNewerVersions?: boolean;
 }
 
 export interface InpaintImageStatus {
@@ -50,13 +49,14 @@ export const inpaintImageTask = task({
     maxTimeoutInMs: 10_000,
     factor: 2,
   },
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Inpainting has multiple modes and error handling paths
   run: async (payload: InpaintImagePayload) => {
     const {
       imageId,
+      newImageId,
       maskDataUrl,
       prompt,
       mode = "remove",
-      replaceNewerVersions = false,
     } = payload;
 
     try {
@@ -95,8 +95,12 @@ export const inpaintImageTask = task({
 
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
       const imageMetadata = await sharp(imageBuffer).metadata();
-      const imageWidth = imageMetadata.width!;
-      const imageHeight = imageMetadata.height!;
+      const imageWidth = imageMetadata.width;
+      const imageHeight = imageMetadata.height;
+
+      if (!(imageWidth && imageHeight)) {
+        throw new Error("Could not determine image dimensions");
+      }
 
       logger.info("Source image dimensions", {
         width: imageWidth,
@@ -217,12 +221,12 @@ export const inpaintImageTask = task({
       const resultImageBuffer = await resultImageResponse.arrayBuffer();
       const extension = getExtensionFromContentType(contentType);
 
-      // Upload to Supabase storage with unique name for new version
-      const newImageId = crypto.randomUUID();
+      // Upload to Supabase storage with unique name for the result
+      const resultFileId = crypto.randomUUID();
       const resultPath = getImagePath(
         image.workspaceId,
         image.projectId,
-        `${newImageId}.${extension}`,
+        `${resultFileId}.${extension}`,
         "result"
       );
 
@@ -234,39 +238,13 @@ export const inpaintImageTask = task({
         contentType
       );
 
-      // Calculate version info
-      const rootImageId = image.parentId || image.id;
-      const currentVersion = image.version || 1;
-
-      // If replacing newer versions, delete them first
-      if (replaceNewerVersions) {
-        const deletedCount = await deleteVersionsAfter(
-          rootImageId,
-          currentVersion
-        );
-        if (deletedCount > 0) {
-          logger.info(
-            `Deleted ${deletedCount} newer version(s) before creating new edit`
-          );
-        }
-      }
-
-      const newVersion = currentVersion + 1;
-
-      // Create new image record as a new version
-      const newImage = await createImageGeneration({
-        workspaceId: image.workspaceId,
-        userId: image.userId,
-        projectId: image.projectId,
-        originalImageUrl: image.originalImageUrl,
+      // Update the pre-created image record with the result
+      await updateImageGeneration(newImageId, {
         resultImageUrl: storedResultUrl,
-        prompt,
-        version: newVersion,
-        parentId: rootImageId,
         status: "completed",
         errorMessage: null,
         metadata: {
-          editedFrom: image.id,
+          editedFrom: imageId,
           editedAt: new Date().toISOString(),
           editMode: mode,
           model: mode === "remove" ? "flux-fill-pro" : "nano-banana-pro",
@@ -284,21 +262,33 @@ export const inpaintImageTask = task({
 
       logger.info("Inpainting completed", {
         imageId,
-        newImageId: newImage.id,
-        version: newVersion,
+        newImageId,
       });
 
       return {
         success: true,
         resultUrl: storedResultUrl,
-        newImageId: newImage.id,
-        version: newVersion,
+        newImageId,
       };
     } catch (error) {
       logger.error("Inpainting failed", {
         imageId,
+        newImageId,
         error: error instanceof Error ? error.message : "Unknown error",
       });
+
+      // Update the pre-created record to failed status
+      try {
+        await updateImageGeneration(newImageId, {
+          status: "failed",
+          errorMessage: error instanceof Error ? error.message : "Edit failed",
+        });
+      } catch (updateError) {
+        logger.error("Failed to update image record to failed status", {
+          newImageId,
+          updateError,
+        });
+      }
 
       metadata.set("status", {
         step: "failed",

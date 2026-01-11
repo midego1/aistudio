@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   createImageGeneration,
+  deleteVersionsAfter,
   getImageGenerationById,
   getProjectById,
   updateImageGeneration,
@@ -24,6 +25,9 @@ import {
 } from "@/lib/supabase";
 import { type EditMode, inpaintImageTask } from "@/trigger/inpaint-image";
 import { processImageTask } from "@/trigger/process-image";
+
+// Top-level regex for extracting storage path from Supabase URLs
+const SUPABASE_PATH_REGEX = /\/storage\/v1\/object\/public\/[^/]+\/(.+)/;
 
 export type ActionResult<T> =
   | {
@@ -413,6 +417,7 @@ export async function bulkUpdateImageRoomTypes(
  * Start processing for a project after room types are assigned
  * Validates all images have room types, handles payment, and triggers processing
  */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Payment flow requires multiple branching paths
 export async function startProjectProcessing(projectId: string): Promise<
   ActionResult<{
     processedCount: number;
@@ -994,14 +999,54 @@ export async function triggerInpaintTask(
   }
 
   try {
-    // Trigger the background task
+    // Calculate version info
+    const rootImageId = image.parentId || image.id;
+    const currentVersion = image.version || 1;
+
+    // Handle replaceNewerVersions - delete newer versions before creating placeholder
+    if (replaceNewerVersions) {
+      await deleteVersionsAfter(rootImageId, currentVersion);
+    }
+
+    // Create placeholder record with status "processing" for real-time tracking
+    // Use the source image (result or original) so the processing card shows the image being edited
+    const sourceImageUrl = image.resultImageUrl || image.originalImageUrl;
+    const newImage = await createImageGeneration({
+      workspaceId: image.workspaceId,
+      userId: session.user.id,
+      projectId: image.projectId,
+      originalImageUrl: sourceImageUrl,
+      resultImageUrl: null,
+      prompt,
+      version: currentVersion + 1,
+      parentId: rootImageId,
+      status: "processing",
+      errorMessage: null,
+      metadata: {
+        editedFrom: imageId,
+        editMode: mode,
+      },
+    });
+
+    // Trigger the background task with the pre-created record ID
     const handle = await inpaintImageTask.trigger({
       imageId,
+      newImageId: newImage.id,
       prompt,
       mode,
       maskDataUrl,
-      replaceNewerVersions: replaceNewerVersions ?? false,
     });
+
+    // Update metadata with runId for real-time Trigger.dev tracking
+    await updateImageGeneration(newImage.id, {
+      metadata: {
+        ...(newImage.metadata as object),
+        runId: handle.id,
+      },
+    });
+
+    // Update project counts
+    await updateProjectCounts(image.projectId);
 
     revalidatePath("/dashboard");
     revalidatePath(`/dashboard/${image.projectId}`);
@@ -1017,9 +1062,7 @@ export async function triggerInpaintTask(
 function extractPathFromUrl(url: string): string | null {
   try {
     const urlObj = new URL(url);
-    const pathMatch = urlObj.pathname.match(
-      /\/storage\/v1\/object\/public\/[^/]+\/(.+)/
-    );
+    const pathMatch = urlObj.pathname.match(SUPABASE_PATH_REGEX);
     return pathMatch ? pathMatch[1] : null;
   } catch {
     return null;
