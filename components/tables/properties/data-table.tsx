@@ -61,7 +61,9 @@ export function DataTable() {
 
   // Fetch next page function
   const fetchNextPage = useCallback(() => {
-    if (isFetchingNextPage || !hasNextPage) return;
+    if (isFetchingNextPage || !hasNextPage) {
+      return;
+    }
 
     setIsFetchingNextPage(true);
 
@@ -203,7 +205,9 @@ export function DataTable() {
               {virtualItems.length > 0 ? (
                 virtualItems.map((virtualRow) => {
                   const row = rows[virtualRow.index];
-                  if (!row) return null;
+                  if (!row) {
+                    return null;
+                  }
 
                   return (
                     <VirtualRow

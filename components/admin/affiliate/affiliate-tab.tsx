@@ -391,7 +391,9 @@ function AffiliateEarningsTable({
   }, [earnings, selectedIds]);
 
   const handleMarkAsPaid = async () => {
-    if (selectedIds.size === 0) return;
+    if (selectedIds.size === 0) {
+      return;
+    }
 
     setIsPaying(true);
     try {

@@ -120,11 +120,15 @@ const DateCell = memo(
       const diffDays = Math.floor(diffHours / 24);
 
       let formatted: string;
-      if (diffMins < 1) formatted = "just now";
-      else if (diffMins < 60) formatted = `${diffMins}m ago`;
-      else if (diffHours < 24) formatted = `${diffHours}h ago`;
-      else if (diffDays < 7) formatted = `${diffDays}d ago`;
-      else {
+      if (diffMins < 1) {
+        formatted = "just now";
+      } else if (diffMins < 60) {
+        formatted = `${diffMins}m ago`;
+      } else if (diffHours < 24) {
+        formatted = `${diffHours}h ago`;
+      } else if (diffDays < 7) {
+        formatted = `${diffDays}d ago`;
+      } else {
         formatted = new Intl.DateTimeFormat("en-US", {
           month: "short",
           day: "numeric",

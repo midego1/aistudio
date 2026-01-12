@@ -114,8 +114,12 @@ export async function updateProjectAction(
 
   try {
     const updateData: Partial<Pick<Project, "name" | "status">> = {};
-    if (name) updateData.name = name;
-    if (status) updateData.status = status;
+    if (name) {
+      updateData.name = name;
+    }
+    if (status) {
+      updateData.status = status;
+    }
 
     const updated = await updateProjectQuery(projectId, updateData);
     if (!updated) {

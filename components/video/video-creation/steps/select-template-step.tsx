@@ -190,7 +190,7 @@ function TemplateCard({
 
         {/* Slot Preview */}
         <div className="mt-4 flex items-center gap-1.5 overflow-hidden opacity-70 transition-opacity group-hover:opacity-100">
-          {template.slots.slice(0, 5).map((slot, i) => (
+          {template.slots.slice(0, 5).map((_slot, i) => (
             <div
               className="h-1.5 flex-1 rounded-full bg-muted-foreground/30"
               key={i}

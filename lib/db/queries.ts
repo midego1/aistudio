@@ -257,7 +257,7 @@ export async function getUserWithWorkspace(userId: string): Promise<{
   workspace: Workspace;
 } | null> {
   const userResult = await getUserById(userId);
-  if (!(userResult && userResult.workspaceId)) {
+  if (!userResult?.workspaceId) {
     return null;
   }
 
@@ -532,7 +532,9 @@ export async function getImageVersions(
 ): Promise<ImageGeneration[]> {
   // First get the image to find its root
   const image = await getImageGenerationById(imageId);
-  if (!image) return [];
+  if (!image) {
+    return [];
+  }
 
   // The root is either the parentId or the image itself
   const rootId = image.parentId || image.id;
@@ -561,8 +563,10 @@ export async function getLatestImageVersion(
   imageId: string
 ): Promise<ImageGeneration | null> {
   const versions = await getImageVersions(imageId);
-  if (versions.length === 0) return null;
-  return versions[versions.length - 1];
+  if (versions.length === 0) {
+    return null;
+  }
+  return versions.at(-1);
 }
 
 // Get the highest version number for a root image
@@ -625,7 +629,7 @@ export async function getProjectImagesGrouped(
     if (!grouped.has(rootId)) {
       grouped.set(rootId, []);
     }
-    grouped.get(rootId)!.push(img);
+    grouped.get(rootId)?.push(img);
   }
 
   // Sort each group by version
@@ -645,7 +649,7 @@ export async function getLatestVersionImages(
 
   for (const [, versions] of grouped) {
     // Get the last (highest version) from each group
-    const latest = versions[versions.length - 1];
+    const latest = versions.at(-1);
     if (latest && latest.status === "completed") {
       latestVersions.push(latest);
     }
@@ -887,7 +891,7 @@ export async function createVideoClip(
 }
 
 export async function createVideoClips(
-  clips: Array<Omit<NewVideoClip, "id" | "createdAt" | "updatedAt">>
+  clips: Omit<NewVideoClip, "id" | "createdAt" | "updatedAt">[]
 ): Promise<VideoClip[]> {
   const clipsWithIds = clips.map((clip) => ({
     ...clip,
@@ -1137,10 +1141,10 @@ export async function getAdminWorkspaces(options: {
     ${
       filters?.search
         ? sql`AND (
-      w.name ILIKE ${"%" + filters.search + "%"} OR
-      w.slug ILIKE ${"%" + filters.search + "%"} OR
-      owner.email ILIKE ${"%" + filters.search + "%"} OR
-      owner.name ILIKE ${"%" + filters.search + "%"}
+      w.name ILIKE ${`%${filters.search}%`} OR
+      w.slug ILIKE ${`%${filters.search}%`} OR
+      owner.email ILIKE ${`%${filters.search}%`} OR
+      owner.name ILIKE ${`%${filters.search}%`}
     )`
         : sql``
     }
@@ -1202,7 +1206,7 @@ export async function getAdminWorkspaces(options: {
   return {
     data: result,
     meta: {
-      cursor: hasMore && data.length > 0 ? data[data.length - 1].id : null,
+      cursor: hasMore && data.length > 0 ? data.at(-1).id : null,
       hasMore,
       total: totalResult?.count || 0,
     },
@@ -1577,9 +1581,9 @@ export async function getAdminUsers(options: {
     ${
       filters?.search
         ? sql`AND (
-      u.name ILIKE ${"%" + filters.search + "%"} OR
-      u.email ILIKE ${"%" + filters.search + "%"} OR
-      w.name ILIKE ${"%" + filters.search + "%"}
+      u.name ILIKE ${`%${filters.search}%`} OR
+      u.email ILIKE ${`%${filters.search}%`} OR
+      w.name ILIKE ${`%${filters.search}%`}
     )`
         : sql``
     }
@@ -1650,7 +1654,7 @@ export async function getAdminUsers(options: {
   return {
     data: result,
     meta: {
-      cursor: hasMore && data.length > 0 ? data[data.length - 1].id : null,
+      cursor: hasMore && data.length > 0 ? data.at(-1).id : null,
       hasMore,
       total: totalResult?.count || 0,
     },

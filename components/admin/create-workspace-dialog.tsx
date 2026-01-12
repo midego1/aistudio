@@ -83,7 +83,9 @@ export function CreateWorkspaceDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!(name.trim() && email.trim())) return;
+    if (!(name.trim() && email.trim())) {
+      return;
+    }
 
     startTransition(async () => {
       const result = await createWorkspaceWithInviteAction(

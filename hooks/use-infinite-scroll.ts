@@ -39,13 +39,17 @@ export function useInfiniteScroll<
 }: UseInfiniteScrollProps<TScrollElement>) {
   useEffect(() => {
     const scrollElement = scrollRef.current;
-    if (!scrollElement) return;
+    if (!scrollElement) {
+      return;
+    }
 
     const checkLoadMore = () => {
-      if (isFetchingNextPage) return;
+      if (isFetchingNextPage) {
+        return;
+      }
 
       const virtualItems = rowVirtualizer.getVirtualItems();
-      const lastItem = virtualItems[virtualItems.length - 1];
+      const lastItem = virtualItems.at(-1);
 
       if (lastItem && lastItem.index >= rowCount - threshold && hasNextPage) {
         fetchNextPage();

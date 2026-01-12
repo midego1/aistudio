@@ -448,7 +448,9 @@ function ComparisonView({
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const handleMove = React.useCallback((clientX: number) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current) {
+      return;
+    }
     const rect = containerRef.current.getBoundingClientRect();
     const x = clientX - rect.left;
     const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
@@ -457,7 +459,9 @@ function ComparisonView({
 
   const handleMouseMove = React.useCallback(
     (e: React.MouseEvent) => {
-      if (e.buttons !== 1) return;
+      if (e.buttons !== 1) {
+        return;
+      }
       handleMove(e.clientX);
     },
     [handleMove]
@@ -579,7 +583,9 @@ function ImageLightbox({
     hasEnhancedVersion,
   ]);
 
-  if (!(currentImage && displayUrl)) return null;
+  if (!(currentImage && displayUrl)) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black/95">
@@ -778,7 +784,9 @@ export function ProjectDetailContent({
             break;
           }
         }
-        if (same) return prevRunIds;
+        if (same) {
+          return prevRunIds;
+        }
       }
       return newRunIds;
     });
@@ -798,14 +806,14 @@ export function ProjectDetailContent({
       if (!grouped.has(rootId)) {
         grouped.set(rootId, []);
       }
-      grouped.get(rootId)!.push(img);
+      grouped.get(rootId)?.push(img);
     }
 
     // Sort each group by version and create ImageGroup objects
     const groups: ImageGroup[] = [];
     for (const [rootId, versions] of grouped) {
       versions.sort((a, b) => (a.version || 1) - (b.version || 1));
-      const latestVersion = versions[versions.length - 1];
+      const latestVersion = versions.at(-1);
       groups.push({ rootId, versions, latestVersion });
     }
 
@@ -854,7 +862,9 @@ export function ProjectDetailContent({
 
   const handleBulkRoomTypeAssign = React.useCallback(
     async (roomType: string) => {
-      if (roomTypeSelectedIds.size === 0) return;
+      if (roomTypeSelectedIds.size === 0) {
+        return;
+      }
 
       const result = await bulkUpdateImageRoomTypes(
         Array.from(roomTypeSelectedIds),
@@ -954,7 +964,9 @@ export function ProjectDetailContent({
   }, []);
 
   const handleDeleteSelected = async () => {
-    if (selectedImageIds.size === 0) return;
+    if (selectedImageIds.size === 0) {
+      return;
+    }
 
     const count = selectedImageIds.size;
     setDeleteDialogOpen(false);
@@ -989,7 +1001,9 @@ export function ProjectDetailContent({
 
         // Clear selection and resolve after download starts
         setTimeout(() => {
-          if (hasSelection) clearSelection();
+          if (hasSelection) {
+            clearSelection();
+          }
           resolve();
         }, 1000);
       } catch (error) {
@@ -1006,7 +1020,9 @@ export function ProjectDetailContent({
 
   const handleDownloadSingle = async (image: ImageGeneration) => {
     const imageUrl = image.resultImageUrl || image.originalImageUrl;
-    if (!imageUrl) return;
+    if (!imageUrl) {
+      return;
+    }
 
     try {
       const response = await fetch(imageUrl);
@@ -1035,7 +1051,9 @@ export function ProjectDetailContent({
 
   // Fetch access token when we have run IDs to track
   React.useEffect(() => {
-    if (runIds.size === 0) return;
+    if (runIds.size === 0) {
+      return;
+    }
 
     const fetchToken = async () => {
       try {
@@ -1062,7 +1080,9 @@ export function ProjectDetailContent({
       (img) => img.status === "processing" || img.status === "pending"
     );
 
-    if (processingImages.length === 0) return;
+    if (processingImages.length === 0) {
+      return;
+    }
 
     // Poll less frequently if we have realtime tracking
     const pollInterval = runIds.size > 0 ? 10_000 : 5000;
@@ -1662,7 +1682,7 @@ export function ProjectDetailContent({
       )}
 
       {/* Comparison modal */}
-      {selectedImage && selectedImage.resultImageUrl && (
+      {selectedImage?.resultImageUrl && (
         <ComparisonView
           enhancedUrl={selectedImage.resultImageUrl}
           onClose={() => setSelectedImage(null)}

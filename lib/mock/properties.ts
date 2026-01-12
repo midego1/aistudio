@@ -183,7 +183,9 @@ function filterProperties(
         property.address.toLowerCase().includes(searchLower) ||
         property.city.toLowerCase().includes(searchLower) ||
         property.state.toLowerCase().includes(searchLower);
-      if (!matchesSearch) return false;
+      if (!matchesSearch) {
+        return false;
+      }
     }
 
     // Status filter
@@ -196,7 +198,9 @@ function filterProperties(
       const hasMatchingTag = filters.tags.some((tag) =>
         property.tags.includes(tag)
       );
-      if (!hasMatchingTag) return false;
+      if (!hasMatchingTag) {
+        return false;
+      }
     }
 
     return true;
@@ -207,7 +211,9 @@ function sortProperties(
   properties: Property[],
   sort?: [SortableColumn, SortDirection]
 ): Property[] {
-  if (!sort) return properties;
+  if (!sort) {
+    return properties;
+  }
 
   const [column, direction] = sort;
   const multiplier = direction === "asc" ? 1 : -1;

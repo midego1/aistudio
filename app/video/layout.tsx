@@ -29,7 +29,7 @@ export default async function VideoLayout({
   const data = await getUserWithWorkspace(session.user.id);
 
   // If no workspace or onboarding not completed, redirect to onboarding
-  if (!(data && data.workspace.onboardingCompleted)) {
+  if (!data?.workspace.onboardingCompleted) {
     redirect("/onboarding");
   }
 

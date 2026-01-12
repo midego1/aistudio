@@ -114,7 +114,9 @@ export function EditWorkspaceDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      return;
+    }
 
     startTransition(async () => {
       try {

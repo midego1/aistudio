@@ -149,7 +149,7 @@ export function ComponentExample() {
   );
 }
 
-function CardExample() {
+function _CardExample() {
   return (
     <Example className="items-center justify-center" title="Card">
       <Card className="relative w-full max-w-sm overflow-hidden pt-0">
@@ -210,7 +210,7 @@ const frameworks = [
   "Astro",
 ] as const;
 
-function FormExample() {
+function _FormExample() {
   const [notifications, setNotifications] = React.useState({
     email: true,
     sms: false,

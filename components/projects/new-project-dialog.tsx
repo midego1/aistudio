@@ -114,7 +114,9 @@ export function NewProjectDialog({
   }, [creation, imageUpload, onOpenChange]);
 
   const handleSubmit = React.useCallback(async () => {
-    if (!(creation.canProceed() && creation.selectedTemplate)) return;
+    if (!(creation.canProceed() && creation.selectedTemplate)) {
+      return;
+    }
 
     creation.setIsSubmitting(true);
 

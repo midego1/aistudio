@@ -105,7 +105,9 @@ export function useProjectCreation() {
   ]);
 
   const goToNextStep = useCallback(() => {
-    if (!canProceed()) return;
+    if (!canProceed()) {
+      return;
+    }
 
     setState((prev) => {
       switch (prev.step) {

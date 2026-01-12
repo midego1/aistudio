@@ -44,7 +44,9 @@ export function SelectImagesStep({
   const handleFileSelect = React.useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files || []);
-      if (files.length === 0) return;
+      if (files.length === 0) {
+        return;
+      }
 
       // Reset input
       if (fileInputRef.current) {

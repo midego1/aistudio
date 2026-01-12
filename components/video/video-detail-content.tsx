@@ -156,7 +156,7 @@ function RealtimeVideoProgress({
     if (isCompleted || isFailed) {
       onComplete?.();
     }
-  }, [run?.status, onComplete, isCompleted, isFailed]);
+  }, [onComplete, isCompleted, isFailed]);
 
   if (isFailed) {
     return (
@@ -462,7 +462,9 @@ export function VideoDetailContent({
   };
 
   const handleDownload = async () => {
-    if (!videoProject.finalVideoUrl) return;
+    if (!videoProject.finalVideoUrl) {
+      return;
+    }
 
     try {
       const response = await fetch(videoProject.finalVideoUrl);

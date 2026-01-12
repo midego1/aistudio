@@ -265,7 +265,9 @@ function filterUsers(users: AdminUser[], filters: UserFilters): AdminUser[] {
         user.name.toLowerCase().includes(searchLower) ||
         user.email.toLowerCase().includes(searchLower) ||
         user.workspaceName.toLowerCase().includes(searchLower);
-      if (!matchesSearch) return false;
+      if (!matchesSearch) {
+        return false;
+      }
     }
 
     // Workspace filter
@@ -291,7 +293,9 @@ function sortUsers(
   users: AdminUser[],
   sort?: [SortableUserColumn, SortDirection]
 ): AdminUser[] {
-  if (!sort) return users;
+  if (!sort) {
+    return users;
+  }
 
   const [column, direction] = sort;
   const multiplier = direction === "asc" ? 1 : -1;

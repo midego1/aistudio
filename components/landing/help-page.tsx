@@ -31,7 +31,9 @@ export function HelpPage({
 
   // Filter articles based on search
   const searchResults = useMemo(() => {
-    if (!search?.trim()) return null;
+    if (!search?.trim()) {
+      return null;
+    }
 
     const searchLower = search.toLowerCase();
     return articles.filter((article) => {

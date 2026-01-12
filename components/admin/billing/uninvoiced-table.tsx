@@ -115,7 +115,9 @@ export function UninvoicedTable({ items }: UninvoicedTableProps) {
   // Check if any selected workspace is missing org number
   const hasMissingOrgNumber = useMemo(() => {
     for (const ws of selectedByWorkspace.values()) {
-      if (!ws.orgNumber) return true;
+      if (!ws.orgNumber) {
+        return true;
+      }
     }
     return false;
   }, [selectedByWorkspace]);
@@ -162,7 +164,7 @@ export function UninvoicedTable({ items }: UninvoicedTableProps) {
 
       setSelectedIds(new Set());
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Feil", {
         description: "Kunne ikke sende fakturaer",
       });
@@ -205,7 +207,7 @@ export function UninvoicedTable({ items }: UninvoicedTableProps) {
       });
 
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast.error("Feil", {
         description: "Kunne ikke sende faktura",
       });

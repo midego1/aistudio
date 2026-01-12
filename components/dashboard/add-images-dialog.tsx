@@ -149,7 +149,9 @@ export function AddImagesDialog({
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (images.length === 0) return;
+    if (images.length === 0) {
+      return;
+    }
 
     setIsSubmitting(true);
 

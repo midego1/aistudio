@@ -199,7 +199,9 @@ export function useVideoCreation() {
         const existingImage = prev.images.find(
           (img) => img.sequenceOrder === slotIndex + 1
         );
-        if (!existingImage) return prev;
+        if (!existingImage) {
+          return prev;
+        }
 
         const updatedImage = { ...existingImage };
         if (type === "start") {
@@ -274,7 +276,9 @@ export function useVideoCreation() {
     (fromIndex: number, toIndex: number) => {
       setState((prev) => {
         // Only for custom mode
-        if (prev.selectedTemplateId) return prev;
+        if (prev.selectedTemplateId) {
+          return prev;
+        }
 
         const newImages = [...prev.images];
         const [removed] = newImages.splice(fromIndex, 1);
@@ -292,7 +296,9 @@ export function useVideoCreation() {
 
   const autoArrangeByRoomType = React.useCallback(() => {
     setState((prev) => {
-      if (prev.selectedTemplateId) return prev; // Disable for templates
+      if (prev.selectedTemplateId) {
+        return prev; // Disable for templates
+      }
 
       const sorted = autoSequenceClips(prev.images);
       const reindexed = reindexSequenceOrders(sorted);
@@ -360,16 +366,22 @@ export function useVideoCreation() {
         return state.images.every((img) => img.roomType);
 
       case "storyboard": {
-        if (!state.selectedTemplateId) return false;
+        if (!state.selectedTemplateId) {
+          return false;
+        }
         const template = getVideoTemplateById(state.selectedTemplateId);
-        if (!template) return false;
+        if (!template) {
+          return false;
+        }
 
         // Check if all slots have an image
         // We know images are keyed by sequenceOrder = slotIndex + 1
         const filledSlots = state.images.map((img) => img.sequenceOrder);
         // Check if every slot index (1..slots.length) is present
         for (let i = 1; i <= template.slots.length; i++) {
-          if (!filledSlots.includes(i)) return false;
+          if (!filledSlots.includes(i)) {
+            return false;
+          }
         }
         return true;
       }

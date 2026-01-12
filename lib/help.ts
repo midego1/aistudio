@@ -80,7 +80,9 @@ export function getAllHelpArticles(): HelpArticleMeta[] {
 
     const files = fs.readdirSync(categoryPath);
     for (const file of files) {
-      if (!file.endsWith(".md")) continue;
+      if (!file.endsWith(".md")) {
+        continue;
+      }
 
       const slug = file.replace(/\.md$/, "");
       const fullPath = path.join(categoryPath, file);
@@ -167,7 +169,9 @@ export function getRelatedArticles(
 }
 
 export function searchHelpArticles(query: string): HelpArticleMeta[] {
-  if (!query.trim()) return [];
+  if (!query.trim()) {
+    return [];
+  }
 
   const searchLower = query.toLowerCase();
   return getAllHelpArticles().filter((article) => {

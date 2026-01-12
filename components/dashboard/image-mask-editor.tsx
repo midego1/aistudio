@@ -90,6 +90,9 @@ export function ImageMaskEditor({
     prompt: string;
     mode: EditMode;
   } | null>(null);
+  const [objectDescription, setObjectDescription] = React.useState("");
+  const [showObjectDescriptionDialog, setShowObjectDescriptionDialog] =
+    React.useState(false);
 
   // Check if we're editing an older version
   const currentVersion = image.version || 1;
@@ -105,7 +108,9 @@ export function ImageMaskEditor({
 
     img.onload = () => {
       const container = containerRef.current;
-      if (!container) return;
+      if (!container) {
+        return;
+      }
 
       // Calculate dimensions to fit container while maintaining aspect ratio
       const containerWidth = container.clientWidth - 64; // account for padding
@@ -137,8 +142,9 @@ export function ImageMaskEditor({
 
   // Step 2: Initialize Fabric.js after canvas is rendered
   React.useEffect(() => {
-    if (!(imageLoaded && canvasRef.current) || imageDimensions.width === 0)
+    if (!(imageLoaded && canvasRef.current) || imageDimensions.width === 0) {
       return;
+    }
 
     // Dynamic import to avoid SSR issues
     const initFabric = async () => {
@@ -175,11 +181,13 @@ export function ImageMaskEditor({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageLoaded, imageDimensions]);
+  }, [imageLoaded, imageDimensions, brushSize]);
 
   // Update brush settings based on mode
   React.useEffect(() => {
-    if (!(fabricRef.current?.freeDrawingBrush && isCanvasReady)) return;
+    if (!(fabricRef.current?.freeDrawingBrush && isCanvasReady)) {
+      return;
+    }
 
     fabricRef.current.freeDrawingBrush.width = brushSize;
     // Visual feedback colors - red for remove, green for add
@@ -220,7 +228,9 @@ export function ImageMaskEditor({
 
   // Track canvas history for undo
   React.useEffect(() => {
-    if (!(fabricRef.current && isCanvasReady)) return;
+    if (!(fabricRef.current && isCanvasReady)) {
+      return;
+    }
 
     const canvas = fabricRef.current;
     const handlePathCreated = () => {
@@ -238,7 +248,9 @@ export function ImageMaskEditor({
   }, [isCanvasReady, calculateMaskBounds]);
 
   const handleUndo = React.useCallback(() => {
-    if (!fabricRef.current || canvasHistory.length === 0) return;
+    if (!fabricRef.current || canvasHistory.length === 0) {
+      return;
+    }
 
     const canvas = fabricRef.current;
     // Remove the last state (current)
@@ -252,7 +264,7 @@ export function ImageMaskEditor({
       setMaskBounds(null);
     } else {
       // Load previous state
-      const prevState = newHistory[newHistory.length - 1];
+      const prevState = newHistory.at(-1);
       canvas.loadFromJSON(prevState, () => {
         canvas.renderAll();
         calculateMaskBounds();
@@ -263,13 +275,16 @@ export function ImageMaskEditor({
   }, [canvasHistory, calculateMaskBounds]);
 
   const handleClear = React.useCallback(() => {
-    if (!fabricRef.current) return;
+    if (!fabricRef.current) {
+      return;
+    }
     fabricRef.current.clear();
     fabricRef.current.backgroundColor = "transparent";
     fabricRef.current.renderAll();
     setCanvasHistory([]);
     setMaskBounds(null);
     setObjectToAdd("");
+    setObjectDescription("");
   }, []);
 
   // Track cursor position for brush preview
@@ -314,9 +329,94 @@ export function ImageMaskEditor({
     [image.id, inpaint, router, onClose]
   );
 
+  // Proceed with removal after description is provided
+  const proceedWithRemoval = React.useCallback(async () => {
+    if (!(fabricRef.current && objectDescription.trim())) {
+      return;
+    }
+
+    // Generate prompt with object description
+    const generatedPrompt = `Remove the ${objectDescription.trim()} and realistically fill in the background.`;
+
+    // Helper to proceed with submission (or show dialog)
+    const proceedWithSubmit = async (maskDataUrl: string) => {
+      if (isEditingOldVersion) {
+        // Show confirmation dialog
+        setPendingSubmitData({
+          maskDataUrl,
+          prompt: generatedPrompt,
+          mode: "remove",
+        });
+        setShowReplaceDialog(true);
+      } else {
+        // Submit directly
+        await executeInpaint(maskDataUrl, generatedPrompt, "remove", false);
+      }
+    };
+
+    // REMOVE MODE: Create mask and use FLUX Fill
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = imageDimensions.width;
+    tempCanvas.height = imageDimensions.height;
+    const tempCtx = tempCanvas.getContext("2d");
+
+    if (!tempCtx) {
+      return;
+    }
+
+    // Fill with black (no edit areas)
+    tempCtx.fillStyle = "black";
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+    // Draw the fabric canvas content - convert colored strokes to white for mask
+    const fabricCanvas = fabricRef.current;
+    const originalPaths = fabricCanvas.getObjects("path");
+
+    // Temporarily change all path colors to white for the mask
+    originalPaths.forEach((path) => {
+      path.set("stroke", "white");
+    });
+    fabricCanvas.renderAll();
+
+    const fabricDataUrl = fabricCanvas.toDataURL({
+      format: "png",
+      multiplier: 1,
+    });
+
+    // Restore original colors
+    originalPaths.forEach((path) => {
+      path.set("stroke", "rgba(239, 68, 68, 0.6)");
+    });
+    fabricCanvas.renderAll();
+
+    const maskImg = new window.Image();
+    maskImg.onload = async () => {
+      tempCtx.drawImage(maskImg, 0, 0);
+
+      // Get the final mask as data URL
+      const maskDataUrl = tempCanvas.toDataURL("image/png");
+
+      await proceedWithSubmit(maskDataUrl);
+    };
+    maskImg.src = fabricDataUrl;
+  }, [objectDescription, imageDimensions, isEditingOldVersion, executeInpaint]);
+
+  // Handle confirmed object description
+  const handleConfirmObjectDescription = React.useCallback(() => {
+    if (!objectDescription.trim()) {
+      return;
+    }
+
+    setShowObjectDescriptionDialog(false);
+    // Proceed with removal now that we have the description
+    proceedWithRemoval();
+  }, [objectDescription, proceedWithRemoval]);
+
   // Handle confirmed replace
   const handleConfirmReplace = React.useCallback(async () => {
-    if (!pendingSubmitData) return;
+    if (!pendingSubmitData) {
+      return;
+    }
 
     setShowReplaceDialog(false);
     await executeInpaint(
@@ -329,19 +429,28 @@ export function ImageMaskEditor({
   }, [pendingSubmitData, executeInpaint]);
 
   const handleSubmit = React.useCallback(async () => {
-    if (!fabricRef.current) return;
-    if (mode === "add" && !objectToAdd.trim()) return;
-
-    // Auto-generate prompt based on mode
-    let generatedPrompt: string;
-    if (mode === "remove") {
-      generatedPrompt =
-        "Empty background, seamless continuation of the surrounding walls, floor and room environment, clean space, no objects";
-    } else {
-      // For Add mode, use Nano Banana with a descriptive prompt
-      const object = objectToAdd.trim().toLowerCase();
-      generatedPrompt = `Interior room photo with a ${object} added. Keep the existing furniture, walls, and layout exactly the same. Add a stylish ${object} that matches the room's aesthetic and lighting.`;
+    if (!fabricRef.current) {
+      return;
     }
+    if (mode === "add" && !objectToAdd.trim()) {
+      return;
+    }
+
+    // For remove mode, check if we have object description
+    if (mode === "remove") {
+      if (!objectDescription.trim()) {
+        // Show dialog to get object description
+        setShowObjectDescriptionDialog(true);
+        return;
+      }
+      // We have description, proceed with removal
+      await proceedWithRemoval();
+      return;
+    }
+
+    // ADD MODE: Use Nano Banana with a descriptive prompt
+    const object = objectToAdd.trim().toLowerCase();
+    const generatedPrompt = `Interior room photo with a ${object} added. Keep the existing furniture, walls, and layout exactly the same. Add a stylish ${object} that matches the room's aesthetic and lighting.`;
 
     // Helper to proceed with submission (or show dialog)
     const proceedWithSubmit = async (maskDataUrl: string) => {
@@ -355,55 +464,16 @@ export function ImageMaskEditor({
       }
     };
 
-    if (mode === "remove") {
-      // REMOVE MODE: Create mask and use FLUX Fill
-      const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = imageDimensions.width;
-      tempCanvas.height = imageDimensions.height;
-      const tempCtx = tempCanvas.getContext("2d");
-
-      if (!tempCtx) return;
-
-      // Fill with black (no edit areas)
-      tempCtx.fillStyle = "black";
-      tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-      // Draw the fabric canvas content - convert colored strokes to white for mask
-      const fabricCanvas = fabricRef.current;
-      const originalPaths = fabricCanvas.getObjects("path");
-
-      // Temporarily change all path colors to white for the mask
-      originalPaths.forEach((path) => {
-        path.set("stroke", "white");
-      });
-      fabricCanvas.renderAll();
-
-      const fabricDataUrl = fabricCanvas.toDataURL({
-        format: "png",
-        multiplier: 1,
-      });
-
-      // Restore original colors
-      originalPaths.forEach((path) => {
-        path.set("stroke", "rgba(239, 68, 68, 0.6)");
-      });
-      fabricCanvas.renderAll();
-
-      const maskImg = new window.Image();
-      maskImg.onload = async () => {
-        tempCtx.drawImage(maskImg, 0, 0);
-
-        // Get the final mask as data URL
-        const maskDataUrl = tempCanvas.toDataURL("image/png");
-
-        await proceedWithSubmit(maskDataUrl);
-      };
-      maskImg.src = fabricDataUrl;
-    } else {
-      // ADD MODE: Use Nano Banana (no mask needed)
-      await proceedWithSubmit("");
-    }
-  }, [mode, objectToAdd, imageDimensions, isEditingOldVersion, executeInpaint]);
+    // ADD MODE: Use Nano Banana (no mask needed)
+    await proceedWithSubmit("");
+  }, [
+    mode,
+    objectToAdd,
+    objectDescription,
+    proceedWithRemoval,
+    isEditingOldVersion,
+    executeInpaint,
+  ]);
 
   // Handle escape key
   React.useEffect(() => {
@@ -680,6 +750,55 @@ export function ImageMaskEditor({
             : "The AI will add the object matching the room's style."}
         </p>
       </div>
+
+      {/* Object description dialog */}
+      <AlertDialog
+        onOpenChange={(open) => {
+          setShowObjectDescriptionDialog(open);
+          if (!open) {
+            // Clear description when dialog closes (cancel, escape, or outside click)
+            setObjectDescription("");
+          }
+        }}
+        open={showObjectDescriptionDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              What object(s) are you removing?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Describe what you&apos;ve marked for removal (e.g., &quot;3 wall
+              mounted pictures&quot;, &quot;pet on sofa&quot;, &quot;framed
+              picture&quot;).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input
+              autoFocus
+              className="w-full"
+              onChange={(e) => setObjectDescription(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && objectDescription.trim()) {
+                  handleConfirmObjectDescription();
+                }
+              }}
+              placeholder="e.g., 3 wall mounted pictures, pet on sofa"
+              value={objectDescription}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-500 hover:bg-red-600"
+              disabled={!objectDescription.trim()}
+              onClick={handleConfirmObjectDescription}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Replace versions confirmation dialog */}
       <AlertDialog onOpenChange={setShowReplaceDialog} open={showReplaceDialog}>

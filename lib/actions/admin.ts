@@ -260,7 +260,7 @@ export async function impersonateUserAction(
       userId,
       token: sessionToken,
       expiresAt,
-      impersonatedBy: adminCheck.user!.id, // Track who is impersonating
+      impersonatedBy: adminCheck.user?.id, // Track who is impersonating
       createdAt: new Date(),
       updatedAt: new Date(),
     });

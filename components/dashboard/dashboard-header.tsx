@@ -8,16 +8,16 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "./sign-out-button";
 
-type DashboardHeaderProps = {
+interface DashboardHeaderProps {
   userLabel?: string;
-};
+}
 
-type NavItem = {
+interface NavItem {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   disabled?: boolean;
-};
+}
 
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Projects", icon: IconSparkles },

@@ -143,7 +143,9 @@ export function ProjectsDataTable({ projects }: ProjectsDataTableProps) {
               {virtualItems.length > 0 ? (
                 virtualItems.map((virtualRow) => {
                   const row = rows[virtualRow.index];
-                  if (!row) return null;
+                  if (!row) {
+                    return null;
+                  }
 
                   return (
                     <VirtualRow

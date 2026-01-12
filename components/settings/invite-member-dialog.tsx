@@ -63,7 +63,9 @@ export function InviteMemberDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email) {
+      return;
+    }
 
     startTransition(async () => {
       const result = await createWorkspaceMemberInvitation(email, role);
@@ -76,7 +78,9 @@ export function InviteMemberDialog({
   };
 
   const handleCopyLink = async () => {
-    if (!inviteUrl) return;
+    if (!inviteUrl) {
+      return;
+    }
     try {
       await navigator.clipboard.writeText(inviteUrl);
       setCopied(true);

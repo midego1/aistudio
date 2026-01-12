@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       if (mode === "remove") {
         // REMOVE MODE: Use FLUX Fill Pro (inpainting)
         // Convert base64 mask data URL to buffer
-        const maskBase64 = maskDataUrl!.split(",")[1];
+        const maskBase64 = maskDataUrl?.split(",")[1];
         const maskBuffer = Buffer.from(maskBase64, "base64");
 
         // Resize mask to match source image dimensions

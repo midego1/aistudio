@@ -182,7 +182,9 @@ export function VideoCreationWizard() {
   const creation = useVideoCreation();
 
   const handleSubmit = React.useCallback(async () => {
-    if (!creation.canProceed()) return;
+    if (!creation.canProceed()) {
+      return;
+    }
 
     creation.setIsSubmitting(true);
 

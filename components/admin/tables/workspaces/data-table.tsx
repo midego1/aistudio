@@ -55,7 +55,7 @@ export function WorkspacesDataTable({
 
   // Defer search to debounce filtering
   const deferredFilters = useDeferredValue(workspaceFilters);
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, startTransition] = useTransition();
 
   // Pagination state - initialize with SSR data
   const [pages, setPages] = useState<AdminWorkspaceRow[][]>([initialData]);
@@ -63,7 +63,7 @@ export function WorkspacesDataTable({
   const [hasNextPage, setHasNextPage] = useState(initialMeta.hasMore);
   const [filteredTotal, setFilteredTotal] = useState(initialMeta.total);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(false); // Already loaded via SSR
+  const [isInitialLoad, _setIsInitialLoad] = useState(false); // Already loaded via SSR
 
   // Handlers for workspace actions
   const handleSuspend = useCallback(
@@ -71,7 +71,9 @@ export function WorkspacesDataTable({
       const reason = window.prompt(
         `Enter reason for suspending "${workspaceName}" (optional):`
       );
-      if (reason === null) return; // User cancelled
+      if (reason === null) {
+        return; // User cancelled
+      }
 
       const result = await updateWorkspaceStatusAction(
         workspaceId,
@@ -108,7 +110,9 @@ export function WorkspacesDataTable({
       const confirmed = window.confirm(
         `Are you sure you want to delete "${workspaceName}"?\n\nThis will permanently delete all data including users, projects, and images. This action cannot be undone.`
       );
-      if (!confirmed) return;
+      if (!confirmed) {
+        return;
+      }
 
       const result = await deleteWorkspaceAction(workspaceId);
 
@@ -165,14 +169,25 @@ export function WorkspacesDataTable({
         setFilteredTotal(result.data.meta.total);
       }
     });
-  }, [deferredFilters, sortColumn, sortDirection]);
+  }, [
+    deferredFilters,
+    sortColumn,
+    sortDirection,
+    initialData,
+    pages[0],
+    workspaceFilters.plan,
+    workspaceFilters.search,
+    workspaceFilters.status,
+  ]);
 
   // Flatten all pages into single array
   const tableData = useMemo(() => pages.flat(), [pages]);
 
   // Fetch next page function
   const fetchNextPage = useCallback(async () => {
-    if (isFetchingNextPage || !hasNextPage) return;
+    if (isFetchingNextPage || !hasNextPage) {
+      return;
+    }
 
     setIsFetchingNextPage(true);
 
@@ -363,7 +378,9 @@ export function WorkspacesDataTable({
               {virtualItems.length > 0 ? (
                 virtualItems.map((virtualRow) => {
                   const row = rows[virtualRow.index];
-                  if (!row) return null;
+                  if (!row) {
+                    return null;
+                  }
 
                   return (
                     <WorkspaceVirtualRow

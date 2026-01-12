@@ -229,7 +229,9 @@ function filterWorkspaces(
         workspace.slug.toLowerCase().includes(searchLower) ||
         workspace.ownerEmail.toLowerCase().includes(searchLower) ||
         workspace.ownerName.toLowerCase().includes(searchLower);
-      if (!matchesSearch) return false;
+      if (!matchesSearch) {
+        return false;
+      }
     }
 
     // Status filter
@@ -250,7 +252,9 @@ function sortWorkspaces(
   workspaces: AdminWorkspace[],
   sort?: [SortableWorkspaceColumn, SortDirection]
 ): AdminWorkspace[] {
-  if (!sort) return workspaces;
+  if (!sort) {
+    return workspaces;
+  }
 
   const [column, direction] = sort;
   const multiplier = direction === "asc" ? 1 : -1;

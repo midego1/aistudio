@@ -77,7 +77,9 @@ export async function GET(
       for (let i = 0; i < images.length; i++) {
         const image = images[i];
         const imageUrl = image.resultImageUrl || image.originalImageUrl;
-        if (!imageUrl) continue;
+        if (!imageUrl) {
+          continue;
+        }
 
         try {
           const response = await fetch(imageUrl);

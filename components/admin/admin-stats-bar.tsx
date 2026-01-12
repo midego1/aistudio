@@ -10,14 +10,14 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
-type StatItemProps = {
+interface StatItemProps {
   icon: React.ReactNode;
   label: string;
   value: string | number;
   subValue?: string;
   accentColor: string;
   delay: number;
-};
+}
 
 function StatItem({
   icon,
@@ -68,7 +68,7 @@ function StatItem({
   );
 }
 
-type AdminStatsBarProps = {
+interface AdminStatsBarProps {
   totalWorkspaces: number;
   activeWorkspaces: number;
   totalUsers: number;
@@ -78,7 +78,7 @@ type AdminStatsBarProps = {
   totalRevenue: number;
   revenueThisMonth: number;
   activeSessions: number;
-};
+}
 
 export function AdminStatsBar({
   totalWorkspaces,

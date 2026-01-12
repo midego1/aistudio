@@ -93,13 +93,15 @@ function getDefaultLabel(status: string): string {
 export function useProcessingRuns(
   runIds: string[],
   accessToken: string | null,
-  onComplete?: () => void
+  _onComplete?: () => void
 ) {
   const router = useRouter();
 
   // We'll track completion in an effect
   useEffect(() => {
-    if (!accessToken || runIds.length === 0) return;
+    if (!accessToken || runIds.length === 0) {
+      return;
+    }
 
     // When all runs are done, refresh
     const checkInterval = setInterval(() => {

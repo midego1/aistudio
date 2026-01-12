@@ -7,13 +7,13 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
-type StatItemProps = {
+interface StatItemProps {
   icon: React.ReactNode;
   label: string;
   value: string | number;
   accentColor: string;
   delay: number;
-};
+}
 
 function StatItem({ icon, label, value, accentColor, delay }: StatItemProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -52,11 +52,11 @@ function StatItem({ icon, label, value, accentColor, delay }: StatItemProps) {
   );
 }
 
-type StatsBarProps = {
+interface StatsBarProps {
   totalProperties: number;
   activeProperties: number;
   totalEdits: number;
-};
+}
 
 export function StatsBar({
   totalProperties,

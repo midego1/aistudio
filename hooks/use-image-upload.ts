@@ -40,7 +40,9 @@ export function useImageUpload(): UseImageUploadReturn {
       files: File[],
       roomTypes?: (string | null)[]
     ): Promise<boolean> => {
-      if (files.length === 0) return false;
+      if (files.length === 0) {
+        return false;
+      }
 
       setIsUploading(true);
       setError(null);

@@ -156,7 +156,7 @@ export function RevenueContent({
         setFalUsage(null);
       }
     });
-  }, [period, initialFalUsage]);
+  }, [period, initialFalUsage, falUsage]);
 
   // Calculate metrics from time_series format
   const falCost =
@@ -176,7 +176,9 @@ export function RevenueContent({
   > = {};
   if (falUsage?.time_series) {
     for (const bucket of falUsage.time_series) {
-      if (bucket.results.length === 0) continue;
+      if (bucket.results.length === 0) {
+        continue;
+      }
       const date = new Date(bucket.bucket).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",

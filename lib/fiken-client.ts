@@ -80,9 +80,9 @@ export const BILLING_DEFAULTS = {
 // =============================================================================
 
 export class FikenClient {
-  private baseUrl = "https://api.fiken.no/api/v2";
-  private companySlug: string;
-  private apiKey: string;
+  private readonly baseUrl = "https://api.fiken.no/api/v2";
+  private readonly companySlug: string;
+  private readonly apiKey: string;
 
   constructor() {
     const apiKey = process.env.FIKEN_API_KEY;
@@ -238,7 +238,7 @@ export class FikenClient {
       10
     );
 
-    if (isNaN(invoiceId)) {
+    if (Number.isNaN(invoiceId)) {
       throw new Error(
         `Failed to parse invoiceId from Location: ${locationHeader}`
       );

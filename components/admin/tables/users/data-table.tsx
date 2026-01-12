@@ -100,14 +100,26 @@ export function UsersDataTable({
         setFilteredTotal(result.data.meta.total);
       }
     });
-  }, [deferredFilters, sortColumn, sortDirection]);
+  }, [
+    deferredFilters,
+    sortColumn,
+    sortDirection,
+    initialData,
+    pages[0],
+    userFilters.role,
+    userFilters.search,
+    userFilters.status,
+    userFilters.workspaceId,
+  ]);
 
   // Flatten all pages into single array
   const tableData = useMemo(() => pages.flat(), [pages]);
 
   // Fetch next page function
   const fetchNextPage = useCallback(async () => {
-    if (isFetchingNextPage || !hasNextPage) return;
+    if (isFetchingNextPage || !hasNextPage) {
+      return;
+    }
 
     setIsFetchingNextPage(true);
 
@@ -296,7 +308,9 @@ export function UsersDataTable({
               {virtualItems.length > 0 ? (
                 virtualItems.map((virtualRow) => {
                   const row = rows[virtualRow.index];
-                  if (!row) return null;
+                  if (!row) {
+                    return null;
+                  }
 
                   return (
                     <UserVirtualRow

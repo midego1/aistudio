@@ -76,7 +76,9 @@ export function StoryboardStep({
       index: number,
       frameType: "start" | "end" | "both" = "both"
     ) => {
-      if (!template) return;
+      if (!template) {
+        return;
+      }
 
       setUploadingSlotIndex(index);
 
@@ -151,7 +153,9 @@ export function StoryboardStep({
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || activeSlotIndex === null) return;
+    if (!file || activeSlotIndex === null) {
+      return;
+    }
 
     // Reset input
     if (fileInputRef.current) {
@@ -191,7 +195,9 @@ export function StoryboardStep({
     setDragOverFrame("both");
 
     const file = e.dataTransfer.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     if (!file.type.startsWith("image/")) {
       toast.error("Only image files are supported");
@@ -289,7 +295,7 @@ export function StoryboardStep({
                 >
                   <div className="group/match pointer-events-auto mb-2 flex items-center -space-x-2.5">
                     <div className="relative h-14 w-10 overflow-hidden rounded-l-xl border-y border-l bg-muted/30 shadow-xs ring-1 ring-black/5 transition-transform group-hover/match:-translate-x-1">
-                      {image && image.endImageUrl && (
+                      {image?.endImageUrl && (
                         <Image
                           alt="End frame"
                           className="object-cover opacity-40"
@@ -305,7 +311,7 @@ export function StoryboardStep({
                       />
                     </div>
                     <div className="relative h-14 w-10 overflow-hidden rounded-r-xl border-y border-r bg-muted/30 shadow-xs ring-1 ring-black/5 transition-transform group-hover/match:translate-x-1">
-                      {nextImage && nextImage.startImageUrl && (
+                      {nextImage?.startImageUrl && (
                         <Image
                           alt="Start frame"
                           className="object-cover opacity-40"
@@ -414,7 +420,7 @@ export function StoryboardStep({
                     onDragOver={(e) => handleDragOver(e, index, "start")}
                     onDrop={(e) => handleDrop(e, index, "start")}
                   >
-                    {image && image.startImageUrl ? (
+                    {image?.startImageUrl ? (
                       <Image
                         alt={`${slot.label} start`}
                         className="object-cover"
@@ -436,7 +442,7 @@ export function StoryboardStep({
                       Start
                     </div>
 
-                    {image && image.startImageUrl && (
+                    {image?.startImageUrl && (
                       <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/start:opacity-100">
                         <div className="flex flex-col items-center gap-3">
                           <button
@@ -507,7 +513,7 @@ export function StoryboardStep({
                     onDragOver={(e) => handleDragOver(e, index, "end")}
                     onDrop={(e) => handleDrop(e, index, "end")}
                   >
-                    {image && image.endImageUrl ? (
+                    {image?.endImageUrl ? (
                       <Image
                         alt={`${slot.label} end`}
                         className="object-cover"
@@ -529,7 +535,7 @@ export function StoryboardStep({
                       End
                     </div>
 
-                    {image && image.endImageUrl && (
+                    {image?.endImageUrl && (
                       <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/end:opacity-100">
                         <div className="flex flex-col items-center gap-3">
                           <button
