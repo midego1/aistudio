@@ -2,11 +2,14 @@
 
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Suspense } from "react";
+import { LanguageSelector } from "@/components/language-selector";
 import { useSession } from "@/lib/auth-client";
 
 function AuthButton() {
   const { data: session, isPending } = useSession();
+  const t = useTranslations("nav");
 
   if (isPending) {
     return (
@@ -27,7 +30,7 @@ function AuthButton() {
           color: "var(--landing-accent-foreground)",
         }}
       >
-        Dashboard
+        {t("dashboard")}
         <IconArrowRight className="size-4" />
       </Link>
     );
@@ -42,13 +45,15 @@ function AuthButton() {
         color: "var(--landing-accent-foreground)",
       }}
     >
-      Get Started
+      {t("getStarted")}
       <IconArrowRight className="size-4" />
     </Link>
   );
 }
 
 export function LandingNav() {
+  const t = useTranslations("nav");
+
   return (
     <header
       className="sticky top-0 z-50 backdrop-blur-md"
@@ -74,35 +79,38 @@ export function LandingNav() {
             href="#features"
             style={{ color: "var(--landing-text-muted)" }}
           >
-            Features
+            {t("features")}
           </Link>
           <Link
             className="font-medium text-sm transition-colors hover:opacity-70"
             href="#how-it-works"
             style={{ color: "var(--landing-text-muted)" }}
           >
-            How It Works
+            {t("howItWorks")}
           </Link>
           <Link
             className="font-medium text-sm transition-colors hover:opacity-70"
             href="/pricing"
             style={{ color: "var(--landing-text-muted)" }}
           >
-            Pricing
+            {t("pricing")}
           </Link>
         </div>
 
-        {/* CTA Button */}
-        <Suspense
-          fallback={
-            <div
-              className="h-10 w-28 animate-pulse rounded-full"
-              style={{ backgroundColor: "var(--landing-border)" }}
-            />
-          }
-        >
-          <AuthButton />
-        </Suspense>
+        {/* Language Selector and CTA Button */}
+        <div className="flex items-center gap-4">
+          <LanguageSelector />
+          <Suspense
+            fallback={
+              <div
+                className="h-10 w-28 animate-pulse rounded-full"
+                style={{ backgroundColor: "var(--landing-border)" }}
+              />
+            }
+          >
+            <AuthButton />
+          </Suspense>
+        </div>
       </nav>
     </header>
   );

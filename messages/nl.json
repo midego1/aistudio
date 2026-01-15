@@ -1,0 +1,231 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fout",
+    "success": "Succes",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "create": "Aanmaken",
+    "update": "Bijwerken",
+    "search": "Zoeken",
+    "filter": "Filteren",
+    "close": "Sluiten",
+    "back": "Terug",
+    "next": "Volgende",
+    "previous": "Vorige",
+    "continue": "Doorgaan",
+    "confirm": "Bevestigen",
+    "yes": "Ja",
+    "no": "Nee"
+  },
+  "nav": {
+    "features": "Functies",
+    "howItWorks": "Hoe het werkt",
+    "pricing": "Prijzen",
+    "blog": "Blog",
+    "help": "Hulp",
+    "dashboard": "Dashboard",
+    "getStarted": "Aan de slag",
+    "signIn": "Inloggen",
+    "signOut": "Uitloggen",
+    "admin": "Beheer",
+    "settings": "Instellingen"
+  },
+  "landing": {
+    "hero": {
+      "title": "Maak direct prachtige vastgoedfoto's met AI",
+      "subtitle": "Transform uw vastgoedfoto's met AI-bewerking. Professionele resultaten in seconden.",
+      "cta": "Gratis beginnen",
+      "goToDashboard": "Naar Dashboard"
+    },
+    "features": {
+      "title": "Functies",
+      "subtitle": "Alles wat u nodig heeft voor professionele vastgoedfoto's"
+    },
+    "howItWorks": {
+      "title": "Hoe het werkt",
+      "subtitle": "Eenvoudig proces, professionele resultaten"
+    },
+    "footer": {
+      "company": "Bedrijf",
+      "product": "Product",
+      "legal": "Juridisch",
+      "allRightsReserved": "Alle rechten voorbehouden"
+    }
+  },
+  "pricing": {
+    "title": "Eenvoudige, transparante prijzen",
+    "subtitle": "Kies het abonnement dat het beste bij u past",
+    "monthly": "Maandelijks",
+    "yearly": "Jaarlijks",
+    "popular": "Populair",
+    "getStarted": "Aan de slag",
+    "perMonth": "per maand",
+    "perYear": "per jaar",
+    "faq": {
+      "title": "Veelgestelde vragen",
+      "question1": "Hoe werkt de prijsstelling?",
+      "answer1": "We bieden eenvoudige prijzen per project. Betaal alleen voor wat u gebruikt.",
+      "question2": "Welke bestandsformaten worden ondersteund?",
+      "answer2": "We ondersteunen JPEG, PNG en WebP formaten.",
+      "question3": "Kan ik op elk moment annuleren?",
+      "answer3": "Ja, u kunt uw abonnement op elk moment opzeggen."
+    }
+  },
+  "dashboard": {
+    "title": "Projecten",
+    "subtitle": "Transform uw vastgoedfoto's met AI",
+    "newProject": "Nieuw project",
+    "myProjects": "Mijn projecten",
+    "recentProjects": "Recente projecten",
+    "noProjects": "Nog geen projecten",
+    "createFirstProject": "Maak uw eerste project om te beginnen",
+    "viewAll": "Alles bekijken"
+  },
+  "project": {
+    "name": "Projectnaam",
+    "description": "Beschrijving",
+    "status": "Status",
+    "created": "Aangemaakt",
+    "updated": "Bijgewerkt",
+    "images": "Afbeeldingen",
+    "videos": "Video's",
+    "settings": "Instellingen",
+    "delete": "Project verwijderen",
+    "deleteConfirm": "Weet u zeker dat u dit project wilt verwijderen?",
+    "statuses": {
+      "draft": "Concept",
+      "processing": "Verwerken",
+      "completed": "Voltooid",
+      "failed": "Mislukt"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Inloggen",
+      "subtitle": "Welkom terug",
+      "email": "E-mail",
+      "password": "Wachtwoord",
+      "forgotPassword": "Wachtwoord vergeten?",
+      "noAccount": "Nog geen account?",
+      "signUp": "Aanmelden"
+    },
+    "signUp": {
+      "title": "Aanmelden",
+      "subtitle": "Maak uw account aan",
+      "name": "Naam",
+      "email": "E-mail",
+      "password": "Wachtwoord",
+      "confirmPassword": "Bevestig wachtwoord",
+      "hasAccount": "Al een account?",
+      "signIn": "Inloggen"
+    }
+  },
+  "admin": {
+    "title": "Beheer Dashboard",
+    "users": "Gebruikers",
+    "workspaces": "Werkruimtes",
+    "billing": "Facturering",
+    "affiliate": "Affiliate",
+    "settings": "Instellingen",
+    "billing": {
+      "invoiceHistory": "Factuurgeschiedenis",
+      "uninvoiced": "Ongefactureerde projecten",
+      "noInvoices": "Nog geen facturen",
+      "invoicesWillAppear": "Facturen verschijnen hier wanneer u ze aanmaakt",
+      "invoiceNumber": "Factuurnr.",
+      "customer": "Klant",
+      "projects": "Projecten",
+      "amount": "Bedrag",
+      "withVAT": "Met BTW",
+      "status": "Status",
+      "issued": "Uitgegeven",
+      "due": "Vervaldatum",
+      "markAsPaid": "Markeren als betaald",
+      "openInFiken": "Openen in Fiken",
+      "statuses": {
+        "paid": "Betaald",
+        "sent": "Verzonden",
+        "draft": "Concept",
+        "overdue": "Achterstallig",
+        "cancelled": "Geannuleerd",
+        "pending": "In behandeling"
+      },
+      "uninvoiced": {
+        "missingOrgNumber": "Ontbrekend org.nr",
+        "allInvoiced": "Alles is gefactureerd!",
+        "selectProjects": "Selecteer projecten",
+        "clickRow": "Klik op een rij om projecten te selecteren voor facturering",
+        "error": "Fout",
+        "invoicesSent": "Facturen verzonden",
+        "customers": "Klant(en)",
+        "amount": "Bedrag",
+        "created": "Aangemaakt",
+        "projectsAwaiting": "projecten in afwachting van facturering"
+      }
+    },
+    "affiliate": {
+      "awaitingPayout": "In afwachting van uitbetaling",
+      "totalPaidOut": "Totaal uitbetaald",
+      "activeAffiliates": "Actieve affiliates",
+      "pendingPayouts": "Uitstaande uitbetalingen",
+      "affiliateRelationships": "Affiliate relaties",
+      "commissions": "Commissies",
+      "noAffiliates": "Nog geen affiliates",
+      "referredCustomer": "Doorverwezen klant",
+      "commission": "Commissie",
+      "active": "Actief",
+      "inactive": "Inactief",
+      "selectCommissions": "Selecteer commissies...",
+      "commissionsPaidOut": "Commissies uitbetaald",
+      "couldNotMarkAsPaid": "Kon niet markeren als uitbetaald"
+    }
+  },
+  "settings": {
+    "title": "Instellingen",
+    "profile": "Profiel",
+    "workspace": "Werkruimte",
+    "billing": "Facturering",
+    "notifications": "Notificaties",
+    "security": "Beveiliging",
+    "language": "Taal",
+    "theme": "Thema",
+    "lightMode": "Licht",
+    "darkMode": "Donker",
+    "systemMode": "Systeem"
+  },
+  "rooms": {
+    "exterior": "Exterieur",
+    "entrance": "Entree",
+    "living-room": "Woonkamer",
+    "kitchen": "Keuken",
+    "dining-room": "Eetkamer",
+    "bedroom": "Slaapkamer",
+    "bathroom": "Badkamer",
+    "office": "Kantoor",
+    "laundry": "Wasruimte",
+    "garage": "Garage",
+    "basement": "Kelder",
+    "attic": "Zolder",
+    "hallway": "Gang",
+    "staircase": "Trapopgang",
+    "balcony": "Balkon",
+    "terrace": "Terras",
+    "patio": "Patio",
+    "garden": "Tuin",
+    "pool": "Zwembad",
+    "gym": "Sportruimte",
+    "sauna": "Sauna",
+    "wine-cellar": "Wijnkelder",
+    "closet": "Kast",
+    "pantry": "Bijkeuken",
+    "utility-room": "Bijkeuken",
+    "other": "Overig"
+  },
+  "currency": {
+    "eur": "EUR",
+    "symbol": "€"
+  }
+}

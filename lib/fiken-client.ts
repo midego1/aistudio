@@ -28,7 +28,7 @@ export interface FikenContact {
 
 export interface FikenInvoiceLine {
   quantity: number;
-  unitPrice: number; // in øre (100000 = 1000 NOK)
+  unitPrice: number; // in minor currency units (cents/øre)
   vatType: "HIGH" | "LOW" | "MEDIUM" | "EXEMPT" | "OUTSIDE";
   description: string;
   incomeAccount: string;
@@ -59,18 +59,18 @@ export const FIKEN_CONFIG = {
   bankAccountCode: "1920:10001",
   incomeAccount: "3000",
   vatType: "HIGH" as const,
-  projectPrice: 100_000, // 1000 NOK in øre
+  projectPrice: 9900, // €99 in cents
   defaultDueDays: 14,
 } as const;
 
 /**
- * Default billing prices (in øre - Norwegian cents)
+ * Default billing prices (in cents - minor currency units)
  * These are used when workspace doesn't have custom pricing set
  */
 export const BILLING_DEFAULTS = {
-  IMAGE_PROJECT_PRICE_ORE: 100_000, // 1000 NOK
-  VIDEO_PROJECT_PRICE_ORE: 100_000, // 1000 NOK
-  VAT_RATE: 0.25, // 25% Norwegian VAT
+  IMAGE_PROJECT_PRICE_CENTS: 9900, // €99
+  VIDEO_PROJECT_PRICE_CENTS: 9900, // €99
+  VAT_RATE: 0.21, // 21% Dutch VAT
   DEFAULT_AFFILIATE_COMMISSION: 20, // 20%
   DUE_DAYS: 14, // Payment due in 14 days
 } as const;

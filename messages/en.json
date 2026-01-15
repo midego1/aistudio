@@ -1,0 +1,231 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "continue": "Continue",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "pricing": "Pricing",
+    "blog": "Blog",
+    "help": "Help",
+    "dashboard": "Dashboard",
+    "getStarted": "Get Started",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "admin": "Admin",
+    "settings": "Settings"
+  },
+  "landing": {
+    "hero": {
+      "title": "Create Stunning Property Photos Instantly with AI",
+      "subtitle": "Transform your real estate photos with AI-powered editing. Professional results in seconds.",
+      "cta": "Start for Free",
+      "goToDashboard": "Go to Dashboard"
+    },
+    "features": {
+      "title": "Features",
+      "subtitle": "Everything you need for professional property photos"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Simple process, professional results"
+    },
+    "footer": {
+      "company": "Company",
+      "product": "Product",
+      "legal": "Legal",
+      "allRightsReserved": "All rights reserved"
+    }
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the plan that works best for you",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "popular": "Popular",
+    "getStarted": "Get Started",
+    "perMonth": "per month",
+    "perYear": "per year",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "question1": "How does pricing work?",
+      "answer1": "We offer simple per-project pricing. Pay only for what you use.",
+      "question2": "What image formats are supported?",
+      "answer2": "We support JPEG, PNG, and WebP formats.",
+      "question3": "Can I cancel anytime?",
+      "answer3": "Yes, you can cancel your subscription at any time."
+    }
+  },
+  "dashboard": {
+    "title": "Projects",
+    "subtitle": "Transform your real estate photos with AI",
+    "newProject": "New Project",
+    "myProjects": "My Projects",
+    "recentProjects": "Recent Projects",
+    "noProjects": "No projects yet",
+    "createFirstProject": "Create your first project to get started",
+    "viewAll": "View All"
+  },
+  "project": {
+    "name": "Project Name",
+    "description": "Description",
+    "status": "Status",
+    "created": "Created",
+    "updated": "Updated",
+    "images": "Images",
+    "videos": "Videos",
+    "settings": "Settings",
+    "delete": "Delete Project",
+    "deleteConfirm": "Are you sure you want to delete this project?",
+    "statuses": {
+      "draft": "Draft",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign In",
+      "subtitle": "Welcome back",
+      "email": "Email",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    },
+    "signUp": {
+      "title": "Sign Up",
+      "subtitle": "Create your account",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in"
+    }
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "users": "Users",
+    "workspaces": "Workspaces",
+    "billing": "Billing",
+    "affiliate": "Affiliate",
+    "settings": "Settings",
+    "billing": {
+      "invoiceHistory": "Invoice History",
+      "uninvoiced": "Uninvoiced Projects",
+      "noInvoices": "No invoices yet",
+      "invoicesWillAppear": "Invoices will appear here when you create them",
+      "invoiceNumber": "Invoice No.",
+      "customer": "Customer",
+      "projects": "Projects",
+      "amount": "Amount",
+      "withVAT": "With VAT",
+      "status": "Status",
+      "issued": "Issued",
+      "due": "Due",
+      "markAsPaid": "Mark as paid",
+      "openInFiken": "Open in Fiken",
+      "statuses": {
+        "paid": "Paid",
+        "sent": "Sent",
+        "draft": "Draft",
+        "overdue": "Overdue",
+        "cancelled": "Cancelled",
+        "pending": "Pending"
+      },
+      "uninvoiced": {
+        "missingOrgNumber": "Missing org.nr",
+        "allInvoiced": "Everything is invoiced!",
+        "selectProjects": "Select projects",
+        "clickRow": "Click on a row to select projects for invoicing",
+        "error": "Error",
+        "invoicesSent": "Invoices sent",
+        "customers": "Customer(s)",
+        "amount": "Amount",
+        "created": "Created",
+        "projectsAwaiting": "projects awaiting invoicing"
+      }
+    },
+    "affiliate": {
+      "awaitingPayout": "Awaiting payout",
+      "totalPaidOut": "Total paid out",
+      "activeAffiliates": "Active affiliates",
+      "pendingPayouts": "Pending payouts",
+      "affiliateRelationships": "Affiliate relationships",
+      "commissions": "Commissions",
+      "noAffiliates": "No affiliates yet",
+      "referredCustomer": "Referred customer",
+      "commission": "Commission",
+      "active": "Active",
+      "inactive": "Inactive",
+      "selectCommissions": "Select commissions...",
+      "commissionsPaidOut": "Commissions paid out",
+      "couldNotMarkAsPaid": "Could not mark as paid out"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "workspace": "Workspace",
+    "billing": "Billing",
+    "notifications": "Notifications",
+    "security": "Security",
+    "language": "Language",
+    "theme": "Theme",
+    "lightMode": "Light",
+    "darkMode": "Dark",
+    "systemMode": "System"
+  },
+  "rooms": {
+    "exterior": "Exterior",
+    "entrance": "Entrance",
+    "living-room": "Living Room",
+    "kitchen": "Kitchen",
+    "dining-room": "Dining Room",
+    "bedroom": "Bedroom",
+    "bathroom": "Bathroom",
+    "office": "Office",
+    "laundry": "Laundry",
+    "garage": "Garage",
+    "basement": "Basement",
+    "attic": "Attic",
+    "hallway": "Hallway",
+    "staircase": "Staircase",
+    "balcony": "Balcony",
+    "terrace": "Terrace",
+    "patio": "Patio",
+    "garden": "Garden",
+    "pool": "Pool",
+    "gym": "Gym",
+    "sauna": "Sauna",
+    "wine-cellar": "Wine Cellar",
+    "closet": "Closet",
+    "pantry": "Pantry",
+    "utility-room": "Utility Room",
+    "other": "Other"
+  },
+  "currency": {
+    "eur": "EUR",
+    "symbol": "€"
+  }
+}

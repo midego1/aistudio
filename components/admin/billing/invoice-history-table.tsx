@@ -28,17 +28,7 @@ import {
 } from "@/components/ui/tooltip";
 import { markInvoiceAsPaidAction } from "@/lib/actions/billing";
 import type { InvoiceHistoryRow } from "@/lib/db/queries";
-
-// Format Norwegian currency
-function formatNOK(amountOre: number): string {
-  const nok = amountOre / 100;
-  return new Intl.NumberFormat("nb-NO", {
-    style: "currency",
-    currency: "NOK",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(nok);
-}
+import { formatEUR } from "@/lib/format-currency";
 
 type InvoiceStatus = "draft" | "sent" | "paid" | "cancelled" | "overdue";
 
@@ -217,7 +207,7 @@ export function InvoiceHistoryTable({ invoices }: InvoiceHistoryTableProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <span className="font-mono">
-                      {formatNOK(invoice.totalAmountOre)}
+                      {formatEUR(invoice.totalAmountOre)}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
@@ -225,7 +215,7 @@ export function InvoiceHistoryTable({ invoices }: InvoiceHistoryTableProps) {
                       className="font-mono font-semibold"
                       style={{ color: "var(--accent-green)" }}
                     >
-                      {formatNOK(invoice.totalAmountWithVatOre)}
+                      {formatEUR(invoice.totalAmountWithVatOre)}
                     </span>
                   </TableCell>
                   <TableCell>

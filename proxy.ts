@@ -1,29 +1,42 @@
 import { getSessionCookie } from "better-auth/cookies";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import createMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
+
+// Create the i18n middleware
+const intlMiddleware = createMiddleware(routing);
 
 /**
  * Next.js Proxy (formerly Middleware).
  *
- * Important: keep this as an *optimistic* check only.
- * We only check for presence of Better Auth session cookie and redirect if absent.
+ * Handles:
+ * 1. Internationalization (i18n) routing
+ * 2. Authentication checks for protected routes
  */
 export function proxy(request: NextRequest) {
-  // Optimistic cookie-only check (NOT full validation).
-  // This is the recommended approach for Next.js Proxy to avoid blocking requests.
-  const sessionCookie = getSessionCookie(request);
+  // First, handle i18n routing
+  const response = intlMiddleware(request);
 
-  if (!sessionCookie) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/sign-in";
-    // Keep it simple; the sign-in page can decide whether to use this param.
-    url.searchParams.set("redirect", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+  // For protected routes, check authentication
+  if (request.nextUrl.pathname.includes("/dashboard")) {
+    const sessionCookie = getSessionCookie(request);
+
+    if (!sessionCookie) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/sign-in";
+      url.searchParams.set("redirect", request.nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  // Match all pathnames except for:
+  // - API routes
+  // - Static files (with extensions)
+  // - Next.js internals
+  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };
