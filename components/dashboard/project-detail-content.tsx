@@ -430,8 +430,8 @@ function VersionSelector({
             }}
             variant="outline"
           >
-            <IconArrowsMaximize className="h-4 w-4" />
-            Compare
+            <IconGitCompare className="h-4 w-4" />
+            Compare with Original
           </Button>
           {selectedVersion.status === "completed" && (
             <Button
@@ -501,11 +501,17 @@ function ComparisonView({
       </button>
 
       <div
-        className="relative aspect-[4/3] w-full max-w-4xl cursor-col-resize overflow-hidden rounded-2xl"
-        onMouseDown={(e) => handleMove(e.clientX)}
+        className="relative aspect-[4/3] w-full max-w-4xl cursor-col-resize overflow-hidden rounded-2xl select-none"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          handleMove(e.clientX);
+        }}
         onMouseMove={handleMouseMove}
         onTouchMove={handleTouchMove}
-        onTouchStart={(e) => handleMove(e.touches[0].clientX)}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          handleMove(e.touches[0].clientX);
+        }}
         ref={containerRef}
       >
         {/* Enhanced image (full width) */}
@@ -1724,7 +1730,11 @@ export function ProjectDetailContent({
         <ComparisonView
           enhancedUrl={selectedImage.resultImageUrl}
           onClose={() => setSelectedImage(null)}
-          originalUrl={selectedImage.originalImageUrl}
+          originalUrl={
+            imageGroups.find(
+              (g) => g.rootId === (selectedImage.parentId || selectedImage.id)
+            )?.versions[0]?.originalImageUrl || selectedImage.originalImageUrl
+          }
         />
       )}
 
