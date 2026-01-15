@@ -104,18 +104,24 @@ export const processImageTask = task({
       logger.info("Calling Fal.ai Nano Banana Pro", {
         imageId,
         prompt: image.prompt,
+        falImageUrl,
       });
 
-      const result = (await fal.subscribe(NANO_BANANA_PRO_EDIT, {
-        input: {
-          prompt: image.prompt,
-          image_urls: [falImageUrl],
-          num_images: 1,
-          output_format: "jpeg",
-        },
-      })) as unknown as NanoBananaProOutput;
-
-      logger.info("Fal.ai result received", { result });
+      let result: NanoBananaProOutput;
+      try {
+        result = (await fal.subscribe(NANO_BANANA_PRO_EDIT, {
+          input: {
+            prompt: image.prompt,
+            image_urls: [falImageUrl],
+            num_images: 1,
+            output_format: "jpeg",
+          },
+        })) as unknown as NanoBananaProOutput;
+        logger.info("Fal.ai result received", { result });
+      } catch (falError) {
+        logger.error("Fal.ai subscription failed", { error: falError });
+        throw new Error(`Fal.ai error: ${falError instanceof Error ? falError.message : String(falError)}`);
+      }
 
       // Check for result - handle both direct and wrapped response
       const output = (result as { data?: NanoBananaProOutput }).data || result;
