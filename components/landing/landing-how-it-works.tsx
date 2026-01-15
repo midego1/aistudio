@@ -1,32 +1,29 @@
 "use client";
 
 import { IconDownload, IconUpload, IconWand } from "@tabler/icons-react";
-
-const steps = [
-  {
-    step: "01",
-    icon: IconUpload,
-    title: "Upload Your Photos",
-    description:
-      "Drag and drop your property photos or select them from your device. We support all common image formats.",
-  },
-  {
-    step: "02",
-    icon: IconWand,
-    title: "Choose a Style",
-    description:
-      "Select from our collection of professional style templates designed for different property types and aesthetics.",
-  },
-  {
-    step: "03",
-    icon: IconDownload,
-    title: "Download & Share",
-    description:
-      "Get your enhanced photos instantly. Download in high resolution, ready for your listings and marketing.",
-  },
-];
+import { useTranslations } from "next-intl";
 
 export function LandingHowItWorks() {
+  const t = useTranslations("landing.howItWorks");
+
+  const steps = [
+    {
+      step: "01",
+      icon: IconUpload,
+      key: "upload",
+    },
+    {
+      step: "02",
+      icon: IconWand,
+      key: "enhance",
+    },
+    {
+      step: "03",
+      icon: IconDownload,
+      key: "download",
+    },
+  ];
+
   return (
     <section
       className="px-6 py-24 md:py-32"
@@ -40,22 +37,19 @@ export function LandingHowItWorks() {
             className="font-semibold text-sm uppercase tracking-wider"
             style={{ color: "var(--landing-accent)" }}
           >
-            How It Works
+            {t("badge")}
           </p>
           <h2
             className="mt-3 font-bold text-3xl tracking-tight sm:text-4xl md:text-5xl"
             style={{ color: "var(--landing-text)" }}
           >
-            Three simple steps to
-            <br />
-            perfect photos
+            {t("title")}
           </h2>
           <p
             className="mt-4 text-lg leading-relaxed"
             style={{ color: "var(--landing-text-muted)" }}
           >
-            No complicated software or design experience required. Just upload,
-            select, and download.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -103,13 +97,13 @@ export function LandingHowItWorks() {
                   className="font-semibold text-xl"
                   style={{ color: "var(--landing-text)" }}
                 >
-                  {step.title}
+                  {t(`steps.${step.key}.title`)}
                 </h3>
                 <p
                   className="mx-auto mt-3 max-w-xs text-sm leading-relaxed"
                   style={{ color: "var(--landing-text-muted)" }}
                 >
-                  {step.description}
+                  {t(`steps.${step.key}.description`)}
                 </p>
               </div>
             ))}

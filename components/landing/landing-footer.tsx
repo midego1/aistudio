@@ -1,26 +1,29 @@
+"use client";
+
 import { IconBrandLinkedin, IconBrandX } from "@tabler/icons-react";
 import Link from "next/link";
-
-const footerLinks = {
-  product: [
-    { label: "Features", href: "#features" },
-    { label: "How It Works", href: "#how-it-works" },
-    { label: "Pricing", href: "#pricing" },
-  ],
-  company: [
-    { label: "About", href: "/about" },
-    { label: "Blog", href: "/blog" },
-    { label: "Help Center", href: "/help" },
-    { label: "Contact", href: "/contact" },
-  ],
-  legal: [
-    { label: "Privacy", href: "/privacy" },
-    { label: "Terms", href: "/terms" },
-  ],
-};
+import { useTranslations } from "next-intl";
 
 export function LandingFooter() {
+  const t = useTranslations("landing.footer");
   const currentYear = new Date().getFullYear();
+
+  const footerLinks = {
+    product: [
+      { labelKey: "features", href: "#features" },
+      { labelKey: "pricing", href: "/pricing" },
+      { labelKey: "help", href: "/help" },
+    ],
+    company: [
+      { labelKey: "about", href: "/about" },
+      { labelKey: "blog", href: "/blog" },
+      { labelKey: "contact", href: "/contact" },
+    ],
+    legal: [
+      { labelKey: "privacy", href: "/privacy" },
+      { labelKey: "terms", href: "/terms" },
+    ],
+  };
 
   return (
     <footer
@@ -92,17 +95,17 @@ export function LandingFooter() {
               className="font-semibold text-sm"
               style={{ color: "var(--landing-text)" }}
             >
-              Product
+              {t("product")}
             </h3>
             <ul className="mt-4 space-y-3">
               {footerLinks.product.map((link) => (
-                <li key={link.label}>
+                <li key={link.labelKey}>
                   <Link
                     className="text-sm transition-colors hover:opacity-70"
                     href={link.href}
                     style={{ color: "var(--landing-text-muted)" }}
                   >
-                    {link.label}
+                    {t(`links.${link.labelKey}`)}
                   </Link>
                 </li>
               ))}
@@ -115,17 +118,17 @@ export function LandingFooter() {
               className="font-semibold text-sm"
               style={{ color: "var(--landing-text)" }}
             >
-              Company
+              {t("company")}
             </h3>
             <ul className="mt-4 space-y-3">
               {footerLinks.company.map((link) => (
-                <li key={link.label}>
+                <li key={link.labelKey}>
                   <Link
                     className="text-sm transition-colors hover:opacity-70"
                     href={link.href}
                     style={{ color: "var(--landing-text-muted)" }}
                   >
-                    {link.label}
+                    {t(`links.${link.labelKey}`)}
                   </Link>
                 </li>
               ))}
@@ -138,17 +141,17 @@ export function LandingFooter() {
               className="font-semibold text-sm"
               style={{ color: "var(--landing-text)" }}
             >
-              Legal
+              {t("legal")}
             </h3>
             <ul className="mt-4 space-y-3">
               {footerLinks.legal.map((link) => (
-                <li key={link.label}>
+                <li key={link.labelKey}>
                   <Link
                     className="text-sm transition-colors hover:opacity-70"
                     href={link.href}
                     style={{ color: "var(--landing-text-muted)" }}
                   >
-                    {link.label}
+                    {t(`links.${link.labelKey}`)}
                   </Link>
                 </li>
               ))}
@@ -162,10 +165,7 @@ export function LandingFooter() {
           style={{ borderColor: "var(--landing-border)" }}
         >
           <p className="text-sm" style={{ color: "var(--landing-text-muted)" }}>
-            &copy; {currentYear} Proppi. All rights reserved.
-          </p>
-          <p className="text-sm" style={{ color: "var(--landing-text-muted)" }}>
-            Made with care in Norway
+            &copy; {currentYear} Proppi. {t("allRightsReserved")}.
           </p>
         </div>
       </div>

@@ -8,47 +8,38 @@ import {
   IconShieldCheck,
   IconWand,
 } from "@tabler/icons-react";
-
-const features = [
-  {
-    icon: IconWand,
-    title: "AI-Powered Enhancement",
-    description:
-      "Our advanced AI transforms ordinary photos into stunning, professional-quality images automatically.",
-  },
-  {
-    icon: IconPalette,
-    title: "Multiple Style Templates",
-    description:
-      "Choose from a variety of professionally designed styles to match your brand and property type.",
-  },
-  {
-    icon: IconClockHour4,
-    title: "Results in Seconds",
-    description:
-      "No waiting around. Get your enhanced photos back in seconds, not hours or days.",
-  },
-  {
-    icon: IconPhoto,
-    title: "Batch Processing",
-    description:
-      "Upload multiple photos at once and process entire property shoots in one go.",
-  },
-  {
-    icon: IconDeviceDesktop,
-    title: "No Software Required",
-    description:
-      "Everything runs in your browser. No downloads, no installations, no technical skills needed.",
-  },
-  {
-    icon: IconShieldCheck,
-    title: "Secure & Private",
-    description:
-      "Your photos are encrypted and automatically deleted after processing. Your data stays yours.",
-  },
-];
+import { useTranslations } from "next-intl";
 
 export function LandingFeatures() {
+  const t = useTranslations("landing.features");
+
+  const features = [
+    {
+      icon: IconWand,
+      titleKey: "aiEnhancement",
+    },
+    {
+      icon: IconPalette,
+      titleKey: "templates",
+    },
+    {
+      icon: IconClockHour4,
+      titleKey: "fast",
+    },
+    {
+      icon: IconPhoto,
+      titleKey: "batch",
+    },
+    {
+      icon: IconDeviceDesktop,
+      titleKey: "noSoftware",
+    },
+    {
+      icon: IconShieldCheck,
+      titleKey: "secure",
+    },
+  ];
+
   return (
     <section
       className="px-6 py-24 md:py-32"
@@ -62,22 +53,19 @@ export function LandingFeatures() {
             className="font-semibold text-sm uppercase tracking-wider"
             style={{ color: "var(--landing-accent)" }}
           >
-            Features
+            {t("badge")}
           </p>
           <h2
             className="mt-3 font-bold text-3xl tracking-tight sm:text-4xl md:text-5xl"
             style={{ color: "var(--landing-text)" }}
           >
-            Everything you need to
-            <br />
-            create stunning listings
+            {t("title")}
           </h2>
           <p
             className="mt-4 text-lg leading-relaxed"
             style={{ color: "var(--landing-text-muted)" }}
           >
-            Powerful features designed specifically for real estate
-            professionals who want to save time and impress clients.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -86,7 +74,7 @@ export function LandingFeatures() {
           {features.map((feature) => (
             <div
               className="group relative rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 md:p-8"
-              key={feature.title}
+              key={feature.titleKey}
               style={{
                 backgroundColor: "var(--landing-card)",
                 boxShadow: "0 4px 24px -4px var(--landing-shadow)",
@@ -120,13 +108,13 @@ export function LandingFeatures() {
                 className="font-semibold text-lg"
                 style={{ color: "var(--landing-text)" }}
               >
-                {feature.title}
+                {t(`items.${feature.titleKey}.title`)}
               </h3>
               <p
                 className="mt-2 text-sm leading-relaxed"
                 style={{ color: "var(--landing-text-muted)" }}
               >
-                {feature.description}
+                {t(`items.${feature.titleKey}.description`)}
               </p>
 
               {/* Hover accent line */}

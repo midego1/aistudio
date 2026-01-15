@@ -1,18 +1,14 @@
 "use client";
 
-import { IconArrowRight, IconCheck } from "@tabler/icons-react";
+import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { useSession } from "@/lib/auth-client";
-
-const benefits = [
-  "No credit card required",
-  "Free trial included",
-  "Cancel anytime",
-];
+import { useTranslations } from "next-intl";
 
 function CtaAuthButton() {
   const { data: session, isPending } = useSession();
+  const t = useTranslations("landing.cta");
 
   if (isPending) {
     return (
@@ -24,7 +20,7 @@ function CtaAuthButton() {
   }
 
   const href = session ? "/dashboard" : "/sign-in";
-  const text = session ? "Go to Dashboard" : "Get Started Free";
+  const text = t("button");
 
   return (
     <Link
@@ -43,6 +39,8 @@ function CtaAuthButton() {
 }
 
 export function LandingCta() {
+  const t = useTranslations("landing.cta");
+
   return (
     <section
       className="relative overflow-hidden px-6 py-24 md:py-32"
@@ -70,9 +68,7 @@ export function LandingCta() {
           className="font-bold text-3xl tracking-tight sm:text-4xl md:text-5xl"
           style={{ color: "var(--landing-accent-foreground)" }}
         >
-          Start Creating Stunning
-          <br />
-          Listings Today
+          {t("title")}
         </h2>
         <p
           className="mx-auto mt-4 max-w-xl text-lg leading-relaxed"
@@ -81,8 +77,7 @@ export function LandingCta() {
             opacity: 0.85,
           }}
         >
-          Join top real estate professionals. Create professional photos in
-          seconds, not hours.
+          {t("subtitle")}
         </p>
 
         {/* CTA Button */}
@@ -97,23 +92,6 @@ export function LandingCta() {
           >
             <CtaAuthButton />
           </Suspense>
-        </div>
-
-        {/* Benefits */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-          {benefits.map((benefit) => (
-            <div
-              className="flex items-center gap-2 text-sm"
-              key={benefit}
-              style={{
-                color: "var(--landing-accent-foreground)",
-                opacity: 0.9,
-              }}
-            >
-              <IconCheck className="size-4" />
-              {benefit}
-            </div>
-          ))}
         </div>
       </div>
     </section>
