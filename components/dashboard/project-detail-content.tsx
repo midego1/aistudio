@@ -9,6 +9,7 @@ import {
   IconChevronRight,
   IconClock,
   IconDownload,
+  IconGitCompare,
   IconLoader2,
   IconPencil,
   IconPhoto,
@@ -150,6 +151,7 @@ function ImageCard({
   image,
   index,
   onCompare,
+  onOpenComparison,
   onEdit,
   onRetry,
   onDownload,
@@ -165,6 +167,7 @@ function ImageCard({
   image: ImageGeneration;
   index: number;
   onCompare: () => void;
+  onOpenComparison: () => void;
   onEdit: () => void;
   onRetry: () => void;
   onDownload: () => void;
@@ -284,9 +287,19 @@ function ImageCard({
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-teal)]"
             onClick={(e) => {
               e.stopPropagation();
+              onOpenComparison();
+            }}
+            title="Before/After Comparison"
+          >
+            <IconGitCompare className="h-5 w-5" />
+          </button>
+          <button
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-teal)]"
+            onClick={(e) => {
+              e.stopPropagation();
               onCompare();
             }}
-            title="Compare"
+            title="View Fullscreen"
           >
             <IconArrowsMaximize className="h-5 w-5" />
           </button>
@@ -1549,6 +1562,11 @@ export function ProjectDetailContent({
                   isSelected={selectedImageIds.has(group.latestVersion.id)}
                   key={group.rootId}
                   onCompare={() => {
+                    if (group.latestVersion.status === "completed") {
+                      setLightboxIndex(index);
+                    }
+                  }}
+                  onOpenComparison={() => {
                     if (group.latestVersion.status === "completed") {
                       setSelectedImage(group.latestVersion);
                     }
