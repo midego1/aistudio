@@ -1550,7 +1550,7 @@ export function ProjectDetailContent({
                   key={group.rootId}
                   onCompare={() => {
                     if (group.latestVersion.status === "completed") {
-                      setLightboxIndex(index);
+                      setSelectedImage(group.latestVersion);
                     }
                   }}
                   onDownload={() => handleDownloadSingle(group.latestVersion)}
