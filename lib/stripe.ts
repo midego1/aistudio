@@ -12,7 +12,9 @@ export const STRIPE_CONFIG = {
     process.env.STRIPE_PRICE_PROJECT_EUR || process.env.STRIPE_PRICE_PROJECT_USD || "price_1SpNvKDYyMjWDXQGKyx2Hkno",
 
   // Pricing (in cents)
-  PROJECT_PRICE_EUR_CENTS: 9900, // $99 USD (variable name kept for compatibility)
+  // Launch price 2026: €24.50 (50% off €49 regular price)
+  // Regular price starting 2027: €49
+  PROJECT_PRICE_EUR_CENTS: 2450, // €24.50 launch price (50% off €49)
 
   // URLs
   SUCCESS_URL: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard`,

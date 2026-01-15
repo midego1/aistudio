@@ -1275,7 +1275,7 @@ export function ProjectDetailContent({
                 ) : (
                   <>
                     <IconSparkles className="h-4 w-4" />
-                    Pay $99 to Process
+                    Pay €24,50 to Process
                   </>
                 )}
               </Button>

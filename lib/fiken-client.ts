@@ -59,7 +59,7 @@ export const FIKEN_CONFIG = {
   bankAccountCode: "1920:10001",
   incomeAccount: "3000",
   vatType: "HIGH" as const,
-  projectPrice: 9900, // €99 in cents
+  projectPrice: 2450, // €24.50 launch price (was €99)
   defaultDueDays: 14,
 } as const;
 
