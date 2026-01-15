@@ -10,73 +10,27 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { LandingFooter } from "./landing-footer";
 import { LandingNav } from "./landing-nav";
 
-const photoFeatures = [
-  "Up to 20 images per property",
-  "AI-powered enhancement",
-  "Multiple style templates",
-  "High-resolution downloads",
-  "Ready in under 30 seconds",
-];
-
-const videoFeatures = [
-  "Professional property video",
-  "AI-powered editing",
-  "Music and transitions included",
-  "Portrait or landscape format",
-  "Ready in minutes",
-];
-
-const faqs = [
-  {
-    question: "How does the pricing work?",
-    answer:
-      "We charge per project, not per month. For photo enhancement, you pay 1000 NOK per property (up to 20 images). For video creation, you pay 1000 NOK per video. No subscriptions, no hidden fees.",
-  },
-  {
-    question: "What image formats do you support?",
-    answer:
-      "We support all common image formats including JPG, PNG, and WEBP. Maximum file size is 10MB per image. Enhanced images are delivered in high-resolution JPG format.",
-  },
-  {
-    question: "How long does processing take?",
-    answer:
-      "Photo enhancement typically takes under 30 seconds per image. Video creation usually takes 5-10 minutes depending on the number of images and selected options.",
-  },
-  {
-    question: "Can I try before I buy?",
-    answer:
-      "Yes! New users get free credits to try out the platform. You can enhance a few images to see the quality before committing to a full property project.",
-  },
-  {
-    question: "What if I have more than 20 images?",
-    answer:
-      "If your property has more than 20 images, you can create multiple projects or contact us for custom pricing on larger shoots.",
-  },
-  {
-    question: "Do you offer refunds?",
-    answer:
-      "If you're not satisfied with the results, contact us within 24 hours of processing and we'll work with you to make it right or provide a refund.",
-  },
-];
-
 function PricingCard({
   icon: Icon,
-  title,
-  price,
-  per,
-  features,
+  titleKey,
+  priceKey,
+  perKey,
+  featuresKeys,
   popular,
 }: {
   icon: typeof IconPhoto;
-  title: string;
-  price: string;
-  per: string;
-  features: string[];
+  titleKey: string;
+  priceKey: string;
+  perKey: string;
+  featuresKeys: string[];
   popular?: boolean;
 }) {
+  const t = useTranslations("pricing");
+
   return (
     <div
       className="relative flex flex-col rounded-2xl p-8 transition-all duration-300 hover:-translate-y-1"
@@ -98,7 +52,7 @@ function PricingCard({
             color: "var(--landing-accent-foreground)",
           }}
         >
-          Most Popular
+          {t("popular")}
         </div>
       )}
 
@@ -127,7 +81,7 @@ function PricingCard({
         className="font-semibold text-xl"
         style={{ color: "var(--landing-text)" }}
       >
-        {title}
+        {t(titleKey)}
       </h3>
 
       {/* Price */}
@@ -136,20 +90,20 @@ function PricingCard({
           className="font-bold text-4xl tabular-nums"
           style={{ color: "var(--landing-text)" }}
         >
-          {price}
+          {t(priceKey)}
         </span>
         <span
           className="text-sm"
           style={{ color: "var(--landing-text-muted)" }}
         >
-          {per}
+          {t(perKey)}
         </span>
       </div>
 
       {/* Features */}
       <ul className="mt-8 flex-1 space-y-4">
-        {features.map((feature) => (
-          <li className="flex items-start gap-3" key={feature}>
+        {featuresKeys.map((featureKey) => (
+          <li className="flex items-start gap-3" key={featureKey}>
             <IconCheck
               className="mt-0.5 size-5 shrink-0"
               style={{ color: "var(--landing-accent)" }}
@@ -158,7 +112,7 @@ function PricingCard({
               className="text-sm"
               style={{ color: "var(--landing-text-muted)" }}
             >
-              {feature}
+              {t(featureKey)}
             </span>
           </li>
         ))}
@@ -178,15 +132,16 @@ function PricingCard({
           border: popular ? "none" : "1px solid var(--landing-border-strong)",
         }}
       >
-        Get Started
+        {t("getStarted")}
         <IconArrowRight className="size-5" />
       </Link>
     </div>
   );
 }
 
-function FaqItem({ question, answer }: { question: string; answer: string }) {
+function FaqItem({ questionKey, answerKey }: { questionKey: string; answerKey: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations("pricing.faq");
 
   return (
     <div
@@ -201,27 +156,43 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         onClick={() => setIsOpen(!isOpen)}
         type="button"
       >
-        <span className="font-medium" style={{ color: "var(--landing-text)" }}>
-          {question}
+        <span
+          className="pr-8 font-medium text-base"
+          style={{ color: "var(--landing-text)" }}
+        >
+          {t(`${questionKey}.question`)}
         </span>
-        {isOpen ? (
-          <IconMinus
-            className="size-5 shrink-0"
-            style={{ color: "var(--landing-text-muted)" }}
-          />
-        ) : (
-          <IconPlus
-            className="size-5 shrink-0"
-            style={{ color: "var(--landing-text-muted)" }}
-          />
-        )}
+        <div
+          className="flex size-6 shrink-0 items-center justify-center rounded-full transition-colors"
+          style={{
+            backgroundColor: isOpen
+              ? "var(--landing-accent)"
+              : "var(--landing-border)",
+          }}
+        >
+          {isOpen ? (
+            <IconMinus
+              className="size-4"
+              style={{
+                color: isOpen
+                  ? "var(--landing-accent-foreground)"
+                  : "var(--landing-text)",
+              }}
+            />
+          ) : (
+            <IconPlus
+              className="size-4"
+              style={{ color: "var(--landing-text)" }}
+            />
+          )}
+        </div>
       </button>
       {isOpen && (
         <div
           className="px-5 pb-5 text-sm leading-relaxed"
           style={{ color: "var(--landing-text-muted)" }}
         >
-          {answer}
+          {t(`${questionKey}.answer`)}
         </div>
       )}
     </div>
@@ -229,6 +200,26 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 }
 
 export function PricingPage() {
+  const t = useTranslations("pricing");
+
+  const photoFeatures = [
+    "photo.features.images",
+    "photo.features.ai",
+    "photo.features.templates",
+    "photo.features.downloads",
+    "photo.features.fast",
+  ];
+
+  const videoFeatures = [
+    "video.features.professional",
+    "video.features.ai",
+    "video.features.music",
+    "video.features.format",
+    "video.features.fast",
+  ];
+
+  const faqKeys = ["q1", "q2", "q3", "q4", "q5", "q6"];
+
   return (
     <div
       className="min-h-screen"
@@ -238,27 +229,25 @@ export function PricingPage() {
 
       <main>
         {/* Hero Section */}
-        <section className="px-6 pt-20 pb-16 text-center md:pt-28 md:pb-24">
+        <section className="px-6 pt-24 pb-16 text-center">
           <div className="mx-auto max-w-3xl">
             <p
               className="font-semibold text-sm uppercase tracking-wider"
               style={{ color: "var(--landing-accent)" }}
             >
-              Pricing
+              {t("nav.pricing")}
             </p>
             <h1
               className="mt-3 font-bold text-4xl tracking-tight sm:text-5xl md:text-6xl"
               style={{ color: "var(--landing-text)" }}
             >
-              Simple, transparent
-              <br />
-              pricing
+              {t("title")}
             </h1>
             <p
-              className="mt-4 text-lg leading-relaxed md:text-xl"
+              className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed"
               style={{ color: "var(--landing-text-muted)" }}
             >
-              Pay per project. No subscriptions, no hidden fees.
+              {t("subtitle")}
             </p>
           </div>
         </section>
@@ -267,19 +256,19 @@ export function PricingPage() {
         <section className="px-6 pb-24">
           <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
             <PricingCard
-              features={photoFeatures}
+              featuresKeys={photoFeatures}
               icon={IconPhoto}
-              per="per property"
+              perKey="photo.per"
               popular
-              price="1000 NOK"
-              title="Photo Enhancement"
+              priceKey="photo.price"
+              titleKey="photo.title"
             />
             <PricingCard
-              features={videoFeatures}
+              featuresKeys={videoFeatures}
               icon={IconMovie}
-              per="per video"
-              price="1000 NOK"
-              title="Video Creation"
+              perKey="video.per"
+              priceKey="video.price"
+              titleKey="video.title"
             />
           </div>
         </section>
@@ -301,16 +290,16 @@ export function PricingPage() {
                 className="mt-3 font-bold text-3xl tracking-tight sm:text-4xl"
                 style={{ color: "var(--landing-text)" }}
               >
-                Frequently asked questions
+                {t("faq.title")}
               </h2>
             </div>
 
             <div className="mt-12 space-y-4">
-              {faqs.map((faq) => (
+              {faqKeys.map((faqKey) => (
                 <FaqItem
-                  answer={faq.answer}
-                  key={faq.question}
-                  question={faq.question}
+                  answerKey={faqKey}
+                  key={faqKey}
+                  questionKey={faqKey}
                 />
               ))}
             </div>
@@ -331,14 +320,13 @@ export function PricingPage() {
               className="font-bold text-3xl tracking-tight sm:text-4xl"
               style={{ color: "var(--landing-text)" }}
             >
-              Ready to get started?
+              {t("../landing.cta.title")}
             </h2>
             <p
               className="mx-auto mt-4 max-w-lg text-lg leading-relaxed"
               style={{ color: "var(--landing-text-muted)" }}
             >
-              Transform your property photos today. No credit card required to
-              try.
+              {t("../landing.cta.subtitle")}
             </p>
             <div className="mt-8">
               <Link
@@ -349,7 +337,7 @@ export function PricingPage() {
                   color: "var(--landing-accent-foreground)",
                 }}
               >
-                Start for Free
+                {t("../landing.cta.button")}
                 <IconArrowRight className="size-5" />
               </Link>
             </div>

@@ -18,7 +18,8 @@
     "continue": "Continue",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "or": "or"
   },
   "nav": {
     "features": "Features",
@@ -124,21 +125,125 @@
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
-    "subtitle": "Choose the plan that works best for you",
+    "subtitle": "Pay per project. No subscriptions, no surprises.",
     "monthly": "Monthly",
     "yearly": "Yearly",
-    "popular": "Popular",
+    "popular": "Most Popular",
     "getStarted": "Get Started",
-    "perMonth": "per month",
-    "perYear": "per year",
+    "perProject": "per project",
+    "perProperty": "per property",
+    "perVideo": "per video",
+    "photo": {
+      "title": "Photo Enhancement",
+      "price": "€99",
+      "per": "per property",
+      "features": {
+        "images": "Up to 20 images per property",
+        "ai": "AI-powered enhancement",
+        "templates": "Multiple style templates",
+        "downloads": "High-resolution downloads",
+        "fast": "Ready in under 30 seconds"
+      }
+    },
+    "video": {
+      "title": "Property Video",
+      "price": "€99",
+      "per": "per video",
+      "features": {
+        "professional": "Professional property video",
+        "ai": "AI-powered editing",
+        "music": "Music and transitions included",
+        "format": "Portrait or landscape format",
+        "fast": "Ready in minutes"
+      }
+    },
     "faq": {
       "title": "Frequently Asked Questions",
-      "question1": "How does pricing work?",
-      "answer1": "We offer simple per-project pricing. Pay only for what you use.",
-      "question2": "What image formats are supported?",
-      "answer2": "We support JPEG, PNG, and WebP formats.",
-      "question3": "Can I cancel anytime?",
-      "answer3": "Yes, you can cancel your subscription at any time."
+      "q1": {
+        "question": "How does the pricing work?",
+        "answer": "We charge per project, not per month. For photo enhancement, you pay €99 per property (up to 20 images). For video creation, you pay €99 per video. No subscriptions, no hidden fees."
+      },
+      "q2": {
+        "question": "What image formats do you support?",
+        "answer": "We support all common image formats including JPG, PNG, and WEBP. Maximum file size is 10MB per image. Enhanced images are delivered in high-resolution JPG format."
+      },
+      "q3": {
+        "question": "How long does processing take?",
+        "answer": "Photo enhancement typically takes under 30 seconds per image. Video creation usually takes 5-10 minutes depending on the number of images and selected options."
+      },
+      "q4": {
+        "question": "Can I try before I buy?",
+        "answer": "Yes! New users get free credits to try out the platform. You can enhance a few images to see the quality before committing to a full property project."
+      },
+      "q5": {
+        "question": "What if I have more than 20 images?",
+        "answer": "If your property has more than 20 images, you can create multiple projects or contact us for custom pricing on larger shoots."
+      },
+      "q6": {
+        "question": "Do you offer refunds?",
+        "answer": "If you're not satisfied with the results, contact us within 24 hours of processing and we'll work with you to make it right or provide a refund."
+      }
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "email": "Email address",
+      "password": "Password",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "button": "Sign in",
+      "withGoogle": "Continue with Google",
+      "withGitHub": "Continue with GitHub",
+      "orDivider": "Or continue with"
+    },
+    "signUp": {
+      "title": "Create your account",
+      "subtitle": "Start transforming your property photos",
+      "name": "Full name",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "button": "Create account",
+      "withGoogle": "Continue with Google",
+      "withGitHub": "Continue with GitHub",
+      "terms": "By creating an account, you agree to our",
+      "termsLink": "Terms of Service",
+      "and": "and",
+      "privacyLink": "Privacy Policy"
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email and we'll send you a reset link",
+      "email": "Email address",
+      "button": "Send reset link",
+      "backToSignIn": "Back to sign in",
+      "successMessage": "Check your email for a password reset link"
+    },
+    "resetPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your new password",
+      "password": "New password",
+      "confirmPassword": "Confirm new password",
+      "button": "Reset password",
+      "successMessage": "Password reset successfully"
+    },
+    "verifyEmail": {
+      "title": "Verify your email",
+      "subtitle": "We sent a verification link to your email",
+      "resend": "Resend verification email",
+      "backToSignIn": "Back to sign in"
+    },
+    "onboarding": {
+      "title": "Welcome to Proppi!",
+      "subtitle": "Let's set up your account",
+      "workspaceName": "Workspace name",
+      "continue": "Continue",
+      "skip": "Skip for now"
     }
   },
   "dashboard": {
@@ -149,7 +254,14 @@
     "recentProjects": "Recent Projects",
     "noProjects": "No projects yet",
     "createFirstProject": "Create your first project to get started",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "filter": {
+      "all": "All projects",
+      "photos": "Photos",
+      "videos": "Videos",
+      "recent": "Recent",
+      "oldest": "Oldest"
+    }
   },
   "project": {
     "name": "Project Name",
@@ -162,6 +274,10 @@
     "settings": "Settings",
     "delete": "Delete Project",
     "deleteConfirm": "Are you sure you want to delete this project?",
+    "upload": "Upload Images",
+    "processing": "Processing...",
+    "download": "Download",
+    "downloadAll": "Download All",
     "statuses": {
       "draft": "Draft",
       "processing": "Processing",
@@ -169,25 +285,32 @@
       "failed": "Failed"
     }
   },
-  "auth": {
-    "signIn": {
-      "title": "Sign In",
-      "subtitle": "Welcome back",
-      "email": "Email",
-      "password": "Password",
-      "forgotPassword": "Forgot password?",
-      "noAccount": "Don't have an account?",
-      "signUp": "Sign up"
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "workspace": "Workspace",
+    "billing": "Billing",
+    "notifications": "Notifications",
+    "security": "Security",
+    "language": "Language",
+    "theme": "Theme",
+    "lightMode": "Light",
+    "darkMode": "Dark",
+    "systemMode": "System",
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "profileSettings": {
+      "title": "Profile Settings",
+      "name": "Full name",
+      "email": "Email address",
+      "avatar": "Profile picture",
+      "updateProfile": "Update profile"
     },
-    "signUp": {
-      "title": "Sign Up",
-      "subtitle": "Create your account",
-      "name": "Name",
-      "email": "Email",
-      "password": "Password",
-      "confirmPassword": "Confirm Password",
-      "hasAccount": "Already have an account?",
-      "signIn": "Sign in"
+    "workspaceSettings": {
+      "title": "Workspace Settings",
+      "name": "Workspace name",
+      "members": "Team members",
+      "inviteMembers": "Invite members"
     }
   },
   "admin": {
@@ -196,7 +319,9 @@
     "workspaces": "Workspaces",
     "billing": "Billing",
     "affiliate": "Affiliate",
+    "revenue": "Revenue",
     "settings": "Settings",
+    "overview": "Overview",
     "billing": {
       "invoiceHistory": "Invoice History",
       "uninvoiced": "Uninvoiced Projects",
@@ -249,19 +374,6 @@
       "commissionsPaidOut": "Commissions paid out",
       "couldNotMarkAsPaid": "Could not mark as paid out"
     }
-  },
-  "settings": {
-    "title": "Settings",
-    "profile": "Profile",
-    "workspace": "Workspace",
-    "billing": "Billing",
-    "notifications": "Notifications",
-    "security": "Security",
-    "language": "Language",
-    "theme": "Theme",
-    "lightMode": "Light",
-    "darkMode": "Dark",
-    "systemMode": "System"
   },
   "rooms": {
     "exterior": "Exterior",

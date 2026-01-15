@@ -18,7 +18,8 @@
     "continue": "Doorgaan",
     "confirm": "Bevestigen",
     "yes": "Ja",
-    "no": "Nee"
+    "no": "Nee",
+    "or": "of"
   },
   "nav": {
     "features": "Functies",
@@ -123,33 +124,144 @@
     }
   },
   "pricing": {
-    "title": "Eenvoudige, transparante prijzen",
-    "subtitle": "Kies het abonnement dat het beste bij u past",
+    "title": "Eenvoudige, Transparante Prijzen",
+    "subtitle": "Betaal per project. Geen abonnementen, geen verrassingen.",
     "monthly": "Maandelijks",
     "yearly": "Jaarlijks",
-    "popular": "Populair",
+    "popular": "Meest Populair",
     "getStarted": "Aan de slag",
-    "perMonth": "per maand",
-    "perYear": "per jaar",
+    "perProject": "per project",
+    "perProperty": "per pand",
+    "perVideo": "per video",
+    "photo": {
+      "title": "Foto Verbetering",
+      "price": "€99",
+      "per": "per pand",
+      "features": {
+        "images": "Tot 20 afbeeldingen per pand",
+        "ai": "AI-gestuurde verbetering",
+        "templates": "Meerdere stijlsjablonen",
+        "downloads": "Downloads in hoge resolutie",
+        "fast": "Klaar in minder dan 30 seconden"
+      }
+    },
+    "video": {
+      "title": "Vastgoed Video",
+      "price": "€99",
+      "per": "per video",
+      "features": {
+        "professional": "Professionele vastgoed video",
+        "ai": "AI-gestuurde bewerking",
+        "music": "Muziek en overgangen inbegrepen",
+        "format": "Portret of landschap formaat",
+        "fast": "Klaar in minuten"
+      }
+    },
     "faq": {
-      "title": "Veelgestelde vragen",
-      "question1": "Hoe werkt de prijsstelling?",
-      "answer1": "We bieden eenvoudige prijzen per project. Betaal alleen voor wat u gebruikt.",
-      "question2": "Welke bestandsformaten worden ondersteund?",
-      "answer2": "We ondersteunen JPEG, PNG en WebP formaten.",
-      "question3": "Kan ik op elk moment annuleren?",
-      "answer3": "Ja, u kunt uw abonnement op elk moment opzeggen."
+      "title": "Veelgestelde Vragen",
+      "q1": {
+        "question": "Hoe werkt de prijsstelling?",
+        "answer": "We rekenen per project, niet per maand. Voor foto verbetering betaalt u €99 per pand (tot 20 afbeeldingen). Voor video creatie betaalt u €99 per video. Geen abonnementen, geen verborgen kosten."
+      },
+      "q2": {
+        "question": "Welke beeldformaten ondersteunt u?",
+        "answer": "We ondersteunen alle gangbare beeldformaten inclusief JPG, PNG en WEBP. Maximale bestandsgrootte is 10MB per afbeelding. Verbeterde afbeeldingen worden geleverd in hoge resolutie JPG formaat."
+      },
+      "q3": {
+        "question": "Hoe lang duurt de verwerking?",
+        "answer": "Foto verbetering duurt meestal minder dan 30 seconden per afbeelding. Video creatie duurt meestal 5-10 minuten afhankelijk van het aantal afbeeldingen en geselecteerde opties."
+      },
+      "q4": {
+        "question": "Kan ik proberen voordat ik koop?",
+        "answer": "Ja! Nieuwe gebruikers krijgen gratis credits om het platform uit te proberen. U kunt een paar afbeeldingen verbeteren om de kwaliteit te zien voordat u zich committeert aan een volledig vastgoedproject."
+      },
+      "q5": {
+        "question": "Wat als ik meer dan 20 afbeeldingen heb?",
+        "answer": "Als uw pand meer dan 20 afbeeldingen heeft, kunt u meerdere projecten aanmaken of contact met ons opnemen voor aangepaste prijzen voor grotere shoots."
+      },
+      "q6": {
+        "question": "Bieden jullie terugbetalingen aan?",
+        "answer": "Als u niet tevreden bent met de resultaten, neem dan binnen 24 uur na verwerking contact met ons op en we zullen met u samenwerken om het goed te maken of een terugbetaling te verstrekken."
+      }
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Welkom terug",
+      "subtitle": "Log in op uw account",
+      "email": "E-mailadres",
+      "password": "Wachtwoord",
+      "forgotPassword": "Wachtwoord vergeten?",
+      "noAccount": "Nog geen account?",
+      "signUp": "Aanmelden",
+      "button": "Inloggen",
+      "withGoogle": "Doorgaan met Google",
+      "withGitHub": "Doorgaan met GitHub",
+      "orDivider": "Of ga door met"
+    },
+    "signUp": {
+      "title": "Maak uw account aan",
+      "subtitle": "Begin met het transformeren van uw vastgoedfoto's",
+      "name": "Volledige naam",
+      "email": "E-mailadres",
+      "password": "Wachtwoord",
+      "confirmPassword": "Bevestig wachtwoord",
+      "hasAccount": "Al een account?",
+      "signIn": "Inloggen",
+      "button": "Account aanmaken",
+      "withGoogle": "Doorgaan met Google",
+      "withGitHub": "Doorgaan met GitHub",
+      "terms": "Door een account aan te maken, gaat u akkoord met onze",
+      "termsLink": "Gebruiksvoorwaarden",
+      "and": "en",
+      "privacyLink": "Privacybeleid"
+    },
+    "forgotPassword": {
+      "title": "Wachtwoord vergeten?",
+      "subtitle": "Voer uw e-mailadres in en we sturen u een herstellink",
+      "email": "E-mailadres",
+      "button": "Verstuur herstellink",
+      "backToSignIn": "Terug naar inloggen",
+      "successMessage": "Controleer uw e-mail voor een wachtwoord herstellink"
+    },
+    "resetPassword": {
+      "title": "Reset uw wachtwoord",
+      "subtitle": "Voer uw nieuwe wachtwoord in",
+      "password": "Nieuw wachtwoord",
+      "confirmPassword": "Bevestig nieuw wachtwoord",
+      "button": "Wachtwoord resetten",
+      "successMessage": "Wachtwoord succesvol gereset"
+    },
+    "verifyEmail": {
+      "title": "Verifieer uw e-mail",
+      "subtitle": "We hebben een verificatielink naar uw e-mail gestuurd",
+      "resend": "Verificatie e-mail opnieuw versturen",
+      "backToSignIn": "Terug naar inloggen"
+    },
+    "onboarding": {
+      "title": "Welkom bij Proppi!",
+      "subtitle": "Laten we uw account instellen",
+      "workspaceName": "Werkruimte naam",
+      "continue": "Doorgaan",
+      "skip": "Voorlopig overslaan"
     }
   },
   "dashboard": {
     "title": "Projecten",
     "subtitle": "Transformeer uw vastgoedfoto's met AI",
-    "newProject": "Nieuw project",
-    "myProjects": "Mijn projecten",
-    "recentProjects": "Recente projecten",
+    "newProject": "Nieuw Project",
+    "myProjects": "Mijn Projecten",
+    "recentProjects": "Recente Projecten",
     "noProjects": "Nog geen projecten",
     "createFirstProject": "Maak uw eerste project om te beginnen",
-    "viewAll": "Alles bekijken"
+    "viewAll": "Alles bekijken",
+    "filter": {
+      "all": "Alle projecten",
+      "photos": "Foto's",
+      "videos": "Video's",
+      "recent": "Recent",
+      "oldest": "Oudste"
+    }
   },
   "project": {
     "name": "Projectnaam",
@@ -162,6 +274,10 @@
     "settings": "Instellingen",
     "delete": "Project verwijderen",
     "deleteConfirm": "Weet u zeker dat u dit project wilt verwijderen?",
+    "upload": "Upload Afbeeldingen",
+    "processing": "Verwerken...",
+    "download": "Downloaden",
+    "downloadAll": "Alles Downloaden",
     "statuses": {
       "draft": "Concept",
       "processing": "Verwerken",
@@ -169,25 +285,32 @@
       "failed": "Mislukt"
     }
   },
-  "auth": {
-    "signIn": {
-      "title": "Inloggen",
-      "subtitle": "Welkom terug",
-      "email": "E-mail",
-      "password": "Wachtwoord",
-      "forgotPassword": "Wachtwoord vergeten?",
-      "noAccount": "Nog geen account?",
-      "signUp": "Aanmelden"
+  "settings": {
+    "title": "Instellingen",
+    "profile": "Profiel",
+    "workspace": "Werkruimte",
+    "billing": "Facturering",
+    "notifications": "Notificaties",
+    "security": "Beveiliging",
+    "language": "Taal",
+    "theme": "Thema",
+    "lightMode": "Licht",
+    "darkMode": "Donker",
+    "systemMode": "Systeem",
+    "save": "Wijzigingen opslaan",
+    "cancel": "Annuleren",
+    "profileSettings": {
+      "title": "Profielinstellingen",
+      "name": "Volledige naam",
+      "email": "E-mailadres",
+      "avatar": "Profielfoto",
+      "updateProfile": "Profiel bijwerken"
     },
-    "signUp": {
-      "title": "Aanmelden",
-      "subtitle": "Maak uw account aan",
-      "name": "Naam",
-      "email": "E-mail",
-      "password": "Wachtwoord",
-      "confirmPassword": "Bevestig wachtwoord",
-      "hasAccount": "Al een account?",
-      "signIn": "Inloggen"
+    "workspaceSettings": {
+      "title": "Werkruimte Instellingen",
+      "name": "Werkruimte naam",
+      "members": "Teamleden",
+      "inviteMembers": "Leden uitnodigen"
     }
   },
   "admin": {
@@ -196,10 +319,12 @@
     "workspaces": "Werkruimtes",
     "billing": "Facturering",
     "affiliate": "Affiliate",
+    "revenue": "Omzet",
     "settings": "Instellingen",
+    "overview": "Overzicht",
     "billing": {
       "invoiceHistory": "Factuurgeschiedenis",
-      "uninvoiced": "Ongefactureerde projecten",
+      "uninvoiced": "Ongefactureerde Projecten",
       "noInvoices": "Nog geen facturen",
       "invoicesWillAppear": "Facturen verschijnen hier wanneer u ze aanmaakt",
       "invoiceNumber": "Factuurnr.",
@@ -249,19 +374,6 @@
       "commissionsPaidOut": "Commissies uitbetaald",
       "couldNotMarkAsPaid": "Kon niet markeren als uitbetaald"
     }
-  },
-  "settings": {
-    "title": "Instellingen",
-    "profile": "Profiel",
-    "workspace": "Werkruimte",
-    "billing": "Facturering",
-    "notifications": "Notificaties",
-    "security": "Beveiliging",
-    "language": "Taal",
-    "theme": "Thema",
-    "lightMode": "Licht",
-    "darkMode": "Donker",
-    "systemMode": "Systeem"
   },
   "rooms": {
     "exterior": "Exterieur",
