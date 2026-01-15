@@ -4,7 +4,7 @@ import {
   updateImageGeneration,
   updateProjectCounts,
 } from "@/lib/db/queries";
-import { fal, NANO_BANANA_PRO_EDIT, type NanoBananaProOutput } from "@/lib/fal";
+import { enhanceImage, type AIProviderResult } from "@/lib/ai-provider";
 import {
   getExtensionFromContentType,
   getImagePath,
@@ -68,64 +68,48 @@ export const processImageTask = task({
       // Update status to processing
       await updateImageGeneration(imageId, { status: "processing" });
 
-      // Step 2: Upload to Fal.ai storage
-      metadata.set("status", {
-        step: "uploading",
-        label: "Preparing for AI…",
-        progress: 25,
-      } satisfies ProcessImageStatus);
-
-      logger.info("Fetching original image", {
-        imageId,
-        originalImageUrl: image.originalImageUrl,
-      });
-
-      const imageResponse = await fetch(image.originalImageUrl);
-      if (!imageResponse.ok) {
-        throw new Error(
-          `Failed to fetch original image: ${imageResponse.status}`
-        );
-      }
-
-      const imageBlob = await imageResponse.blob();
-      const falImageUrl = await fal.storage.upload(
-        new File([imageBlob], "input.jpg", { type: imageBlob.type })
-      );
-
-      logger.info("Uploaded to Fal.ai storage", { falImageUrl });
-
-      // Step 3: Call Fal.ai API
+      // Step 2: Enhance image with AI provider (Kie.ai primary, Fal.ai fallback)
       metadata.set("status", {
         step: "processing",
         label: "Enhancing image…",
-        progress: 50,
+        progress: 40,
       } satisfies ProcessImageStatus);
 
-      logger.info("Calling Fal.ai Nano Banana Pro", {
+      logger.info("Calling AI provider for image enhancement", {
         imageId,
         prompt: image.prompt,
+        originalImageUrl: image.originalImageUrl,
       });
 
-      const result = (await fal.subscribe(NANO_BANANA_PRO_EDIT, {
-        input: {
+      let result: AIProviderResult;
+      try {
+        result = await enhanceImage({
           prompt: image.prompt,
-          image_urls: [falImageUrl],
-          num_images: 1,
-          output_format: "jpeg",
-        },
-      })) as unknown as NanoBananaProOutput;
+          imageUrl: image.originalImageUrl,
+          outputFormat: "jpeg",
+        });
 
-      logger.info("Fal.ai result received", { result });
-
-      // Check for result - handle both direct and wrapped response
-      const output = (result as { data?: NanoBananaProOutput }).data || result;
-      if (!output.images?.[0]?.url) {
-        logger.error("No images in response", { result });
-        throw new Error("No image returned from Fal.ai");
+        logger.info("AI enhancement completed", {
+          imageId,
+          provider: result.provider,
+          fallbackUsed: result.fallbackUsed,
+          fallbackReason: result.error,
+        });
+      } catch (aiError) {
+        logger.error("AI provider failed", { error: aiError });
+        throw new Error(
+          `AI enhancement error: ${aiError instanceof Error ? aiError.message : String(aiError)}`
+        );
       }
 
-      const resultImageUrl = output.images[0].url;
-      const contentType = output.images[0].content_type || "image/jpeg";
+      // Check for result
+      if (!result.images?.[0]?.url) {
+        logger.error("No images in response", { result });
+        throw new Error("No image returned from AI provider");
+      }
+
+      const resultImageUrl = result.images[0].url;
+      const contentType = result.images[0].contentType || "image/jpeg";
 
       // Step 4: Save to Supabase
       metadata.set("status", {
