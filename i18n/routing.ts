@@ -11,6 +11,7 @@ export const routing = defineRouting({
   // The locale prefix strategy
   // 'as-needed': Only add prefix for non-default locale
   localePrefix: "as-needed",
+  localeDetection: false,
 });
 
 // Lightweight wrappers around Next.js' navigation APIs

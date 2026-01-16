@@ -357,7 +357,7 @@ export function InviteAcceptForm({
         {/* Email (read-only) */}
         <div className="space-y-2">
           <Label className="font-medium text-sm">Email</Label>
-          <Input className="bg-muted/50" disabled value={email} />
+          <Input className="h-11 bg-muted/50" disabled value={email} />
           <p className="text-muted-foreground text-xs">
             This is the email address your invitation was sent to
           </p>
@@ -368,7 +368,7 @@ export function InviteAcceptForm({
           <Label className="font-medium text-sm" htmlFor="name">
             Your Name
           </Label>
-          <InputGroup>
+          <InputGroup className="h-11">
             <InputGroupAddon align="inline-start">
               <IconUser className="size-4" />
             </InputGroupAddon>
@@ -388,7 +388,7 @@ export function InviteAcceptForm({
           <Label className="font-medium text-sm" htmlFor="password">
             Create Password
           </Label>
-          <InputGroup>
+          <InputGroup className="h-11">
             <InputGroupAddon align="inline-start">
               <IconLock className="size-4" />
             </InputGroupAddon>
@@ -423,7 +423,7 @@ export function InviteAcceptForm({
           <Label className="font-medium text-sm" htmlFor="confirm-password">
             Confirm Password
           </Label>
-          <InputGroup>
+          <InputGroup className="h-11">
             <InputGroupAddon align="inline-start">
               <IconLock className="size-4" />
             </InputGroupAddon>
