@@ -15,8 +15,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { IconArrowRight } from "@tabler/icons-react";
 
 function SignInForm() {
   const router = useRouter();
@@ -70,19 +77,24 @@ function SignInForm() {
   };
 
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome back</CardTitle>
-        <CardDescription>
+    <Card className="border-0 shadow-2xl bg-white">
+      <CardHeader className="text-center space-y-1">
+        <CardTitle className="text-2xl font-bold text-[#221E68]">
+          Welcome back
+        </CardTitle>
+        <CardDescription className="text-[#221E68]/70">
           Enter your credentials to sign in to your account
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-[#221E68] font-medium">
+              Email
+            </Label>
             <Input
               autoComplete="email"
+              className="h-11 bg-gray-50 border-gray-200 focus:border-[#F16529] focus:ring-[#F16529]/20 text-[#221E68]"
               disabled={isLoading}
               id="email"
               onChange={(e) => setEmail(e.target.value)}
@@ -93,17 +105,20 @@ function SignInForm() {
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-[#221E68] font-medium">
+                Password
+              </Label>
               <Link
-                className="text-muted-foreground text-sm underline-offset-4 hover:text-foreground hover:underline"
+                className="text-sm underline-offset-4 hover:underline text-[#221E68]/70 hover:text-[#221E68]"
                 href="/forgot-password"
               >
                 Forgot password?
               </Link>
             </div>
-            <div className="relative">
-              <Input
+            <InputGroup>
+              <InputGroupInput
                 autoComplete="current-password"
+                className="h-11 bg-gray-50 border-gray-200 focus:border-[#F16529] focus:ring-[#F16529]/20 text-[#221E68]"
                 disabled={isLoading}
                 id="password"
                 onChange={(e) => setPassword(e.target.value)}
@@ -111,37 +126,46 @@ function SignInForm() {
                 type={showPassword ? "text" : "password"}
                 value={password}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                tabIndex={-1}
-              >
-                {showPassword ? (
-                  <IconEyeOff className="size-4" />
-                ) : (
-                  <IconEye className="size-4" />
-                )}
-              </button>
-            </div>
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  size="icon-xs"
+                  className="text-[#221E68]/60 hover:text-[#221E68]"
+                  type="button"
+                >
+                  {showPassword ? (
+                    <IconEyeOff className="size-4" />
+                  ) : (
+                    <IconEye className="size-4" />
+                  )}
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
           </div>
-          <Button className="w-full" disabled={isLoading} type="submit">
+          <Button
+            className="w-full h-11 text-base font-bold rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] bg-[#221E68] hover:bg-[#221E68]/90 text-white shadow-lg shadow-[#221E68]/20"
+            disabled={isLoading}
+            type="submit"
+          >
             {isLoading ? (
               <>
                 <IconLoader className="mr-2 size-4 animate-spin" />
                 Signing in...
               </>
             ) : (
-              "Sign in"
+              <>
+                Sign in
+                <IconArrowRight className="ml-2 size-4" />
+              </>
             )}
           </Button>
         </form>
       </CardContent>
       <CardFooter className="justify-center">
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-[#221E68]/70">
           Don&apos;t have an account?{" "}
           <Link
-            className="text-foreground underline underline-offset-4 hover:text-foreground/80"
+            className="underline underline-offset-4 hover:opacity-80 font-medium text-[#F16529]"
             href="/sign-up"
           >
             Sign up

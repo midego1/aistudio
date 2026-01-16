@@ -1224,7 +1224,13 @@ export async function getAdminWorkspaces(options: {
         COALESCE(video_activity.last_video_update, w.updated_at)
       ) as last_activity_at
     FROM workspace w
-    LEFT JOIN "user" owner ON owner.workspace_id = w.id AND owner.role = 'owner'
+    LEFT JOIN LATERAL (
+      SELECT * FROM "user" u
+      WHERE u.workspace_id = w.id
+      AND (u.role = 'owner' OR u.role = 'admin')
+      ORDER BY (CASE WHEN u.role = 'owner' THEN 1 ELSE 2 END), u.created_at ASC
+      LIMIT 1
+    ) owner ON true
     LEFT JOIN (
       SELECT workspace_id, COUNT(*)::int as member_count
       FROM "user"

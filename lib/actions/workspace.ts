@@ -62,6 +62,18 @@ export async function updateWorkspaceSettings(
     })
     .where(eq(workspace.id, currentUser[0].workspaceId));
 
+  // Also update the user's name if contact person is provided
+  // This ensures the global user profile stays in sync with the workspace contact
+  if (contactPerson) {
+    await db
+      .update(user)
+      .set({
+        name: contactPerson,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, currentUser[0].id));
+  }
+
   revalidatePath("/dashboard/settings");
   return { success: true };
 }

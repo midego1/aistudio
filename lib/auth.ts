@@ -105,6 +105,9 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendVerificationEmail: async ({ user: verifyUser, url }) => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("📨 Email Verification URL:", url);
+      }
       await sendVerificationEmail(verifyUser.email, verifyUser.name, url);
     },
     sendOnSignUp: true,

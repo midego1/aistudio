@@ -3,7 +3,14 @@ import { redirect } from "next/navigation";
 import { VerifyEmailForm } from "@/components/auth/verify-email-form";
 import { auth } from "@/lib/auth";
 
-export default async function VerifyEmailPage() {
+interface Props {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function VerifyEmailPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const isNewSignup = params.signup === "true";
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -19,5 +26,5 @@ export default async function VerifyEmailPage() {
   }
 
   // Not verified - show verification form
-  return <VerifyEmailForm email={session.user.email} />;
+  return <VerifyEmailForm email={session.user.email} isNewSignup={isNewSignup} />;
 }

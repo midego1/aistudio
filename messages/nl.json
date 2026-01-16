@@ -123,6 +123,76 @@
         "privacy": "Privacybeleid",
         "terms": "Gebruiksvoorwaarden"
       }
+    },
+    "newHero": {
+      "title": "Verkoop Woningen Sneller met AI-Verbeterde Foto's",
+      "subtitle": "Maak van elke smartphonefoto een professionele advertentie in 30 seconden.",
+      "socialProof": "Gebruikt door 500+ Nederlandse makelaars. Sluit u aan bij de toekomst van vastgoedmarketing.",
+      "ctaPrimary": "Gratis Uitproberen",
+      "ctaSecondary": "Slechts €24,50/woning",
+      "launchOffer": "🚀 Lanceringsaanbieding: 50% korting heel 2026 — Normale prijs vanaf jan 2027"
+    },
+    "section1": {
+      "title": "Elke Foto.",
+      "titleAccent": "Prachtig Perfect.",
+      "description": "Zeg vaarwel tegen donkere kamers, grijze luchten en amateuristische foto's. Onze AI verbetert alles automatisch — zodat elk pand er op zijn best uitziet.",
+      "feature1": "Tijdschrift-Kwaliteit Belichting",
+      "feature2": "Directe Blauwe Lucht Verbetering",
+      "feature3": "Automatisch Rechtzetten & Bijsnijden",
+      "cta": "Bekijk Alle Functies"
+    },
+    "section2": {
+      "title": "Vandaag Online.",
+      "titleAccent": "Niet Volgende Week.",
+      "description": "Terwijl uw concurrenten 48-72 uur wachten op handmatige fotobewerking, gaan uw advertenties binnen minuten live. Tijd is geld in vastgoed — stop met verspillen.",
+      "batchDescription": "Upload een complete woning in één keer.",
+      "batchDescriptionSuffix": "Onze batch-verwerking verbetert elke foto tegelijk.",
+      "processingSpeed": "Verwerkingssnelheid",
+      "perImage": "PER FOTO",
+      "photoLimit": "Tot 30 Foto's per Woning",
+      "cta": "Bekijk Lanceringsprijzen"
+    },
+    "section3": {
+      "title": "Toon Kopers",
+      "titleAccent": "De Droom.",
+      "description": "Lege kamers verkopen niet — visies wel. Onze AI meubileert elke ruimte direct met prachtig Scandinavisch design. Help kopers verliefd worden vóór hun bezoek.",
+      "moreStyles": "Meer stijlen binnenkort:",
+      "moreStylesList": "Modern, Industrieel, Minimalistisch, en meer.",
+      "virtualStaging": "Virtuele Staging",
+      "availableNow": "Nu Beschikbaar",
+      "scandiActive": "✨ Scandinavische Stijl Actief"
+    },
+    "comparison": {
+      "title": "De Slimme Keuze voor Moderne Makelaars",
+      "subtitle": "Traditionele fotobewerking is gebouwd voor een tragere markt. VastgoedFotoAI is gebouwd voor makelaars die winnen.",
+      "card1Title": "Van Upload tot Klaar",
+      "card1Value": "30s",
+      "card1Comparison": "vs 48-72u",
+      "card1Description": "Uw advertenties gaan live terwijl concurrenten nog wachten.",
+      "card2Badge": "Beste Waarde",
+      "card2Title": "Per Woning",
+      "card2Value": "€24,50",
+      "card2Comparison": "vs €200+",
+      "card2Description": "Professionele resultaten voor een fractie van traditionele studio kosten.",
+      "card3Title": "Merk Consistentie",
+      "card3Value": "100%",
+      "card3Comparison": "Gegarandeerd",
+      "card3Description": "Elke foto voldoet aan uw hoge standaarden, elke keer."
+    },
+    "faq": {
+      "title": "Veelgestelde Vragen",
+      "subtitle": "Alles wat u moet weten over VastgoedFotoAI.nl"
+    },
+    "newFooter": {
+      "title": "VastgoedFotoAI.nl",
+      "description": "De #1 AI foto-editor speciaal gebouwd voor Nederlandse vastgoedprofessionals. Transformeer uw vastgoedmarketing vandaag.",
+      "pricing": "Prijzen",
+      "features": "Functies",
+      "aboutUs": "Over Ons",
+      "contact": "Contact",
+      "privacy": "Privacy",
+      "terms": "Voorwaarden",
+      "copyright": "Alle rechten voorbehouden."
     }
   },
   "pricing": {
@@ -241,7 +311,12 @@
       "title": "Verifieer uw e-mail",
       "subtitle": "We hebben een verificatielink naar uw e-mail gestuurd",
       "resend": "Verificatie e-mail opnieuw versturen",
-      "backToSignIn": "Terug naar inloggen"
+      "backToSignIn": "Terug naar inloggen",
+      "congratulations": "Gefeliciteerd!",
+      "successMessage": "U bent succesvol aangemeld.",
+      "checkSpam": "Klik op de link in uw e-mail om uw account te verifiëren. Als u deze niet ziet, controleer dan uw spammap.",
+      "sending": "Verzenden...",
+      "signOutAndUseDifferentEmail": "Uitloggen en een ander e-mailadres gebruiken"
     },
     "onboarding": {
       "title": "Welkom bij VastgoedFotoAI.nl!",

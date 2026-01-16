@@ -19,6 +19,12 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import {
   acceptInvitationAction,
@@ -362,10 +368,11 @@ export function InviteAcceptForm({
           <Label className="font-medium text-sm" htmlFor="name">
             Your Name
           </Label>
-          <div className="relative">
-            <IconUser className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pl-10"
+          <InputGroup>
+            <InputGroupAddon align="inline-start">
+              <IconUser className="size-4" />
+            </InputGroupAddon>
+            <InputGroupInput
               disabled={isPending}
               id="name"
               onChange={(e) => setName(e.target.value)}
@@ -373,7 +380,7 @@ export function InviteAcceptForm({
               required
               value={name}
             />
-          </div>
+          </InputGroup>
         </div>
 
         {/* Password */}
@@ -381,10 +388,11 @@ export function InviteAcceptForm({
           <Label className="font-medium text-sm" htmlFor="password">
             Create Password
           </Label>
-          <div className="relative">
-            <IconLock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pl-10 pr-10"
+          <InputGroup>
+            <InputGroupAddon align="inline-start">
+              <IconLock className="size-4" />
+            </InputGroupAddon>
+            <InputGroupInput
               disabled={isPending}
               id="password"
               minLength={8}
@@ -394,19 +402,20 @@ export function InviteAcceptForm({
               type={showPassword ? "text" : "password"}
               value={password}
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              tabIndex={-1}
-            >
-              {showPassword ? (
-                <IconEyeOff className="h-4 w-4" />
-              ) : (
-                <IconEye className="h-4 w-4" />
-              )}
-            </button>
-          </div>
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                size="icon-xs"
+              >
+                {showPassword ? (
+                  <IconEyeOff className="size-4" />
+                ) : (
+                  <IconEye className="size-4" />
+                )}
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
         </div>
 
         {/* Confirm Password */}
@@ -414,10 +423,11 @@ export function InviteAcceptForm({
           <Label className="font-medium text-sm" htmlFor="confirm-password">
             Confirm Password
           </Label>
-          <div className="relative">
-            <IconLock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              className="pl-10 pr-10"
+          <InputGroup>
+            <InputGroupAddon align="inline-start">
+              <IconLock className="size-4" />
+            </InputGroupAddon>
+            <InputGroupInput
               disabled={isPending}
               id="confirm-password"
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -426,19 +436,20 @@ export function InviteAcceptForm({
               type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
             />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              tabIndex={-1}
-            >
-              {showConfirmPassword ? (
-                <IconEyeOff className="h-4 w-4" />
-              ) : (
-                <IconEye className="h-4 w-4" />
-              )}
-            </button>
-          </div>
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                size="icon-xs"
+              >
+                {showConfirmPassword ? (
+                  <IconEyeOff className="size-4" />
+                ) : (
+                  <IconEye className="size-4" />
+                )}
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
           {password && confirmPassword && password !== confirmPassword && (
             <p className="flex items-center gap-1 text-destructive text-xs">
               <IconAlertTriangle className="h-3 w-3" />

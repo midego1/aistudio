@@ -21,6 +21,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
@@ -132,8 +138,8 @@ function ResetPasswordForm() {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <Label htmlFor="password">New password</Label>
-            <div className="relative">
-              <Input
+            <InputGroup>
+              <InputGroupInput
                 autoComplete="new-password"
                 disabled={isLoading}
                 id="password"
@@ -142,24 +148,25 @@ function ResetPasswordForm() {
                 type={showPassword ? "text" : "password"}
                 value={password}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                tabIndex={-1}
-              >
-                {showPassword ? (
-                  <IconEyeOff className="size-4" />
-                ) : (
-                  <IconEye className="size-4" />
-                )}
-              </button>
-            </div>
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  size="icon-xs"
+                >
+                  {showPassword ? (
+                    <IconEyeOff className="size-4" />
+                  ) : (
+                    <IconEye className="size-4" />
+                  )}
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm password</Label>
-            <div className="relative">
-              <Input
+            <InputGroup>
+              <InputGroupInput
                 autoComplete="new-password"
                 disabled={isLoading}
                 id="confirmPassword"
@@ -168,19 +175,20 @@ function ResetPasswordForm() {
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
               />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                tabIndex={-1}
-              >
-                {showConfirmPassword ? (
-                  <IconEyeOff className="size-4" />
-                ) : (
-                  <IconEye className="size-4" />
-                )}
-              </button>
-            </div>
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  size="icon-xs"
+                >
+                  {showConfirmPassword ? (
+                    <IconEyeOff className="size-4" />
+                  ) : (
+                    <IconEye className="size-4" />
+                  )}
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
           </div>
           <Button className="w-full" disabled={isLoading} type="submit">
             {isLoading ? (

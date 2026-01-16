@@ -4,6 +4,7 @@ import { IconLoader, IconMail, IconRefresh } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl"; // Added import from next-intl
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,11 +18,13 @@ import { authClient } from "@/lib/auth-client";
 
 interface VerifyEmailFormProps {
   email: string;
+  isNewSignup?: boolean;
 }
 
-export function VerifyEmailForm({ email }: VerifyEmailFormProps) {
+export function VerifyEmailForm({ email, isNewSignup }: VerifyEmailFormProps) {
   const router = useRouter();
   const [isResending, setIsResending] = useState(false);
+  const t = useTranslations("auth.verifyEmail"); // Hook for translations
 
   const handleResendVerification = async () => {
     setIsResending(true);
@@ -45,21 +48,39 @@ export function VerifyEmailForm({ email }: VerifyEmailFormProps) {
   };
 
   return (
-    <Card>
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-          <IconMail className="h-7 w-7 text-primary" />
-        </div>
-        <CardTitle className="text-2xl">Verify your email</CardTitle>
+        {isNewSignup && (
+          <>
+            <div className="mb-6 flex justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src="/success.gif" 
+                alt="Success Celebration" 
+                className="rounded-lg shadow-md max-h-96"
+              />
+            </div>
+            <CardTitle className="text-2xl mb-2">{t("congratulations")}</CardTitle>
+            <p className="text-foreground font-medium mb-6">{t("successMessage")}</p>
+          </>
+        )}
+        
+        {!isNewSignup && (
+          <>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <IconMail className="h-7 w-7 text-primary" />
+            </div>
+            <CardTitle className="text-2xl">{t("title")}</CardTitle>
+          </>
+        )}
+
         <CardDescription>
-          We sent a verification link to{" "}
-          <span className="font-medium text-foreground">{email}</span>
+          {t("subtitle")} <span className="font-medium text-foreground">{email}</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-center text-muted-foreground text-sm">
-          Click the link in your email to verify your account. If you don&apos;t
-          see it, check your spam folder.
+          {t("checkSpam")}
         </p>
 
         <Button
@@ -71,12 +92,12 @@ export function VerifyEmailForm({ email }: VerifyEmailFormProps) {
           {isResending ? (
             <>
               <IconLoader className="mr-2 size-4 animate-spin" />
-              Sending...
+              {t("sending")}
             </>
           ) : (
             <>
               <IconRefresh className="mr-2 size-4" />
-              Resend verification email
+              {t("resend")}
             </>
           )}
         </Button>
@@ -87,7 +108,7 @@ export function VerifyEmailForm({ email }: VerifyEmailFormProps) {
           onClick={handleSignOut}
           type="button"
         >
-          Sign out and use a different email
+          {t("signOutAndUseDifferentEmail")}
         </button>
       </CardFooter>
     </Card>

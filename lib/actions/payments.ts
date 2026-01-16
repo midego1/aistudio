@@ -128,6 +128,11 @@ export async function getProjectPaymentStatus(projectId: string): Promise<{
   status?: PaymentStatus;
 }> {
   try {
+    // Bypass payment in development
+    if (process.env.NODE_ENV === "development") {
+      return { isPaid: true, status: "completed", method: "free" };
+    }
+
     const payment = await db.query.projectPayment.findFirst({
       where: eq(projectPayment.projectId, projectId),
     });

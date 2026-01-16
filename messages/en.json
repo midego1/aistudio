@@ -123,6 +123,76 @@
         "privacy": "Privacy Policy",
         "terms": "Terms of Service"
       }
+    },
+    "newHero": {
+      "title": "Sell Properties Faster with AI-Enhanced Photos",
+      "subtitle": "Turn any smartphone photo into a professional listing in 30 seconds.",
+      "socialProof": "Used by 500+ Dutch real estate agents. Join the future of property marketing.",
+      "ctaPrimary": "Start Free Trial",
+      "ctaSecondary": "Only €24.50/property",
+      "launchOffer": "🚀 Launch Offer: 50% off all of 2026 — Regular pricing starts Jan 2027"
+    },
+    "section1": {
+      "title": "Every Photo.",
+      "titleAccent": "Picture Perfect.",
+      "description": "Say goodbye to dark rooms, grey skies, and amateur-looking photos. Our AI automatically fixes everything — so every property looks its absolute best.",
+      "feature1": "Magazine-Quality Lighting",
+      "feature2": "Instant Blue Sky Enhancement",
+      "feature3": "Automatic Straightening & Crop",
+      "cta": "Explore All Features"
+    },
+    "section2": {
+      "title": "List Today.",
+      "titleAccent": "Not Next Week.",
+      "description": "While your competitors wait 48-72 hours for manual photo editing, your listings go live in minutes. Time is money in real estate — stop wasting both.",
+      "batchDescription": "Upload an entire property at once.",
+      "batchDescriptionSuffix": "Our batch processing enhances every photo simultaneously.",
+      "processingSpeed": "Processing Speed",
+      "perImage": "PER IMAGE",
+      "photoLimit": "Up to 30 Photos per Property",
+      "cta": "See Launch Pricing"
+    },
+    "section3": {
+      "title": "Show Buyers",
+      "titleAccent": "The Dream.",
+      "description": "Empty rooms don't sell — visions do. Our AI instantly furnishes any space with beautiful Scandinavian design. Help buyers fall in love before they even visit.",
+      "moreStyles": "More styles coming soon:",
+      "moreStylesList": "Modern, Industrial, Minimalist, and more.",
+      "virtualStaging": "Virtual Staging",
+      "availableNow": "Available Now",
+      "scandiActive": "✨ Scandinavian Style Active"
+    },
+    "comparison": {
+      "title": "The Smart Choice for Modern Agents",
+      "subtitle": "Traditional photo editing was built for a slower market. VastgoedFotoAI is built for agents who win.",
+      "card1Title": "From Upload to Done",
+      "card1Value": "30s",
+      "card1Comparison": "vs 48-72h",
+      "card1Description": "Your listings go live while competitors are still waiting.",
+      "card2Badge": "Best Value",
+      "card2Title": "Per Property",
+      "card2Value": "€24.50",
+      "card2Comparison": "vs €200+",
+      "card2Description": "Professional results at a fraction of traditional studio costs.",
+      "card3Title": "Brand Consistency",
+      "card3Value": "100%",
+      "card3Comparison": "Guaranteed",
+      "card3Description": "Every photo matches your high standards, every time."
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Everything you need to know about VastgoedFotoAI.nl"
+    },
+    "newFooter": {
+      "title": "VastgoedFotoAI.nl",
+      "description": "The #1 AI photo editor built specifically for Dutch real estate professionals. Transform your property marketing today.",
+      "pricing": "Pricing",
+      "features": "Features",
+      "aboutUs": "About Us",
+      "contact": "Contact",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "copyright": "All rights reserved."
     }
   },
   "pricing": {
@@ -241,7 +311,12 @@
       "title": "Verify your email",
       "subtitle": "We sent a verification link to your email",
       "resend": "Resend verification email",
-      "backToSignIn": "Back to sign in"
+      "backToSignIn": "Back to sign in",
+      "congratulations": "Congratulations!",
+      "successMessage": "You signed up successfully.",
+      "checkSpam": "Click the link in your email to verify your account. If you don't see it, check your spam folder.",
+      "sending": "Sending...",
+      "signOutAndUseDifferentEmail": "Sign out and use a different email"
     },
     "onboarding": {
       "title": "Welcome to VastgoedFotoAI.nl!",
