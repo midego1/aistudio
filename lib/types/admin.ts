@@ -162,3 +162,28 @@ export const ALL_USER_STATUSES: UserStatus[] = [
   "pending",
   "inactive",
 ];
+
+// ============================================================================
+// Recent Activity Types
+// ============================================================================
+
+export interface RecentActivity {
+  id: string;
+  type:
+    | "user_joined"
+    | "workspace_created"
+    | "image_generated"
+    | "plan_upgraded"
+    | "user_invited";
+  description: string;
+  timestamp: Date;
+  metadata: {
+    userId?: string;
+    userName?: string;
+    workspaceId?: string;
+    workspaceName?: string;
+    planFrom?: string;
+    planTo?: string;
+    imageCount?: number;
+  };
+}

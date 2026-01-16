@@ -1,182 +1,77 @@
 "use client";
 
-import { IconBrandLinkedin, IconBrandX } from "@tabler/icons-react";
-import Link from "next/link";
+import { Link as LocalizedLink } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 
 export function LandingFooter() {
-  const t = useTranslations("landing.footer");
+  const t = useTranslations("landing.newFooter");
   const currentYear = new Date().getFullYear();
 
-  const footerLinks = {
-    product: [
-      { labelKey: "features", href: "#features" },
-      { labelKey: "pricing", href: "/pricing" },
-      { labelKey: "help", href: "/help" },
-    ],
-    company: [
-      { labelKey: "about", href: "/about" },
-      { labelKey: "blog", href: "/blog" },
-      { labelKey: "contact", href: "/contact" },
-    ],
-    legal: [
-      { labelKey: "privacy", href: "/privacy" },
-      { labelKey: "terms", href: "/terms" },
-    ],
-  };
-
   return (
-    <footer
-      className="px-6 py-16"
-      style={{
-        backgroundColor: "var(--landing-bg-alt)",
-        borderTop: "1px solid var(--landing-border)",
-      }}
-    >
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-5">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <Link
-              className="font-semibold tracking-tight"
-              href="/"
-              style={{ color: "var(--landing-text)" }}
-            >
-              VastgoedFotoAI.nl
-            </Link>
-            <p
-              className="mt-4 max-w-xs text-sm leading-relaxed"
-              style={{ color: "var(--landing-text-muted)" }}
-            >
-              {t("description")}
-            </p>
+    <footer className="w-full bg-[#221E68] pt-32 pb-16 relative overflow-hidden mt-12 text-white">
+      {/* Wave Decoration - SVG approximation */}
+      <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0]">
+        <svg
+          data-name="Layer 1"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1200 120"
+          preserveAspectRatio="none"
+          className="relative block h-[100px] w-full fill-white"
+        >
+          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" />
+        </svg>
+      </div>
 
-            {/* Social Links */}
-            <div className="mt-6 flex gap-3">
-              <a
-                aria-label="Follow us on X (Twitter)"
-                className="flex size-10 items-center justify-center rounded-full transition-colors hover:opacity-70"
-                href="https://twitter.com"
-                rel="noopener noreferrer"
-                style={{
-                  backgroundColor: "var(--landing-bg)",
-                  border: "1px solid var(--landing-border)",
-                }}
-                target="_blank"
-              >
-                <IconBrandX
-                  className="size-4"
-                  style={{ color: "var(--landing-text)" }}
-                />
-              </a>
-              <a
-                aria-label="Follow us on LinkedIn"
-                className="flex size-10 items-center justify-center rounded-full transition-colors hover:opacity-70"
-                href="https://linkedin.com"
-                rel="noopener noreferrer"
-                style={{
-                  backgroundColor: "var(--landing-bg)",
-                  border: "1px solid var(--landing-border)",
-                }}
-                target="_blank"
-              >
-                <IconBrandLinkedin
-                  className="size-4"
-                  style={{ color: "var(--landing-text)" }}
-                />
-              </a>
-            </div>
-          </div>
+      <div className="w-full max-w-[1240px] mx-auto px-6 text-center relative z-10">
+        <h2 className="text-[24px] md:text-[32px] font-bold text-white mb-8">
+          {t("title")}
+        </h2>
 
-          {/* Product Links */}
-          <div>
-            <h3
-              className="font-semibold text-sm"
-              style={{ color: "var(--landing-text)" }}
-            >
-              {t("product")}
-            </h3>
-            <ul className="mt-4 space-y-3">
-              {footerLinks.product.map((link) => (
-                <li key={link.labelKey}>
-                  <Link
-                    className="text-sm transition-colors hover:opacity-70"
-                    href={link.href}
-                    style={{ color: "var(--landing-text-muted)" }}
-                  >
-                    {t(`links.${link.labelKey}`)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <p className="text-white/60 max-w-lg mx-auto mb-12">
+          {t("description")}
+        </p>
 
-          {/* Company Links */}
-          <div>
-            <h3
-              className="font-semibold text-sm"
-              style={{ color: "var(--landing-text)" }}
-            >
-              {t("company")}
-            </h3>
-            <ul className="mt-4 space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.labelKey}>
-                  <Link
-                    className="text-sm transition-colors hover:opacity-70"
-                    href={link.href}
-                    style={{ color: "var(--landing-text-muted)" }}
-                  >
-                    {t(`links.${link.labelKey}`)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal Links */}
-          <div>
-            <h3
-              className="font-semibold text-sm"
-              style={{ color: "var(--landing-text)" }}
-            >
-              {t("legal")}
-            </h3>
-            <ul className="mt-4 space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.labelKey}>
-                  <Link
-                    className="text-sm transition-colors hover:opacity-70"
-                    href={link.href}
-                    style={{ color: "var(--landing-text-muted)" }}
-                  >
-                    {t(`links.${link.labelKey}`)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <div className="flex flex-wrap justify-center gap-6 text-white/60 text-sm font-medium mb-8">
+          <LocalizedLink
+            href="/#pricing"
+            className="hover:text-white transition-colors"
+          >
+            {t("pricing")}
+          </LocalizedLink>
+          <LocalizedLink
+            href="/#features"
+            className="hover:text-white transition-colors"
+          >
+            {t("features")}
+          </LocalizedLink>
+          <LocalizedLink
+            href="/about"
+            className="hover:text-white transition-colors"
+          >
+            {t("aboutUs")}
+          </LocalizedLink>
+          <LocalizedLink
+            href="/contact"
+            className="hover:text-white transition-colors"
+          >
+            {t("contact")}
+          </LocalizedLink>
+          <LocalizedLink
+            href="/privacy"
+            className="hover:text-white transition-colors"
+          >
+            {t("privacy")}
+          </LocalizedLink>
+          <LocalizedLink
+            href="/terms"
+            className="hover:text-white transition-colors"
+          >
+            {t("terms")}
+          </LocalizedLink>
         </div>
 
-        {/* Bottom */}
-        <div
-          className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row"
-          style={{ borderColor: "var(--landing-border)" }}
-        >
-          <p className="text-sm" style={{ color: "var(--landing-text-muted)" }}>
-            &copy; {currentYear} VastgoedFotoAI.nl. {t("allRightsReserved")}.
-          </p>
-          <p className="text-sm" style={{ color: "var(--landing-text-muted)" }}>
-            {t("supportedBy")}{" "}
-            <a
-              className="underline transition-colors hover:text-white"
-              href="https://www.midego.net"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Midego
-            </a>
-          </p>
+        <div className="text-white/40 text-xs">
+          © {currentYear} VastgoedFotoAI.nl. {t("copyright")}
         </div>
       </div>
     </footer>

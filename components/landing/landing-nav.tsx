@@ -1,117 +1,45 @@
 "use client";
 
-import { IconArrowRight } from "@tabler/icons-react";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { Suspense } from "react";
 import { LanguageSelector } from "@/components/language-selector";
-import { useSession } from "@/lib/auth-client";
-
-function AuthButton() {
-  const { data: session, isPending } = useSession();
-  const t = useTranslations("nav");
-
-  if (isPending) {
-    return (
-      <div
-        className="h-10 w-28 animate-pulse rounded-full"
-        style={{ backgroundColor: "var(--landing-border)" }}
-      />
-    );
-  }
-
-  if (session) {
-    return (
-      <Link
-        className="inline-flex h-10 items-center gap-2 rounded-full px-5 font-medium text-sm transition-all duration-200 hover:scale-[1.02]"
-        href="/dashboard"
-        style={{
-          backgroundColor: "var(--landing-accent)",
-          color: "var(--landing-accent-foreground)",
-        }}
-      >
-        {t("dashboard")}
-        <IconArrowRight className="size-4" />
-      </Link>
-    );
-  }
-
-  return (
-    <Link
-      className="inline-flex h-10 items-center gap-2 rounded-full px-5 font-medium text-sm transition-all duration-200 hover:scale-[1.02]"
-      href="/sign-in"
-      style={{
-        backgroundColor: "var(--landing-accent)",
-        color: "var(--landing-accent-foreground)",
-      }}
-    >
-      {t("getStarted")}
-      <IconArrowRight className="size-4" />
-    </Link>
-  );
-}
+import { Link as LocalizedLink } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
 export function LandingNav() {
   const t = useTranslations("nav");
 
   return (
-    <header
-      className="sticky top-0 z-50 backdrop-blur-md"
-      style={{
-        backgroundColor: "var(--landing-bg)",
-        borderBottom: "1px solid var(--landing-border)",
-      }}
-    >
-      <nav className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        {/* Logo */}
-        <Link
-          className="font-semibold tracking-tight transition-opacity hover:opacity-80"
+    <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100/50">
+      <div className="w-full max-w-[1400px] mx-auto px-6 py-4 flex justify-between items-center text-[#221E68] text-sm font-medium">
+        <LocalizedLink
           href="/"
-          style={{ color: "var(--landing-text)" }}
+          className="text-xl font-bold text-[#221E68] hover:opacity-80 transition-opacity"
         >
           VastgoedFotoAI.nl
-        </Link>
-
-        {/* Navigation Links */}
-        <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 md:flex">
-          <Link
-            className="font-medium text-sm transition-colors hover:opacity-70"
-            href="#features"
-            style={{ color: "var(--landing-text-muted)" }}
-          >
-            {t("features")}
-          </Link>
-          <Link
-            className="font-medium text-sm transition-colors hover:opacity-70"
-            href="#how-it-works"
-            style={{ color: "var(--landing-text-muted)" }}
-          >
-            {t("howItWorks")}
-          </Link>
-          <Link
-            className="font-medium text-sm transition-colors hover:opacity-70"
-            href="/pricing"
-            style={{ color: "var(--landing-text-muted)" }}
+        </LocalizedLink>
+        <div className="flex items-center gap-8">
+          <div className="mt-[1px]">
+            <LanguageSelector />
+          </div>
+          <LocalizedLink
+            href="/#pricing"
+            className="hover:opacity-70 transition-opacity"
           >
             {t("pricing")}
-          </Link>
-        </div>
-
-        {/* Language Selector and CTA Button */}
-        <div className="flex items-center gap-4">
-          <LanguageSelector />
-          <Suspense
-            fallback={
-              <div
-                className="h-10 w-28 animate-pulse rounded-full"
-                style={{ backgroundColor: "var(--landing-border)" }}
-              />
-            }
+          </LocalizedLink>
+          <LocalizedLink
+            href="/#features"
+            className="hover:opacity-70 transition-opacity"
           >
-            <AuthButton />
-          </Suspense>
+            {t("features")}
+          </LocalizedLink>
+          <LocalizedLink
+            href="/sign-in"
+            className="hover:opacity-70 transition-opacity"
+          >
+            {t("signIn")}
+          </LocalizedLink>
         </div>
-      </nav>
-    </header>
+      </div>
+    </nav>
   );
 }

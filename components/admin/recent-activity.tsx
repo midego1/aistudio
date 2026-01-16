@@ -8,7 +8,7 @@ import {
   IconUserPlus,
 } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
-import type { RecentActivity } from "@/lib/mock/admin-stats";
+import type { RecentActivity } from "@/lib/types/admin";
 
 const activityIcons = {
   user_joined: IconUserPlus,

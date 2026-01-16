@@ -15,6 +15,7 @@ import type {
   AdminWorkspaceFilters,
   AdminWorkspaceRow,
   AdminWorkspacesMeta,
+  RecentActivity,
   SortableWorkspaceColumn,
   SortDirection,
 } from "@/lib/types/admin";
@@ -1146,6 +1147,152 @@ export async function getAdminOverviewStats(): Promise<AdminOverviewStats> {
     imagesThisMonth: imagesThisMonthResult?.count || 0,
     revenueThisMonth: (Number(revenueThisMonthResult?.amount) || 0) / 100,
   };
+}
+
+export async function getRecentActivity(limit = 10): Promise<RecentActivity[]> {
+  // Fetch recent users (joined)
+  const recentUsers = await db
+    .select({
+      id: user.id,
+      name: user.name,
+      createdAt: user.createdAt,
+      workspaceId: user.workspaceId,
+      // workspaceName will be joined or fetched separately?
+      // For simplicity in this query, we might just fetch user and join workspace
+    })
+    .from(user)
+    .orderBy(desc(user.createdAt))
+    .limit(limit);
+
+  // Fetch recent workspaces (created)
+  const recentWorkspaces = await db
+    .select({
+      id: workspace.id,
+      name: workspace.name,
+      createdAt: workspace.createdAt,
+    })
+    .from(workspace)
+    .orderBy(desc(workspace.createdAt))
+    .limit(limit);
+
+  // Fetch recent image generations
+  const recentImages = await db
+    .select({
+      id: imageGeneration.id,
+      createdAt: imageGeneration.createdAt,
+      workspaceId: imageGeneration.workspaceId,
+    })
+    .from(imageGeneration)
+    .orderBy(desc(imageGeneration.createdAt))
+    .limit(limit);
+
+  // We need to enrich these with more data to match RecentActivity interface
+  // For users, we need workspace name. For images, we need user name and workspace name.
+  // To avoid N+1, let's fetch related data or just be efficient with IDs.
+  // Actually, a cleaner way might be to do 3 separate clean queries with joins if needed,
+  // but since we need to mix them, we can fetch slightly more than 'limit' for each source,
+  // mix them in memory, sort, take top 'limit', and THEN enrich only those.
+
+  const candidates: Array<{
+    type: RecentActivity["type"];
+    timestamp: Date;
+    data: any;
+  }> = [];
+
+  recentUsers.forEach((u) => {
+    candidates.push({
+      type: "user_joined",
+      timestamp: u.createdAt,
+      data: u,
+    });
+  });
+
+  recentWorkspaces.forEach((w) => {
+    candidates.push({
+      type: "workspace_created",
+      timestamp: w.createdAt,
+      data: w,
+    });
+  });
+
+  recentImages.forEach((img) => {
+    candidates.push({
+      type: "image_generated",
+      timestamp: img.createdAt,
+      data: img,
+    });
+  });
+
+  // Sort by timestamp desc
+  candidates.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+  // Take top 'limit'
+  const topCandidates = candidates.slice(0, limit);
+
+  // Enrich and format
+  const activities: RecentActivity[] = [];
+
+  for (const item of topCandidates) {
+    if (item.type === "user_joined") {
+      const u = item.data;
+      let workspaceName = "Unknown Workspace";
+      if (u.workspaceId) {
+        const ws = await getWorkspaceById(u.workspaceId);
+        workspaceName = ws?.name || "Unknown Workspace";
+      }
+
+      activities.push({
+        id: `user_${u.id}`,
+        type: "user_joined",
+        description: `${u.name} joined ${workspaceName}`,
+        timestamp: u.createdAt,
+        metadata: {
+          userId: u.id,
+          userName: u.name,
+          workspaceId: u.workspaceId || undefined,
+          workspaceName,
+        },
+      });
+    } else if (item.type === "workspace_created") {
+      const w = item.data;
+      activities.push({
+        id: `ws_${w.id}`,
+        type: "workspace_created",
+        description: `${w.name} workspace was created`,
+        timestamp: w.createdAt,
+        metadata: {
+          workspaceId: w.id,
+          workspaceName: w.name,
+        },
+      });
+    } else if (item.type === "image_generated") {
+      const img = item.data;
+      // We need user and workspace info.
+      // ImageGeneration table doesn't explicitly store userId in schema?
+      // Let's check schema. User table doesn't link to imageGeneration.
+      // ImageGeneration links to workspace.
+      // Wait, imageGeneration schema:
+      // export const imageGeneration = pgTable("image_generation", { ... workspaceId: text("workspace_id") ... });
+      // It doesn't seem to have userId.
+      // Anyhow, let's fetch workspace name at least.
+      const ws = await getWorkspaceById(img.workspaceId);
+      const wsName = ws?.name || "Unknown Workspace";
+
+      activities.push({
+        id: `img_${img.id}`,
+        type: "image_generated",
+        description: `New image generated in ${wsName}`,
+        timestamp: img.createdAt,
+        metadata: {
+          workspaceId: img.workspaceId,
+          workspaceName: wsName,
+          imageCount: 1,
+        },
+      });
+    }
+  }
+
+  return activities;
 }
 
 // ============================================================================

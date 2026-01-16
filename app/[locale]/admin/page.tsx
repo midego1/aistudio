@@ -1,10 +1,12 @@
 import { IconShieldCheck } from "@tabler/icons-react";
 import { AdminStatsBar } from "@/components/admin/admin-stats-bar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAdminOverviewStats } from "@/lib/db/queries";
+import { getAdminOverviewStats, getRecentActivity } from "@/lib/db/queries";
+import { RecentActivityList } from "@/components/admin/recent-activity";
 
 export default async function AdminOverviewPage() {
   const stats = await getAdminOverviewStats();
+  const recentActivity = await getRecentActivity(10);
 
   return (
     <div className="space-y-6 px-4 md:px-6 lg:px-8">
@@ -69,6 +71,20 @@ export default async function AdminOverviewPage() {
                 <p className="text-muted-foreground text-xs">{stats.imagesThisMonth.toLocaleString()} this month</p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="stagger-3 animate-fade-in-up">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="font-semibold text-base">
+              Recent Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <RecentActivityList activities={recentActivity} />
           </CardContent>
         </Card>
       </div>
